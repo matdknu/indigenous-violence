@@ -25,7 +25,6 @@ data <- data %>%
   ungroup()
 
 
-
 subset_data <- data %>% 
   dplyr::mutate(indi = case_when(a1 %in% 1:11 ~ "indi",
                                  a1 == 12 ~ "no_indi")) %>% 
@@ -75,6 +74,10 @@ subset_data <- data %>%
          mujer = mujer,
          edad = edad,
          indigeneous = indi)
+
+
+
+p <-subset_data |> select(folio, indigeneous) |> arrange(folio)
 
 
 # Crear categorías
@@ -188,8 +191,6 @@ e.violencia <- ggplot(tabla2, aes(
   )
 
 e.violencia
-
-
 
 
 getwd()
