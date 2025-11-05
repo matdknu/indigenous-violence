@@ -121,127 +121,109 @@ modelo_lm4
 
 # Resultados de regresión multinomial ------------------------------------------  
 # Calculamos errores estándar
+# --- Standard errors
 errores_estandar <- se(modelo_lm4)
 
-# Preparamos los datos para visualización
+# K inferred from Be (which has K-1 columns vs the reference class)
+K <- ncol(modelo_lm4$Be) + 1L
+ref_class <- 1L
+nonref    <- setdiff(seq_len(K), ref_class)
+
+# Coefs and SEs as data frames, with clear column names
 be_df <- as.data.frame(modelo_lm4$Be)
-names(be_df) <- paste("Estado", 1:3)  # Estado 1 es referencia
-be_df$Variable <- rownames(modelo_lm4$Be)
+colnames(be_df) <- paste0("Class ", nonref, " vs Class ", ref_class)
+be_df$Variable  <- rownames(modelo_lm4$Be)
 
 se_df <- as.data.frame(errores_estandar$seBe)
-names(se_df) <- paste("Estado", 1:3)
-se_df$Variable <- rownames(modelo_lm4$Be)
+colnames(se_df) <- paste0("Class ", nonref, " vs Class ", ref_class)
+se_df$Variable  <- rownames(modelo_lm4$Be)
 
-colnames(se_df)
+# Long format
+be_long <- tidyr::pivot_longer(
+  be_df,
+  cols = starts_with("Class "),
+  names_to = "Comparacion",
+  values_to = "Coeficiente"
+)
 
+se_long <- tidyr::pivot_longer(
+  se_df,
+  cols = starts_with("Class "),
+  names_to = "Comparacion",
+  values_to = "SE"
+)
 
-# Convertimos a formato largo
-be_long <- tidyr::pivot_longer(be_df, 
-                               cols = starts_with("Estado"),
-                               names_to = "Estado",
-                               values_to = "Coeficiente")
-
-se_long <- tidyr::pivot_longer(se_df,
-                               cols = starts_with("Estado"),
-                               names_to = "Estado",
-                               values_to = "SE")
-
-# Combinamos coeficientes y errores estándar
-be_long <- dplyr::left_join(be_long, se_long)
-
-# Calculamos intervalos de confianza
-be_long <- be_long %>%
+be_long <- dplyr::left_join(be_long, se_long, by = c("Variable","Comparacion")) %>%
   mutate(
     IC_lower = Coeficiente - 1.96 * SE,
     IC_upper = Coeficiente + 1.96 * SE,
-    OR = exp(Coeficiente),
+    OR          = exp(Coeficiente),
     OR_IC_lower = exp(IC_lower),
     OR_IC_upper = exp(IC_upper),
-    significativo = (IC_lower * IC_upper > 0)  # Para identificar efectos significativos
-  )
-
-be_long
-
-be_long$Estado <- as.character(be_long$Estado)
-
-be_long$Estado <- dplyr::recode(be_long$Estado,
-                                "Estado 1" = "Class 1",
-                                "Estado 2" = "Class 2",
-                                "Estado 3" = "Class 3")
-
-be_long <- be_long %>%
-  filter(!is.na(Variable), !is.na(Coeficiente), !is.na(IC_lower), !is.na(IC_upper)) |> 
+    significativo = (IC_lower * IC_upper > 0)
+  ) %>%
+  filter(!is.na(Variable), !is.na(Coeficiente), !is.na(IC_lower), !is.na(IC_upper)) %>%
   drop_na()
 
-be_long
+# Colors per comparison (works for K=3 or K=4; add more if needed)
+colores_manuales <- c(
+  "Class 2 vs Class 1" = "#4b3f72",
+  "Class 3 vs Class 1" = "#ffc857",
+  "Class 4 vs Class 1" = "#21f041"
+)
+# keep only those present
+colores_manuales <- colores_manuales[names(colores_manuales) %in% unique(be_long$Comparacion)]
 
-# Definimos el orden deseado (invertido para que aparezca correctamente de arriba a abajo)
-# Orden deseado para el eje
-#orden_deseado <- rev(c("intercept", 
-#                       "urbano_rural", 
-#                       # "mujer1", 
-#                       "edad25_34", 
-#                       "edad35_44", 
-#                       "edad45_54", 
-#                       "edad55_64",
-#                       "edad65+",  
-#                       "id_indigenous",
-#                       "id_chile", 
-#                       "treat_respect_non_indigenous", 
-#                       "treat_respect_indigenous", 
-#                       "positive_contact_non_indigenous",
-#                       "positive_contact_indigenous"))
-#
-# Aplicamos orden a la variable
-be_long$Variable <- factor(be_long$Variable)
-
-be_long
-
-
-# Colores manuales por clase
-colores_manuales <- c("Class 2" = "#4b3f72", "Class 3" = "#ffc857",
-                      "Class 1" = "#21f041")
-
-# Gráfico
-p3 <- ggplot(be_long, aes(x = Variable, 
-                          y = Coeficiente, 
-                          color = Estado)) +
+p3 <- ggplot(be_long, aes(x = Variable, y = Coeficiente, color = Comparacion)) +
   geom_point(position = position_dodge(width = 0.5)) +
   geom_errorbar(aes(ymin = IC_lower, ymax = IC_upper),
-                position = position_dodge(width = 0.5),
-                width = 0.5) +
+                position = position_dodge(width = 0.5), width = 0.5) +
   coord_flip() +
   theme_minimal() +
   scale_color_manual(values = colores_manuales) +
-  labs(title = "",
-       subtitle = "",
-       x = "",
-       y = "Coeficiente (log-odds)") +
+  labs(
+    title    = "",
+    subtitle = "Coefficients relative to Class 1 (reference)",
+    x = "",
+    y = "Coefficient (log-odds)"
+  ) +
   theme(
-    axis.text.x = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    legend.position = "bottom", 
-    legend.text = element_text(size = 13),
-    legend.title = element_text(size = 14),
-    plot.title = element_text(size = 16),
-    strip.text = element_text(size = 12, face = "bold"),
-    axis.title.x = element_blank(),
+    axis.text.x   = element_text(size = 13),
+    axis.text.y   = element_text(size = 13),
+    legend.position = "bottom",
+    legend.text   = element_text(size = 13),
+    legend.title  = element_text(size = 14),
+    plot.title    = element_text(size = 16),
+    strip.text    = element_text(size = 12, face = "bold"),
+    axis.title.x  = element_blank(),
     panel.spacing = unit(1, "lines")
   )
 
-print(p3)
+p3
 
 
 #ggsave("code/latent_violence/image/p3.png", plot = p3, width = 11.5, height = 9)
 
+be_long
 
 # Tabla de resultados completa
 tabla_resultados <- be_long %>%
-  select(Variable, Estado, Coeficiente, SE, IC_lower, IC_upper, OR, OR_IC_lower, OR_IC_upper, significativo) %>%
-  arrange(Variable, Estado)
+  select(Variable, Comparacion, Coeficiente, SE, IC_lower, IC_upper, OR, OR_IC_lower, OR_IC_upper, significativo) %>%
+  arrange(Variable, Comparacion)
 
 print("Resultados completos (coeficientes, OR e intervalos de confianza):")
 print(knitr::kable(tabla_resultados, digits = 3))
+
+tabla_resultados %>%
+  mutate(significativo = ifelse(significativo, "Sí", "No")) %>%
+  kable(format = "html", digits = 3, booktabs = TRUE,
+        col.names = c("Variable", "Comparación", "Coef.", "SE",
+                      "IC Inf.", "IC Sup.", "OR", "OR IC Inf.", "OR IC Sup.", "Signif."),
+        caption = "Resultados (log-odds y OR) relativos a Clase 1 (referencia)") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed")) %>%
+  collapse_rows(columns = 1, valign = "top") %>%
+  save_kable("outputs/tables/resultados_modelo.html")
+
 
 # Análisis de patrones de respuesta por estado
 print("Probabilidades de respuesta condicional por estado:")

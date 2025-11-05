@@ -194,7 +194,7 @@ e.violencia
 
 getwd()
 # Guardar la figura en alta resolución con dimensiones recomendadas
-ggsave("code/latent_violence/image/justification_police_violence.png", 
+ggsave("outputs/image/justification_police_violence.png", 
        plot = e.violencia, 
        width = 8, height = 6, dpi = 300, 
        bg = "white")
@@ -304,7 +304,7 @@ g4
 library(gridExtra)
 grid.arrange(g1, g2, g3, g4, ncol = 2)
 
-ggsave("image/justification_police_violence_indigenous.png", 
+ggsave("outputs/image/justification_police_violence_indigenous.png", 
        plot = grid.arrange(g1, g2, g3, g4, ncol = 2), 
        width = 8, height = 6, dpi = 300, 
        bg = "white")
@@ -403,7 +403,7 @@ library(gridExtra)
 
 grid.arrange(g1, g2, g3, g4, ncol = 2)
 
-ggsave("image/justification_police_violence_indigenous.png", 
+ggsave("outputs/image/justification_police_violence_indigenous.png", 
        plot = grid.arrange(g1, g2, g3, g4, ncol = 2), 
        width = 8, height = 6, dpi = 300, 
        bg = "white")
