@@ -230,7 +230,7 @@ modelo_4c <-  lmest(responsesFormula = d3_1_red + d3_2_red + d4_2_red + d4_3_red
                     seed = 1234)
 
 
-##Acá
+ ##Acá
 
 write_rds(modelo_4c, "outputs/modelo_4c.rds")
 

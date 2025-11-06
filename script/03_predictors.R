@@ -276,7 +276,7 @@ p_heat <- transitions %>%
   scale_fill_gradient(
     name = "Probability",
     limits = c(0, 1),
-    low = "white", high = "#d32123",
+    low = "white", high = "black",
     labels = percent_format(accuracy = 1)
   ) +
   scale_x_discrete(position = "top") +
