@@ -198,8 +198,9 @@ modelos <-  lmest(responsesFormula = d3_1_red + d3_2_red + d4_2_red + d4_3_red ~
 #("LM" = Latent Markov with stationary transition, "FM" = finite mixture model) 
 #where a mixture of AR(1) processes is estimated with common variance and specific correlation coefficients.
 
+modelos <- readRDS("outputs/modelos_lmest.rds")
 
-plot(modelos_,what="modSel")
+plot(modelos,what="modSel")
 plot(modelos, what = "CondProb")
 plot(modelos, what="marginal")
 
