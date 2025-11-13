@@ -174,6 +174,20 @@ colores_manuales <- c(
 # keep only those present
 colores_manuales <- colores_manuales[names(colores_manuales) %in% unique(be_long$Comparacion)]
 
+be_long <- be_long |>
+  mutate(
+    Variable = case_when(
+      Variable == "d1_1"  ~ "conflicto_estado",
+      Variable == "c5"    ~ "confianza_ppoo",
+      Variable == "d5_1"  ~ "procidimental_ppoo",
+      Variable == "d6_1"  ~ "id_causa",
+      Variable == "c13"   ~ "frq_contacto",
+      TRUE ~ Variable
+    )
+  )
+
+
+ 
 p3 <- ggplot(be_long, aes(x = Variable, y = Coeficiente, color = Comparacion)) +
   geom_point(position = position_dodge(width = 0.5)) +
   geom_errorbar(aes(ymin = IC_lower, ymax = IC_upper),
@@ -202,9 +216,11 @@ p3 <- ggplot(be_long, aes(x = Variable, y = Coeficiente, color = Comparacion)) +
 p3
 
 
-#ggsave("code/latent_violence/image/p3.png", plot = p3, width = 11.5, height = 9)
+ggsave("output/p3.png", plot = p3, width = 11.5, height = 9)
 
 be_long
+
+write_rds(be_long, "output/predictores.rds")
 
 # Tabla de resultados completa
 tabla_resultados <- be_long %>%
@@ -222,7 +238,7 @@ tabla_resultados %>%
         caption = "Resultados (log-odds y OR) relativos a Clase 1 (referencia)") %>%
   kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed")) %>%
   collapse_rows(columns = 1, valign = "top") %>%
-  save_kable("outputs/tables/resultados_modelo.html")
+  save_kable("outputs/resultados_modelo.html")
 
 
 # Análisis de patrones de respuesta por estado
@@ -437,4 +453,9 @@ plot_transitions_with_stay(transitions)
 ## Guardar gráfico
 #ggsave("code/latent_violence/image/p4.png", plot = p4, width = 11.5, height = 9)
 #
+
+
+###################################################
+#Modelos con transiciones predichas por covariables
+####################################################
 

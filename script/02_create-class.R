@@ -184,7 +184,7 @@ modelos <-  lmest(responsesFormula = d3_1_red + d3_2_red + d4_2_red + d4_3_red ~
                   data = subset_data,
                   k = 1:6,
                   start = 0,
-                  modBasic = 1,
+                  modBasic = 3,
                   modManifest="FM",
                   seed = 1234)
 
@@ -226,12 +226,14 @@ modelo_4c <-  lmest(responsesFormula = d3_1_red + d3_2_red + d4_2_red + d4_3_red
                     data = subset_data,
                     k = 4,
                     start = 0,
-                    modBasic = 1,
+                    modBasic = 3, #en vez de 1
                     modManifest="LM",
                     seed = 1234)
 
 
  ##Acá
+
+modelo_4c <- readRDS("outputs/modelo_4c.rds")
 
 write_rds(modelo_4c, "outputs/modelo_4c.rds")
 
@@ -314,3 +316,177 @@ ggplot(LMmodelo, aes(x = factor(item), y = value, fill = factor(category))) +
 
 # Guardamos 
 ggsave("outputs/image/probabilidad_respuesta1.jpg", width = 12, height = 10, dpi = 300)
+
+
+
+modelos_lt <-  lmest(responsesFormula = d3_1_red + d3_2_red + d4_2_red + d4_3_red ~ NULL,
+                     latentFormula =~ urbano_rural + 
+                       mujer +
+                       indi +
+                       edad + 
+                       d1_1 +  #percepción conlficto estado
+                       c5 +    # confianza pueblos originarios 
+                       d5_1 +  # justicia procedimental en personas indígenas
+                       d6_1 +  #identificación con la causa indígenas
+                       # c27_1 + #respeto a PP.OO
+                       c13,   #frecuencia de contacto con PP.OO
+                     index = c("folio","ola"),
+                     output = TRUE,
+                     out_se = TRUE,
+                     paramLatent = "multilogit",
+                     data = subset_data,
+                     k = 4,
+                     start = 0,
+                     modBasic = 3,
+                     modManifest="FM",
+                     seed = 1234)
+# Guardamos 
+
+summary(modelos_lt, start = TRUE)
+
+
+# Extraer coeficientes y p-valores
+coefs <- modelos_lt$Ga
+se <- modelos_lt$seGa
+
+coefs<-as.data.frame(coefs)
+se<-as.data.frame(se)
+
+
+library(tibble)
+
+coefs <- coefs[, 1:3] |> 
+  rownames_to_column(var = "Variable")
+
+names(se) <- paste0(names(se[]), "_se")
+se <- se[, 1:3] |> 
+  rownames_to_column(var = "Variable")
+
+
+coefs<-merge(coefs, se, by="Variable")
+
+for (col in c("2.1", "3.1", "4.1")) {
+  se_col <- paste0(col, "_se")
+  z_col <- paste0(col, "_z")
+  p_col <- paste0(col, "_p")
+  
+  coefs[[z_col]] <- coefs[[col]] / coefs[[se_col]]
+  coefs[[p_col]] <- 2 * (1 - pnorm(abs(coefs[[z_col]])))
+}
+
+coefs<-coefs[c(1:4, 9, 11, 13)]
+
+coefs[, 2:4] <- exp(coefs[, 2:4])
+names(coefs)[2:4] <- c("odds1_2", "odds1_3", "odds1_4")
+names(coefs)[5:7] <- c("pvalue1_2", "pvalue1_3", "pvalue1_4")
+
+labels_vars <- c(
+  "(Intercept)" = "Intercepto",
+  "urbano_rural" = "Zona urbana (1 = urbano, 0 = rural)",
+  "mujer1" = "Mujer (1 = mujer, 0 = hombre)",
+  "indiindi" = "Identidad indígena (1 = sí, 0 = no)",
+  "edad25_34" = "Edad 25–34 años",
+  "edad35_44" = "Edad 35–44 años",
+  "edad45_54" = "Edad 45–54 años",
+  "edad55_64" = "Edad 55–64 años",
+  "edad65+" = "Edad 65 o más",
+  "d1_1" = "Percepción conflicto Estado–Pueblos Originarios",
+  "c5" = "Confianza en pueblos originarios",
+  "d5_1" = "Justicia procedimental hacia pueblos indígenas",
+  "d6_1" = "Identificación con la causa indígena",
+  "c13" = "Frecuencia de contacto con pueblos originarios"
+)
+
+coefs$Variable <- ifelse(coefs$Variable %in% names(labels_vars),
+                         labels_vars[coefs$Variable],
+                         coefs$Variable)
+
+new_order <- c(
+  "Variable",
+  "odds1_2", "pvalue1_2",
+  "odds1_3", "pvalue1_3",
+  "odds1_4", "pvalue1_4"
+)
+
+# Seleccionamos solo esas columnas en el orden deseado
+coefs <- coefs[, new_order]
+
+library(writexl)
+
+# Guardar el data.frame en Excel
+write_xlsx(coefs, path = "outputs/coef_transiciones_odds.xlsx")
+
+
+coefs
+
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Se asume que ya tienes el data frame `coefs` en el ambiente,
+# con las columnas tal como las imprimiste:
+# Variable, odds1_2, pvalue1_2, odds1_3, pvalue1_3, odds1_4, pvalue1_4
+
+# (Opcional) definir niveles del eje Y en el orden en que aparecen
+var_levels <- rev(coefs$Variable)
+
+coefs_long <- coefs %>% 
+  # si no quieres mostrar el intercept en el gráfico:
+  filter(Variable != "intercept") %>% 
+  mutate(Variable = factor(Variable, levels = var_levels)) %>% 
+  # pasar odds y pvalues a formato largo
+  pivot_longer(
+    cols = matches("^(odds1_|pvalue1_)"),
+    names_to = c("stat", "class"),
+    names_pattern = "(odds1|pvalue1)_([234])",
+    values_to = "value"
+  ) %>% 
+  pivot_wider(
+    names_from = stat,
+    values_from = value
+  ) %>% 
+  mutate(
+    comparison = factor(
+      class,
+      levels = c("2", "3", "4"),
+      labels = c("Clase 2 vs Clase 1",
+                 "Clase 3 vs Clase 1",
+                 "Clase 4 vs Clase 1")
+    ),
+    signif = pvalue1 < 0.05
+  )
+
+g2 <- ggplot(coefs_long,
+             aes(x = odds1,
+                 y = Variable,
+                 colour = signif)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_point(size = 3) +
+  scale_x_log10() +
+  scale_colour_manual(
+    values = c(`TRUE` = "black", `FALSE` = "grey60"),
+    labels = c("FALSE" = "No significativo", "TRUE" = "p < 0.05"),
+    name = ""
+  ) +
+  facet_wrap(~ comparison) +
+  labs(
+    x = "Odds ratio (escala log10)",
+    y = NULL,
+    title = "Probabilidad relativa de pasar de la Clase 1 a otras clases",
+    subtitle = "Modelo multinomial: OR > 1 indica mayor probabilidad de pertenecer a la clase indicada vs Clase 1"
+  ) +
+  theme_bw(base_size = 16) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    axis.title.x = element_text(face = "bold"),
+    axis.text.y = element_text(face = "bold"),
+    strip.text = element_text(face = "bold")
+  )
+
+g2
+
+
+ggsave("outputs/image/probabilidad_respuesta1.jpg", width = 16, height = 8, dpi = 300)
+

@@ -293,8 +293,8 @@ graficar_violencia <- function(data, var_violencia, titulo_sub) {
 }
 
 
-g1 <- graficar_violencia(subset_data, "vio_control_carb", "Control by police ")
-g2 <- graficar_violencia(subset_data, "vio_control_latif", "Control by landowners")
+g1 <- graficar_violencia(subset_data, "vio_control_carb", "Repression from Carabineros to protests")
+g2 <- graficar_violencia(subset_data, "vio_control_latif", "Auto defensa de latifundistas")
 g3 <- graficar_violencia(subset_data, "vio_change_protest", "Protest with disturbance")
 g4 <- graficar_violencia(subset_data, "vio_change_terr", "Claiming of territory")
 
