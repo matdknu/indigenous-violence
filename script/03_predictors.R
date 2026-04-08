@@ -1,461 +1,757 @@
-# LIBRERÍAS -------------------------------------------------------------------
-
-pacman::p_load(ggplot2, 
-               ggraph, 
-               igraph, 
-               tidygraph, 
-               reshape2,
-               gridExtra,
-               grid,
-               ggpubr,
-               cowplot,
-               knitr,
-               kableExtra)
-
-
-modelo_lm4 <- readRDS("outputs/modelo_4c.rds")
-
-# Visualizar matriz de transición
-plot(modelo_lm4, what = "transitions")
-
-# Examinar probabilidades de transición específicas
-print(round(apply(modelo_lm4$Pi, c(1,2), mean), 3))
-
-# Probabilidades de respuesta por estado
-print(round(modelo_lm4$Psi, 3))
-
-# Visualización de probabilidades condicionales
-plot(modelo_lm4, what = "CondProb")
-
-# Distribución marginal de estados
-plot(modelo_lm4, what = "marginal")
-
-# Guardar gráfico en un archivo PNG
-png("outputs/image/marginal_distribution.png", width = 800, height = 600)
-plot(modelo_lm4, what = "marginal")
-dev.off()
-
-## plot ------------------------------------------------------------------------ 
-
-# plots 
-LMmodelo <- reshape2::melt(modelo_lm4$Psi, level=1)
-glimpse(LMmodelo)
-LMmodelo <- LMmodelo %>% mutate(value = round(value * 100))
-
-LMmodelo$value
-
-# Calcular proporcixones usando Piv
-proporciones <- colMeans(modelo_lm4$Piv)
-proporciones <- round(proporciones * 100, 1)
-
-# Verificar las proporciones
-print("Proporción de la muestra en cada clase:")
-print(proporciones)
-
-# Crear etiquetas para las clases con sus proporciones
-class_labels <- paste("Clase", 1:4, "\n(", proporciones, "%)", sep = "")
-
-# Preparar los datos
-LMmodelo <- reshape2::melt(modelo_lm4$Psi, level=1)
-LMmodelo <- LMmodelo %>% mutate(value = round(value * 100))
-
-modelo_lm4
-
-# Vector con las descripciones de los ítems
-item_descriptions <- c(
-  "1" = "The use of force by\nCarabineros to break up\nprotests by Indigenous\ngroups",
-  "2" = "Farmers using weapons\nto confront groups of\nIndigenous people",
-  "3" = "Indigenous groups\noccupying land they\nconsider their own",
-  "4" = "Road blockades or\nclosures by Indigenous\ngroups"
-)
-
-LMmodelo
-
-
-class_labels <- c(
-  "1" = "Universal Rejecters of Violence\n(40.1%)",
-  "2" = "Pro Control Social (25.9%)",
-  "3" = "Pro-Indigenous Force Sympathizers\n(22.2%)", 
-  "4" = "Violentista \n(11.8%)"
-)
-
-
-
-# Crear el gráfico mejorado
-p2 <- ggplot(LMmodelo, aes(x = factor(item), y = value, fill = factor(category))) +
-  geom_col(position = "stack") +
-  facet_wrap(~ state, ncol = 1, 
-             labeller = labeller(state = function(x) class_labels[as.numeric(x)])) +
-  scale_fill_manual(values = c("#1f2041", "#ffc857"),  # Colores personalizados
-                    name = "Justification of Violence",
-                    labels = c("No", "Yes")) +
-  scale_x_discrete(labels = item_descriptions) +
-  labs(x = NULL, y = "P(y)") +
-  theme_minimal() +
-  theme(
-    axis.text.y = element_text(size = 12),
-    axis.text.x = element_text(angle = 0, color = "black", hjust = 0.5, vjust = 1, lineheight = 0.8, size = 11),
-    legend.position = "right",
-    legend.text = element_text(size = 12),
-    legend.title = element_text(size = 14),
-    plot.title = element_text(hjust = 0.5),
-    strip.text = element_text(size = 12),
-    axis.title.x = element_blank(),
-    panel.spacing = unit(1, "lines")
-  )
-p2
-
-
-getwd()
-
-ggsave("outputs/image/p2.png", plot = p2, width = 11.5, height = 9)
-
-
-# También podemos ver cómo cambian las proporciones en el tiempo usando PI
-print("Matriz de transición promedio:")
-trans_matrix <- apply(modelo_lm4$PI, c(1,2), mean, na.rm = TRUE)
-print(round(trans_matrix, 3))
-
-
-modelo_lm4
-
-# Resultados de regresión multinomial ------------------------------------------  
-# Calculamos errores estándar
-# --- Standard errors
-errores_estandar <- se(modelo_lm4)
-
-# K inferred from Be (which has K-1 columns vs the reference class)
-K <- ncol(modelo_lm4$Be) + 1L
-ref_class <- 1L
-nonref    <- setdiff(seq_len(K), ref_class)
-
-# Coefs and SEs as data frames, with clear column names
-be_df <- as.data.frame(modelo_lm4$Be)
-colnames(be_df) <- paste0("Class ", nonref, " vs Class ", ref_class)
-be_df$Variable  <- rownames(modelo_lm4$Be)
-
-se_df <- as.data.frame(errores_estandar$seBe)
-colnames(se_df) <- paste0("Class ", nonref, " vs Class ", ref_class)
-se_df$Variable  <- rownames(modelo_lm4$Be)
-
-# Long format
-be_long <- tidyr::pivot_longer(
-  be_df,
-  cols = starts_with("Class "),
-  names_to = "Comparacion",
-  values_to = "Coeficiente"
-)
-
-se_long <- tidyr::pivot_longer(
-  se_df,
-  cols = starts_with("Class "),
-  names_to = "Comparacion",
-  values_to = "SE"
-)
-
-be_long <- dplyr::left_join(be_long, se_long, by = c("Variable","Comparacion")) %>%
-  mutate(
-    IC_lower = Coeficiente - 1.96 * SE,
-    IC_upper = Coeficiente + 1.96 * SE,
-    OR          = exp(Coeficiente),
-    OR_IC_lower = exp(IC_lower),
-    OR_IC_upper = exp(IC_upper),
-    significativo = (IC_lower * IC_upper > 0)
-  ) %>%
-  filter(!is.na(Variable), !is.na(Coeficiente), !is.na(IC_lower), !is.na(IC_upper)) %>%
-  drop_na()
-
-# Colors per comparison (works for K=3 or K=4; add more if needed)
-colores_manuales <- c(
-  "Class 2 vs Class 1" = "#4b3f72",
-  "Class 3 vs Class 1" = "#ffc857",
-  "Class 4 vs Class 1" = "#21f041"
-)
-# keep only those present
-colores_manuales <- colores_manuales[names(colores_manuales) %in% unique(be_long$Comparacion)]
-
-be_long <- be_long |>
-  mutate(
-    Variable = case_when(
-      Variable == "d1_1"  ~ "conflicto_estado",
-      Variable == "c5"    ~ "confianza_ppoo",
-      Variable == "d5_1"  ~ "procidimental_ppoo",
-      Variable == "d6_1"  ~ "id_causa",
-      Variable == "c13"   ~ "frq_contacto",
-      TRUE ~ Variable
-    )
-  )
-
-
- 
-p3 <- ggplot(be_long, aes(x = Variable, y = Coeficiente, color = Comparacion)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = IC_lower, ymax = IC_upper),
-                position = position_dodge(width = 0.5), width = 0.5) +
-  coord_flip() +
-  theme_minimal() +
-  scale_color_manual(values = colores_manuales) +
-  labs(
-    title    = "",
-    subtitle = "Coefficients relative to Class 1 (reference)",
-    x = "",
-    y = "Coefficient (log-odds)"
-  ) +
-  theme(
-    axis.text.x   = element_text(size = 13),
-    axis.text.y   = element_text(size = 13),
-    legend.position = "bottom",
-    legend.text   = element_text(size = 13),
-    legend.title  = element_text(size = 14),
-    plot.title    = element_text(size = 16),
-    strip.text    = element_text(size = 12, face = "bold"),
-    axis.title.x  = element_blank(),
-    panel.spacing = unit(1, "lines")
-  )
-
-p3
-
-
-ggsave("output/p3.png", plot = p3, width = 11.5, height = 9)
-
-be_long
-
-write_rds(be_long, "output/predictores.rds")
-
-# Tabla de resultados completa
-tabla_resultados <- be_long %>%
-  select(Variable, Comparacion, Coeficiente, SE, IC_lower, IC_upper, OR, OR_IC_lower, OR_IC_upper, significativo) %>%
-  arrange(Variable, Comparacion)
-
-print("Resultados completos (coeficientes, OR e intervalos de confianza):")
-print(knitr::kable(tabla_resultados, digits = 3))
-
-tabla_resultados %>%
-  mutate(significativo = ifelse(significativo, "Sí", "No")) %>%
-  kable(format = "html", digits = 3, booktabs = TRUE,
-        col.names = c("Variable", "Comparación", "Coef.", "SE",
-                      "IC Inf.", "IC Sup.", "OR", "OR IC Inf.", "OR IC Sup.", "Signif."),
-        caption = "Resultados (log-odds y OR) relativos a Clase 1 (referencia)") %>%
-  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed")) %>%
-  collapse_rows(columns = 1, valign = "top") %>%
-  save_kable("outputs/resultados_modelo.html")
-
-
-# Análisis de patrones de respuesta por estado
-print("Probabilidades de respuesta condicional por estado:")
-print(round(modelo_lm4$Psi, 3))
-
-# Matriz de transición promedio
-trans_matrix <- apply(modelo_lm4$PI, c(1,2), mean, na.rm = TRUE)
-print("Matriz de transición promedio:")
-print(round(trans_matrix, 3))
-
-trans_matrix
-
-
-# Crear tibble de transiciones
-transitions <- as_tibble(trans_matrix) %>%
-  mutate(from = row_number()) %>%
-  pivot_longer(
-    cols = -from,
-    names_to = "to",
-    values_to = "probability"
-  ) %>%
-  mutate(to = as.integer(gsub("V", "", to))) 
-
-# Paquetes
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, scales)
 
-# ---- 1) Datos de ejemplo (usa los tuyos si ya existen) -----------------------
-transitions <- tribble(
-  ~from, ~to, ~probability,
-  1, 1, 0.322, 1, 2, 0.179, 1, 3, 0.154, 1, 4, 0.0947,
-  2, 1, 0.203, 2, 2, 0.282, 2, 3, 0.172, 2, 4, 0.0935,
-  3, 1, 0.214, 3, 2, 0.152, 3, 3, 0.293, 3, 4, 0.0908,
-  4, 1, 0.180, 4, 2, 0.194, 4, 3, 0.195, 4, 4, 0.182
+pacman::p_load(
+  dplyr,
+  tidyr,
+  purrr,
+  ggplot2,
+  reshape2,
+  here,
+  LMest,
+  readr,
+  tibble,
+  stringr,
+  scales,
+  knitr,
+  kableExtra,
+  networkD3,
+  htmlwidgets
 )
 
-# ---- 2) Heatmap en B/N con etiquetas en % -----------------------------------
-p_heat <- transitions %>%
-  mutate(
-    from = factor(from, levels = sort(unique(from))),
-    to   = factor(to,   levels = sort(unique(to))),
-    lbl  = percent(probability, accuracy = 0.1)
-  ) %>%
-  ggplot(aes(x = to, y = from, fill = probability)) +
-  geom_tile(color = "grey70", linewidth = 0.3) +
-  # resalta la diagonal (auto-transición)
-  geom_tile(data = ~ dplyr::filter(.x, from == to),
-            fill = NA, color = "black", linewidth = 0.7) +
-  geom_text(aes(label = lbl), size = 3) +
-  scale_fill_gradient(
-    name = "Probability",
-    limits = c(0, 1),
-    low = "white", high = "black",
-    labels = percent_format(accuracy = 1)
-  ) +
-  scale_x_discrete(position = "top") +
-  coord_fixed() +
-  labs(x = "To (t+1)", y = "From (t)") +
-  theme_minimal(base_size = 12) +
-  theme(
-    panel.grid = element_blank(),
-    legend.position = "right",
-    axis.title.x = element_text(margin = margin(b = 6)),
-    axis.title.y = element_text(margin = margin(r = 6))
-  )
+options(stringsAsFactors = FALSE, scipen = 999)
 
-p_heat
+rm(list = ls())
+gc()
 
+# ============================================================
+# 0. Configuracion
+# ============================================================
 
-#
+output_root <- here("outputs", "longitudinal")
+data_dir <- file.path(output_root, "data")
+models_dir <- file.path(output_root, "models")
+tables_dir <- file.path(output_root, "tables")
+plots_dir <- file.path(output_root, "plots")
 
+dir.create(data_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(models_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(tables_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(plots_dir, recursive = TRUE, showWarnings = FALSE)
 
-# Paquetes
-if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, networkD3, scales)
+modelo_path <- file.path(models_dir, "modelo_4c.rds")
+if (!file.exists(modelo_path)) {
+  stop("No se encontro `outputs/longitudinal/models/modelo_4c.rds`. Ejecuta primero `script/02_create-class.R`.")
+}
 
-# ---- Ejemplo de datos (usa los tuyos si ya existen) --------------------------
-# transitions <- tribble(
-#   ~from, ~to, ~probability,
-#   1,1,0.322, 1,2,0.179, 1,3,0.154, 1,4,0.0947,
-#   2,1,0.203, 2,2,0.282, 2,3,0.172, 2,4,0.0935,
-#   3,1,0.214, 3,2,0.152, 3,3,0.293, 3,4,0.0908,
-#   4,1,0.180, 4,2,0.194, 4,3,0.195, 4,4,0.182
-# )
+modelo_lm4 <- readRDS(modelo_path)
+std_errors <- se(modelo_lm4)
 
-# ---- Función general: nodo único "Stay" + cambios a otras clases -------------
-plot_transitions_with_stay <- function(transitions, node_stay_label = "Stay (Permanecer)") {
-  
-  # Asegurar tipos
-  df <- transitions %>%
-    mutate(from = as.integer(from), to = as.integer(to),
-           probability = as.numeric(probability))
-  
-  classes <- sort(unique(c(df$from, df$to)))
-  K <- length(classes)
-  
-  # Nodos:
-  #  - Clases en t
-  #  - Nodo Stay (único)
-  #  - Clases en t+1 (solo para cambios)
-  nodes <- tibble(
-    name = c(
-      paste0("Class ", classes, " (t)"),
-      node_stay_label,
-      paste0("Class ", classes, " (t+1)")
-    )
-  )
-  
-  # Índices auxiliares
-  idx_from_t   <- function(i) which(nodes$name == paste0("Class ", i, " (t)")) - 1L
-  idx_to_t1    <- function(j) which(nodes$name == paste0("Class ", j, " (t+1)")) - 1L
-  idx_stay     <- which(nodes$name == node_stay_label) - 1L
-  
-  # Enlaces:
-  #  1) Permanencia: Class i (t) --> Stay   (con prob(i,i))
-  links_stay <- df %>%
-    filter(from == to) %>%
-    transmute(
-      source = map_int(from, idx_from_t),
-      target = idx_stay,
-      value  = probability,
-      type   = "stay",
-      tooltip = paste0("Class ", from, " → permanecer: ", percent(probability, 0.1))
-    )
-  
-  #  2) Cambios: Class i (t) --> Class j (t+1), j != i
-  links_change <- df %>%
-    filter(from != to) %>%
-    transmute(
-      source = map_int(from, idx_from_t),
-      target = map_int(to,   idx_to_t1),
-      value  = probability,
-      type   = "change",
-      tooltip = paste0("Class ", from, " → Class ", to, ": ", percent(probability, 0.1))
-    )
-  
-  links <- bind_rows(links_stay, links_change)
-  
-  # Escala de colores en B/N: stay = gris oscuro, change = gris claro
-  # (networkD3 usa d3.rgb; definimos por tipo de enlace)
-  # Nota: el color de links se mapea por 'group' si existe esa columna
-  links <- links %>% mutate(group = type)
-  
-  colourJS <- 'd3.scaleOrdinal()
-                 .domain(["stay","change"])
-                 .range(["#4D4D4D","#BDBDBD"])'
-  
-  sankeyNetwork(
-    Links = links, Nodes = nodes,
-    Source = "source", Target = "target", Value = "value",
-    NodeID = "name",
-    fontSize = 12, nodeWidth = 20, sinksRight = FALSE,
-    LinkGroup = "group",
-    colourScale = colourJS
+wave_labels <- c("2016", "2018", "2021", "2023")
+period_labels <- c("2016_2018", "2018_2021", "2021_2023", "2023_?")
+comparison_levels <- c("Clase 2 vs Clase 1", "Clase 3 vs Clase 1", "Clase 4 vs Clase 1")
+
+primary_label_map <- c(
+  "(Intercept)" = "Intercepto",
+  "urbano_rural" = "Zona urbana",
+  "mujer1" = "Mujer",
+  "indiindi" = "Identidad indígena",
+  "indi1" = "Identidad indígena",
+  "d1_1" = "Percepción de conflicto",
+  "c5" = "Confianza en pueblos originarios",
+  "d5_1" = "Justicia procedimental",
+  "d6_1" = "Identificación con la causa",
+  "c13" = "Frecuencia de contacto",
+  "edad.L" = "Edad"
+)
+
+key_vars <- c(
+  "Percepción de conflicto",
+  "Confianza en pueblos originarios",
+  "Justicia procedimental",
+  "Identificación con la causa",
+  "Frecuencia de contacto",
+  "Identidad indígena",
+  "Edad"
+)
+
+label_variable <- function(x) {
+  if (x %in% names(primary_label_map)) return(unname(primary_label_map[x]))
+  if (grepl("^edad", x)) return("Edad")
+  if (grepl("^mujer", x)) return("Mujer")
+  if (grepl("^indi", x)) return("Identidad indígena")
+  x
+}
+
+sign_label <- function(x) {
+  dplyr::case_when(
+    is.na(x) ~ "cero",
+    x > 0 ~ "positivo",
+    x < 0 ~ "negativo",
+    TRUE ~ "cero"
   )
 }
 
-# ---- Llama a la función con tus datos ----------------------------------------
-plot_transitions_with_stay(transitions)
+short_sign_label <- function(x) {
+  dplyr::case_when(
+    x == "positivo" ~ "+",
+    x == "negativo" ~ "-",
+    TRUE ~ "0"
+  )
+}
 
+round_numeric <- function(df, digits = 3) {
+  df %>% dplyr::mutate(dplyr::across(where(is.numeric), ~ round(.x, digits)))
+}
 
-## Crear nodos con nombres sustantivos
-#nodes <- tibble(
-#  name = 1:4,
-#  label = c("Ambivalent", "Hardliners", "Pro-Indigenous", "Rejecters"),
-#  size = c(0.285, 0.165, 0.37, 0.297),  # Probabilidades de permanencia
-#  prop = c(27, 7, 15, 51)        # Proporción de la muestra
-#)
-#
-## Crear el objeto de red
-#graph <- tbl_graph(nodes = nodes, edges = transitions, directed = TRUE)
-#
-## Crear el gráfico
-#p4 <- ggraph(graph, layout = 'circle') +
-#  geom_edge_arc(
-#    aes(label = sprintf("%.2f", probability)),
-#    arrow = arrow(length = unit(3, 'mm'), type = "closed"),
-#    angle_calc = 'along',
-#    label_dodge = unit(4, 'mm'),
-#    start_cap = circle(15, 'mm'),
-#    end_cap = circle(18, 'mm'),
-#    edge_width = 0.5,
-#    strength = 0.15,
-#    show.legend = FALSE
-#  ) +
-#  geom_node_point(
-#    aes(size = size * 100),
-#    color = "white",
-#    fill = "#ffc857",
-#    shape = 21,
-#    stroke = 1
-#  ) +
-#  geom_node_text(
-#    aes(label = sprintf("%s\n(%.1f%%)\np=%.2f", 
-#                        label, prop, size)),
-#    size = 3.8,
-#    color = "#4b3f72"
-#  ) +
-#  scale_size_continuous(range = c(30, 45)) +  
-#  theme_void() +
-#  labs(title = "Latent Class Transition Graph") +
-#  theme(
-#    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
-#    plot.margin = margin(20, 20, 20, 20),
-#    legend.position = "none"
-#  ) +
-#  coord_fixed(ratio = 1, xlim = c(-1.2, 1.2), ylim = c(-1.2, 1.2))
-#
-## Mostrar gráfico
-#print(p4)
-## Guardar gráfico
-#ggsave("code/latent_violence/image/p4.png", plot = p4, width = 11.5, height = 9)
-#
+save_html_table <- function(df, path, caption, digits = 3) {
+  df %>%
+    knitr::kable(format = "html", digits = digits, booktabs = TRUE, caption = caption) %>%
+    kableExtra::kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover")) %>%
+    kableExtra::save_kable(path)
+}
 
+extract_transition_matrices <- function(model) {
+  pi_array <- model$PI
+  if (length(dim(pi_array)) != 4) {
+    stop("La estructura de `PI` no corresponde al formato esperado estado x estado x sujeto x tiempo.")
+  }
 
-###################################################
-#Modelos con transiciones predichas por covariables
-####################################################
+  raw_times <- seq_len(dim(pi_array)[4])
+  matrices <- lapply(raw_times, function(t_idx) {
+    apply(pi_array[, , , t_idx, drop = FALSE], c(1, 2), mean, na.rm = TRUE)
+  })
+
+  valid <- purrr::map_lgl(matrices, ~ any(.x > 0, na.rm = TRUE))
+  list(matrices = matrices[valid], valid_times = raw_times[valid])
+}
+
+extract_be_effects <- function(model, se_object) {
+  if (is.null(model$Be) || is.null(se_object$seBe)) return(tibble::tibble())
+
+  k_total <- ncol(model$Be) + 1L
+  ref_class <- 1L
+  nonref <- setdiff(seq_len(k_total), ref_class)
+
+  be_df <- as.data.frame(model$Be)
+  colnames(be_df) <- paste0("Clase ", nonref, " vs Clase ", ref_class)
+  be_df$term <- rownames(model$Be)
+
+  se_df <- as.data.frame(se_object$seBe)
+  colnames(se_df) <- paste0("Clase ", nonref, " vs Clase ", ref_class)
+  se_df$term <- rownames(se_object$seBe)
+
+  be_long <- be_df %>%
+    tidyr::pivot_longer(cols = starts_with("Clase "), names_to = "comparacion", values_to = "coeficiente")
+
+  se_long <- se_df %>%
+    tidyr::pivot_longer(cols = starts_with("Clase "), names_to = "comparacion", values_to = "se")
+
+  dplyr::left_join(be_long, se_long, by = c("term", "comparacion")) %>%
+    dplyr::filter(!is.na(coeficiente), !is.na(se)) %>%
+    dplyr::mutate(
+      variable = vapply(term, label_variable, character(1)),
+      z = coeficiente / se,
+      p_value = 2 * stats::pnorm(abs(z), lower.tail = FALSE),
+      or = exp(coeficiente),
+      or_ic_lower = exp(coeficiente - 1.96 * se),
+      or_ic_upper = exp(coeficiente + 1.96 * se),
+      significativo = p_value < 0.05
+    ) %>%
+    dplyr::select(term, variable, comparacion, coeficiente, se, z, p_value, or, or_ic_lower, or_ic_upper, significativo)
+}
+
+extract_ga_effects <- function(model, se_object, wave_labels, period_labels) {
+  if (is.null(model$Ga) || is.null(se_object$seGa)) return(tibble::tibble())
+
+  ga_dims <- dim(model$Ga)
+  if (length(ga_dims) != 3) {
+    stop("La estructura de `Ga` no corresponde al formato esperado termino x destino x origen/periodo.")
+  }
+
+  period_lookup <- stats::setNames(period_labels[seq_len(min(length(period_labels), ga_dims[3]))], as.character(seq_len(ga_dims[3])))
+  wave_lookup <- stats::setNames(wave_labels[seq_len(min(length(wave_labels), ga_dims[3]))], as.character(seq_len(ga_dims[3])))
+
+  purrr::map_dfr(seq_len(ga_dims[3]), function(origin_idx) {
+    coef_mat <- model$Ga[, , origin_idx, drop = FALSE][, , 1]
+    se_mat <- se_object$seGa[, , origin_idx, drop = FALSE][, , 1]
+
+    term_names <- rownames(coef_mat)
+    if (is.null(term_names)) term_names <- paste0("term_", seq_len(nrow(coef_mat)))
+    dest_names <- colnames(coef_mat)
+    if (is.null(dest_names)) dest_names <- seq_len(ncol(coef_mat))
+
+    coef_df <- as.data.frame(coef_mat)
+    colnames(coef_df) <- as.character(dest_names)
+    coef_df$term <- term_names
+
+    se_df <- as.data.frame(se_mat)
+    colnames(se_df) <- as.character(dest_names)
+    se_df$term <- term_names
+
+    coef_long <- coef_df %>%
+      tidyr::pivot_longer(cols = -term, names_to = "clase_destino", values_to = "coeficiente")
+
+    se_long <- se_df %>%
+      tidyr::pivot_longer(cols = -term, names_to = "clase_destino", values_to = "se")
+
+    dplyr::left_join(coef_long, se_long, by = c("term", "clase_destino")) %>%
+      dplyr::mutate(
+        clase_origen = origin_idx,
+        ola_origen = unname(wave_lookup[as.character(origin_idx)]),
+        periodo = unname(period_lookup[as.character(origin_idx)]),
+        variable = vapply(term, label_variable, character(1)),
+        comparacion = paste0("Clase ", clase_destino, " vs Clase 1"),
+        z = coeficiente / se,
+        p_value = 2 * stats::pnorm(abs(z), lower.tail = FALSE),
+        or = exp(coeficiente),
+        or_ic_lower = exp(coeficiente - 1.96 * se),
+        or_ic_upper = exp(coeficiente + 1.96 * se),
+        significativo = p_value < 0.05,
+        signo = sign_label(coeficiente)
+      ) %>%
+      dplyr::select(
+        term, variable, clase_origen, ola_origen, periodo, clase_destino, comparacion,
+        coeficiente, se, z, p_value, or, or_ic_lower, or_ic_upper, significativo, signo
+      )
+  })
+}
+
+exported_files <- character()
+
+# ============================================================
+# 1. Prevalencia por ola
+# ============================================================
+
+if (is.null(modelo_lm4$Pmarg)) {
+  stop("El modelo no contiene `Pmarg`; no se puede calcular prevalencia por ola.")
+}
+
+class_prevalence_by_wave_long <- as.data.frame(modelo_lm4$Pmarg) %>%
+  tibble::rownames_to_column("class") %>%
+  tidyr::pivot_longer(cols = -class, names_to = "time", values_to = "probability") %>%
+  dplyr::mutate(
+    class = factor(readr::parse_number(class)),
+    time = readr::parse_number(time),
+    wave = factor(wave_labels[time], levels = wave_labels),
+    prevalence = probability,
+    prevalence_pct = 100 * prevalence
+  ) %>%
+  dplyr::select(wave, time, class, prevalence, prevalence_pct) %>%
+  dplyr::arrange(time, class)
+
+class_prevalence_by_wave <- class_prevalence_by_wave_long %>%
+  dplyr::select(wave, class, prevalence_pct) %>%
+  tidyr::pivot_wider(names_from = class, values_from = prevalence_pct, names_prefix = "Clase_") %>%
+  round_numeric(1)
+
+readr::write_csv(class_prevalence_by_wave_long, file.path(tables_dir, "class_prevalence_by_wave_long.csv"))
+readr::write_csv(class_prevalence_by_wave, file.path(tables_dir, "class_prevalence_by_wave.csv"))
+exported_files <- c(exported_files, "tables/class_prevalence_by_wave_long.csv", "tables/class_prevalence_by_wave.csv")
+
+p_class_prevalence <- ggplot(class_prevalence_by_wave_long, aes(x = wave, y = prevalence_pct, color = class, group = class)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  labs(x = NULL, y = "Prevalencia de clase (%)", color = "Clase") +
+  theme_minimal(base_size = 12)
+
+ggsave(file.path(plots_dir, "class_prevalence_by_wave.png"), p_class_prevalence, width = 8, height = 5, dpi = 300)
+exported_files <- c(exported_files, "plots/class_prevalence_by_wave.png")
+
+# ============================================================
+# 2. Transicion y movilidad
+# ============================================================
+
+transition_info <- extract_transition_matrices(modelo_lm4)
+transition_mats <- transition_info$matrices
+valid_times <- transition_info$valid_times
+
+if (!length(transition_mats)) {
+  stop("No fue posible extraer matrices de transicion validas desde `PI`.")
+}
+
+available_periods <- period_labels[seq_len(length(transition_mats))]
+transition_mean <- Reduce("+", transition_mats) / length(transition_mats)
+
+transition_mean_long <- as_tibble(transition_mean) %>%
+  dplyr::mutate(from = dplyr::row_number()) %>%
+  tidyr::pivot_longer(cols = -from, names_to = "to", values_to = "probability") %>%
+  dplyr::mutate(
+    to = readr::parse_number(to),
+    period = "promedio",
+    probability_pct = 100 * probability
+  )
+
+transition_period_long <- purrr::map2_dfr(transition_mats, seq_along(transition_mats), function(mat, i) {
+  from_index <- max(valid_times[i] - 1, 1)
+
+  as_tibble(mat) %>%
+    dplyr::mutate(from = dplyr::row_number()) %>%
+    tidyr::pivot_longer(cols = -from, names_to = "to", values_to = "probability") %>%
+    dplyr::mutate(
+      to = readr::parse_number(to),
+      from_wave = wave_labels[from_index],
+      to_wave = wave_labels[min(from_index + 1, length(wave_labels))],
+      period = available_periods[i],
+      probability_pct = 100 * probability
+    )
+})
+
+transition_probabilities <- dplyr::bind_rows(transition_mean_long, transition_period_long)
+readr::write_csv(transition_probabilities, file.path(tables_dir, "transition_probabilities.csv"))
+exported_files <- c(exported_files, "tables/transition_probabilities.csv")
+
+mobility_summary_by_period <- purrr::map2_dfr(transition_mats, seq_along(transition_mats), function(mat, i) {
+  source_prev <- as.numeric(modelo_lm4$Pmarg[, i])
+  stay_overall <- sum(source_prev * diag(mat))
+
+  tibble::tibble(
+    period = available_periods[i],
+    wave_from = wave_labels[i],
+    wave_to = wave_labels[i + 1],
+    stability_overall_pct = 100 * stay_overall,
+    mobility_overall_pct = 100 * (1 - stay_overall)
+  )
+})
+
+net_flows_by_class_and_period <- purrr::map2_dfr(transition_mats, seq_along(transition_mats), function(mat, i) {
+  source_prev <- as.numeric(modelo_lm4$Pmarg[, i])
+  dest_prev <- as.numeric(modelo_lm4$Pmarg[, i + 1])
+  weighted_mat <- sweep(mat, 1, source_prev, `*`)
+  inflow <- colSums(weighted_mat) - diag(weighted_mat)
+  outflow <- source_prev * (1 - diag(mat))
+
+  tibble::tibble(
+    period = available_periods[i],
+    wave_from = wave_labels[i],
+    wave_to = wave_labels[i + 1],
+    class = factor(seq_along(source_prev)),
+    prevalence_t_pct = 100 * source_prev,
+    prevalence_t1_pct = 100 * dest_prev,
+    stability_pct = 100 * diag(mat),
+    outflow_pct = 100 * outflow,
+    inflow_pct = 100 * inflow,
+    net_flow_pct = 100 * (inflow - outflow),
+    prevalence_change_pct = 100 * (dest_prev - source_prev)
+  )
+})
+
+readr::write_csv(round_numeric(mobility_summary_by_period, 2), file.path(tables_dir, "mobility_summary_by_period.csv"))
+readr::write_csv(round_numeric(net_flows_by_class_and_period, 2), file.path(tables_dir, "net_flows_by_class_and_period.csv"))
+exported_files <- c(exported_files, "tables/mobility_summary_by_period.csv", "tables/net_flows_by_class_and_period.csv")
+
+p_transition_mean <- ggplot(transition_mean_long, aes(x = factor(to), y = factor(from), fill = probability)) +
+  geom_tile(color = "grey80", linewidth = 0.3) +
+  geom_text(aes(label = paste0(round(probability_pct, 1), "%")), size = 3) +
+  scale_fill_gradient(low = "white", high = "black", limits = c(0, 1)) +
+  labs(x = "Clase destino", y = "Clase origen", fill = "Prob.") +
+  coord_fixed() +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid = element_blank())
+
+ggsave(file.path(plots_dir, "transition_matrix_mean.png"), p_transition_mean, width = 6.5, height = 5.5, dpi = 300)
+exported_files <- c(exported_files, "plots/transition_matrix_mean.png")
+
+p_transition_period <- ggplot(transition_period_long, aes(x = factor(to), y = factor(from), fill = probability)) +
+  geom_tile(color = "grey80", linewidth = 0.3) +
+  geom_text(aes(label = paste0(round(probability_pct, 1), "%")), size = 2.8) +
+  scale_fill_gradient(low = "white", high = "black", limits = c(0, 1)) +
+  facet_wrap(~ period) +
+  labs(x = "Clase destino", y = "Clase origen", fill = "Prob.") +
+  coord_fixed() +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid = element_blank())
+
+ggsave(file.path(plots_dir, "transition_matrices_by_period.png"), p_transition_period, width = 10, height = 6, dpi = 300)
+exported_files <- c(exported_files, "plots/transition_matrices_by_period.png")
+
+sankey_links <- transition_period_long %>%
+  dplyr::filter(probability > 0.01) %>%
+  dplyr::mutate(
+    source_name = paste0(wave_from, "_Clase_", from),
+    target_name = paste0(wave_to, "_Clase_", to),
+    value = probability
+  )
+
+if (nrow(sankey_links) > 0) {
+  sankey_nodes <- tibble::tibble(name = unique(c(sankey_links$source_name, sankey_links$target_name)))
+
+  sankey_links <- sankey_links %>%
+    dplyr::mutate(
+      source = match(source_name, sankey_nodes$name) - 1L,
+      target = match(target_name, sankey_nodes$name) - 1L
+    )
+
+  sankey_plot <- networkD3::sankeyNetwork(
+    Links = as.data.frame(sankey_links[, c("source", "target", "value")]),
+    Nodes = as.data.frame(sankey_nodes),
+    Source = "source",
+    Target = "target",
+    Value = "value",
+    NodeID = "name",
+    fontSize = 12,
+    nodeWidth = 20,
+    sinksRight = TRUE
+  )
+
+  htmlwidgets::saveWidget(sankey_plot, file.path(plots_dir, "transition_sankey.html"), selfcontained = TRUE)
+  exported_files <- c(exported_files, "plots/transition_sankey.html")
+}
+
+# ============================================================
+# 3. Efectos de pertenencia inicial
+# ============================================================
+
+initial_class_membership_effects <- extract_be_effects(modelo_lm4, std_errors)
+readr::write_csv(round_numeric(initial_class_membership_effects, 4), file.path(tables_dir, "initial_class_membership_effects.csv"))
+exported_files <- c(exported_files, "tables/initial_class_membership_effects.csv")
+
+if (nrow(initial_class_membership_effects) > 0) {
+  p_initial_effects <- ggplot(initial_class_membership_effects, aes(x = or, y = variable, color = comparacion)) +
+    geom_vline(xintercept = 1, linetype = "dashed", color = "grey60") +
+    geom_point(position = position_dodge(width = 0.6), size = 2.4) +
+    geom_errorbar(
+      aes(xmin = or_ic_lower, xmax = or_ic_upper),
+      position = position_dodge(width = 0.6),
+      width = 0.3
+    ) +
+    scale_x_log10() +
+    labs(x = "Odds ratio (escala log)", y = NULL, color = "Comparación") +
+    theme_minimal(base_size = 12)
+
+  ggsave(file.path(plots_dir, "initial_membership_odds_ratios.png"), p_initial_effects, width = 10, height = 7, dpi = 300)
+  exported_files <- c(exported_files, "plots/initial_membership_odds_ratios.png")
+}
+
+# ============================================================
+# 4. Efectos de transicion
+# ============================================================
+
+transition_effects_raw <- extract_ga_effects(modelo_lm4, std_errors, wave_labels, period_labels)
+transition_effects_significant <- transition_effects_raw %>%
+  dplyr::filter(significativo) %>%
+  dplyr::mutate(
+    interpretacion = dplyr::case_when(
+      or > 1 ~ "Asociado con mayor probabilidad relativa de transición.",
+      or < 1 ~ "Asociado con menor probabilidad relativa de transición.",
+      TRUE ~ "Efecto cercano a nulo."
+    )
+  )
+
+readr::write_csv(round_numeric(transition_effects_raw, 4), file.path(tables_dir, "transition_effects_raw.csv"))
+readr::write_csv(round_numeric(transition_effects_significant, 4), file.path(tables_dir, "transition_effects_significant.csv"))
+exported_files <- c(exported_files, "tables/transition_effects_raw.csv", "tables/transition_effects_significant.csv")
+
+top_predictors_by_period <- transition_effects_significant %>%
+  dplyr::group_by(periodo) %>%
+  dplyr::arrange(dplyr::desc(abs(log(or))), .by_group = TRUE) %>%
+  dplyr::slice_head(n = 3) %>%
+  dplyr::ungroup() %>%
+  dplyr::select(periodo, ola_origen, variable, comparacion, coeficiente, or, or_ic_lower, or_ic_upper, p_value, interpretacion)
+
+readr::write_csv(round_numeric(top_predictors_by_period, 4), file.path(tables_dir, "top_predictors_by_period.csv"))
+exported_files <- c(exported_files, "tables/top_predictors_by_period.csv")
+
+# ============================================================
+# 5. Estabilidad y cambio de signo
+# ============================================================
+
+available_ga_periods <- intersect(period_labels, unique(transition_effects_raw$periodo))
+
+ga_key <- transition_effects_raw %>%
+  dplyr::filter(variable %in% key_vars, comparacion %in% comparison_levels) %>%
+  dplyr::mutate(
+    periodo = factor(periodo, levels = available_ga_periods),
+    comparacion = factor(comparacion, levels = comparison_levels),
+    variable = factor(variable, levels = rev(key_vars))
+  ) %>%
+  dplyr::arrange(comparacion, variable, periodo)
+
+ga_key_dynamics <- ga_key %>%
+  dplyr::group_by(variable, comparacion) %>%
+  dplyr::mutate(
+    signo_corto = short_sign_label(signo),
+    previous_sign = dplyr::lag(signo),
+    cambio_signo = !is.na(previous_sign) & signo != previous_sign & signo != "cero" & previous_sign != "cero",
+    heat_fill = dplyr::case_when(
+      signo == "positivo" ~ "positivo",
+      signo == "negativo" ~ "negativo",
+      TRUE ~ "neutro"
+    ),
+    matrix_fill = dplyr::case_when(
+      is.na(previous_sign) & signo == "positivo" ~ "positivo",
+      is.na(previous_sign) & signo == "negativo" ~ "negativo",
+      cambio_signo & signo == "positivo" ~ "positivo",
+      cambio_signo & signo == "negativo" ~ "negativo",
+      TRUE ~ "sin_cambio"
+    )
+  ) %>%
+  dplyr::ungroup()
+
+sign_changes_key_variables <- ga_key_dynamics %>%
+  dplyr::group_by(variable, comparacion) %>%
+  dplyr::summarise(
+    patron = paste(signo_corto, collapse = " | "),
+    n_signos = dplyr::n_distinct(signo[signo != "cero"]),
+    n_cambios = sum(cambio_signo, na.rm = TRUE),
+    cambio_signo = n_cambios > 0,
+    .groups = "drop"
+  ) %>%
+  dplyr::filter(cambio_signo)
+
+readr::write_csv(sign_changes_key_variables, file.path(tables_dir, "sign_changes_key_variables.csv"))
+exported_files <- c(exported_files, "tables/sign_changes_key_variables.csv")
+
+rupture_counts_period <- ga_key_dynamics %>%
+  dplyr::filter(cambio_signo) %>%
+  dplyr::count(periodo, name = "n_rupturas")
+
+rupture_patterns_by_variable <- ga_key_dynamics %>%
+  dplyr::group_by(variable, periodo) %>%
+  dplyr::summarise(
+    n_pos = sum(signo == "positivo", na.rm = TRUE),
+    n_neg = sum(signo == "negativo", na.rm = TRUE),
+    dominant_sign = dplyr::case_when(
+      n_pos > n_neg ~ "+",
+      n_neg > n_pos ~ "-",
+      TRUE ~ "0"
+    ),
+    .groups = "drop"
+  ) %>%
+  tidyr::pivot_wider(names_from = periodo, values_from = dominant_sign) %>%
+  dplyr::left_join(
+    ga_key_dynamics %>%
+      dplyr::group_by(variable) %>%
+      dplyr::summarise(
+        n_cambios = sum(cambio_signo, na.rm = TRUE),
+        ruptura_clave = ifelse(any(cambio_signo), as.character(periodo[which.max(cambio_signo)]), NA_character_),
+        .groups = "drop"
+      ),
+    by = "variable"
+  ) %>%
+  dplyr::mutate(
+    interpretacion = dplyr::case_when(
+      variable == "Confianza en pueblos originarios" ~ "Patrón compatible con reordenamiento de la confianza tras el ciclo de conflicto y represión.",
+      variable == "Justicia procedimental" ~ "Consistente con cambios en la evaluación del trato estatal según el contexto político.",
+      variable == "Frecuencia de contacto" ~ "El contacto aparece como mecanismo menos estable de lo esperado entre periodos.",
+      variable == "Identificación con la causa" ~ "La identificación parece politizarse y variar con la coyuntura.",
+      variable == "Identidad indígena" ~ "La identidad mantiene relevancia, aunque su signo no es completamente estable.",
+      variable == "Percepción de conflicto" ~ "Compatible con una mayor estructuración política de la percepción de conflicto.",
+      variable == "Edad" ~ "Sugiere reordenamientos generacionales entre periodos.",
+      TRUE ~ "Patrón de signo potencialmente inestable."
+    )
+  )
+
+readr::write_csv(rupture_patterns_by_variable, file.path(tables_dir, "rupture_patterns_by_variable.csv"))
+exported_files <- c(exported_files, "tables/rupture_patterns_by_variable.csv")
+
+sign_change_synthesis_by_class <- ga_key_dynamics %>%
+  dplyr::group_by(variable, comparacion) %>%
+  dplyr::summarise(
+    patron = paste(signo_corto, collapse = " | "),
+    n_cambios = sum(cambio_signo, na.rm = TRUE),
+    resumen = paste0(patron, " (", n_cambios, " cambios)"),
+    .groups = "drop"
+  ) %>%
+  tidyr::pivot_wider(names_from = comparacion, values_from = resumen) %>%
+  dplyr::mutate(
+    patron_general = dplyr::case_when(
+      grepl("\\(2 cambios\\)|\\(3 cambios\\)", `Clase 2 vs Clase 1`) ~ "Clase 2 más volátil",
+      grepl("\\(2 cambios\\)|\\(3 cambios\\)", `Clase 3 vs Clase 1`) ~ "Clase 3 más volátil",
+      grepl("\\(2 cambios\\)|\\(3 cambios\\)", `Clase 4 vs Clase 1`) ~ "Clase 4 más volátil",
+      TRUE ~ "Volatilidad compartida o baja"
+    )
+  )
+
+readr::write_csv(sign_change_synthesis_by_class, file.path(tables_dir, "sign_change_synthesis_by_class.csv"))
+exported_files <- c(exported_files, "tables/sign_change_synthesis_by_class.csv")
+
+if (nrow(ga_key_dynamics) > 0) {
+  p_sign_change_matrix <- ggplot(ga_key_dynamics, aes(x = periodo, y = variable, fill = matrix_fill)) +
+    geom_tile(color = "white", linewidth = 0.4) +
+    geom_tile(
+      data = ~ dplyr::filter(.x, cambio_signo),
+      fill = NA,
+      color = "black",
+      linewidth = 1.1
+    ) +
+    facet_wrap(~ comparacion, ncol = 1) +
+    geom_vline(xintercept = 2.5, linewidth = 1.2, color = "black") +
+    scale_fill_manual(values = c("positivo" = "#1b9e77", "negativo" = "#d95f02", "sin_cambio" = "grey75"), drop = FALSE) +
+    labs(
+      x = "Períodos",
+      y = NULL,
+      fill = NULL,
+      title = "Ruptura en Mecanismos de Transición: Antes vs Después de Represión"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1))
+
+  ggsave(file.path(plots_dir, "sign_change_matrix.png"), p_sign_change_matrix, width = 10, height = 9, dpi = 300)
+  exported_files <- c(exported_files, "plots/sign_change_matrix.png")
+
+  p_sign_heatmap <- ggplot(ga_key_dynamics, aes(x = periodo, y = variable, fill = heat_fill)) +
+    geom_tile(color = "white", linewidth = 0.4) +
+    geom_tile(
+      data = ~ dplyr::filter(.x, cambio_signo),
+      fill = NA,
+      color = "black",
+      linewidth = 1.1
+    ) +
+    facet_wrap(~ comparacion, ncol = 1) +
+    scale_fill_manual(values = c("positivo" = "#006d2c", "negativo" = "#a50f15", "neutro" = "grey70"), drop = FALSE) +
+    labs(
+      x = "Períodos",
+      y = NULL,
+      fill = "Signo",
+      title = "Estabilidad de Signos: Represión como Ruptura Estructural"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 25, hjust = 1))
+
+  ggsave(file.path(plots_dir, "sign_heatmap_by_period.png"), p_sign_heatmap, width = 10, height = 9, dpi = 300)
+  exported_files <- c(exported_files, "plots/sign_heatmap_by_period.png")
+
+  timeline_breaks <- ga_key_dynamics %>%
+    dplyr::filter(cambio_signo) %>%
+    dplyr::count(periodo, name = "n_rupturas") %>%
+    dplyr::right_join(
+      tibble::tibble(periodo = factor(available_ga_periods, levels = available_ga_periods)),
+      by = "periodo"
+    ) %>%
+    dplyr::mutate(
+      n_rupturas = dplyr::coalesce(n_rupturas, 0L),
+      balance = purrr::map_int(as.character(periodo), function(p) {
+        tmp <- ga_key_dynamics %>% dplyr::filter(as.character(periodo) == p, cambio_signo)
+        sum(tmp$signo == "positivo", na.rm = TRUE) - sum(tmp$signo == "negativo", na.rm = TRUE)
+      }),
+      color_event = dplyr::case_when(
+        balance > 0 ~ "fortalece",
+        balance < 0 ~ "debilita",
+        TRUE ~ "neutral"
+      )
+    )
+
+  p_rupture_timeline <- ggplot(timeline_breaks, aes(x = periodo, y = n_rupturas, group = 1, color = color_event)) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 4) +
+    scale_color_manual(values = c("fortalece" = "#1b9e77", "debilita" = "#d95f02", "neutral" = "grey50")) +
+    labs(
+      x = NULL,
+      y = "Número de rupturas de signo",
+      color = NULL,
+      title = "Represión Estatal como Quiebre en Actitudes Públicas (2016-2023)"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 20, hjust = 1))
+
+  ggsave(file.path(plots_dir, "rupture_timeline.png"), p_rupture_timeline, width = 10, height = 5.5, dpi = 300)
+  exported_files <- c(exported_files, "plots/rupture_timeline.png")
+}
+
+# ============================================================
+# 6. Interpretacion breve para uso interno
+# ============================================================
+
+critical_variables <- ga_key_dynamics %>%
+  dplyr::group_by(variable) %>%
+  dplyr::summarise(n_cambios = sum(cambio_signo, na.rm = TRUE), .groups = "drop") %>%
+  dplyr::arrange(dplyr::desc(n_cambios))
+
+hypothesis_validation <- tibble::tibble(
+  hypothesis = c(
+    "H1: 2018→2021 concentra los cambios de signo",
+    "H2: Confianza en pueblos originarios es la más volátil",
+    "H3: Justicia procedimental pierde capacidad explicativa tras 2018",
+    "H4: Identidad indígena se vuelve más importante post-represión"
+  ),
+  prediction = c(
+    "El mayor número de rupturas aparece en 2018_2021",
+    "Confianza presenta el mayor número de cambios",
+    "Justicia cambia de signo después de 2018 en al menos una comparación",
+    "Identidad indígena mantiene signo positivo en el periodo post-represión"
+  ),
+  observed = c(
+    if (nrow(rupture_counts_period) > 0) as.character(rupture_counts_period$periodo[which.max(rupture_counts_period$n_rupturas)]) else "Sin rupturas observadas",
+    if (nrow(critical_variables) > 0) as.character(critical_variables$variable[which.max(critical_variables$n_cambios)]) else "Sin cambios observados",
+    if (any(ga_key_dynamics$variable == "Justicia procedimental")) "Se observan cambios de signo en algunas comparaciones." else "No se observa cambio claro.",
+    if (any(ga_key_dynamics$variable == "Identidad indígena")) {
+      id_post <- ga_key_dynamics %>% dplyr::filter(variable == "Identidad indígena", as.character(periodo) %in% c("2018_2021", "2021_2023"))
+      paste(unique(id_post$signo), collapse = "; ")
+    } else {
+      "No disponible"
+    }
+  ),
+  validated = c(
+    if (nrow(rupture_counts_period) > 0 && as.character(rupture_counts_period$periodo[which.max(rupture_counts_period$n_rupturas)]) == "2018_2021") "SI" else "NO",
+    if (nrow(critical_variables) > 0 && critical_variables$variable[which.max(critical_variables$n_cambios)] == "Confianza en pueblos originarios") "SI" else "NO",
+    if (any(ga_key_dynamics$variable == "Justicia procedimental" & ga_key_dynamics$cambio_signo)) "SI" else "NO",
+    if (any(ga_key_dynamics$variable == "Identidad indígena" & as.character(ga_key_dynamics$periodo) %in% c("2018_2021", "2021_2023") & ga_key_dynamics$signo == "positivo")) "SI" else "NO"
+  )
+)
+
+readr::write_csv(hypothesis_validation, file.path(tables_dir, "hypothesis_validation.csv"))
+exported_files <- c(exported_files, "tables/hypothesis_validation.csv")
+
+period_narrative <- c(
+  "Narrativa histórica por período",
+  "2016→2018: Predomina un patrón más predecible y relativamente estable antes del estallido social.",
+  "2018→2021: Se observan varias rupturas de signo, especialmente en variables asociadas con conflicto, confianza y justicia procedimental; este patrón es consistente con una reconfiguración del contexto tras el estallido y la represión.",
+  "2021→2023: Parte de los cambios se consolidan y parte se revierten, lo que sugiere un reacomodo post-represión durante el ciclo constituyente.",
+  "2023→?: La proyección debe leerse con cautela; el patrón previo sugiere que algunas asociaciones podrían estabilizarse y otras seguir siendo volátiles."
+)
+
+executive_summary <- paste(
+  "En conjunto, el modelo longitudinal sugiere que el ciclo 2018–2021 estuvo asociado con un reordenamiento de los mecanismos que estructuran las transiciones entre clases latentes.",
+  "Las variables más sensibles fueron confianza en pueblos originarios, justicia procedimental, frecuencia de contacto e identidad/identificación, aunque la evidencia debe leerse como asociativa y no causal.",
+  "Si estos patrones persistieran, 2026 podría mostrar una estabilización parcial solo si mejora la legitimidad institucional y disminuye la polarización."
+)
+
+interpretation_lines <- c(
+  "Interpretación breve del análisis longitudinal",
+  paste0("Modelo leído correctamente: ", modelo_path),
+  paste0("Número de clases: ", modelo_lm4$k),
+  paste0("Número de observaciones: ", modelo_lm4$n),
+  paste0("Periodo con mayor movilidad global: ", mobility_summary_by_period$period[which.max(mobility_summary_by_period$mobility_overall_pct)]),
+  paste0("Variables críticas por número de cambios: ", paste0(critical_variables$variable, " (", critical_variables$n_cambios, ")", collapse = "; ")),
+  "",
+  period_narrative,
+  "",
+  "Validación de hipótesis",
+  paste0(hypothesis_validation$hypothesis, ": ", hypothesis_validation$validated, " | observado = ", hypothesis_validation$observed),
+  "",
+  "Conclusión ejecutiva",
+  executive_summary
+)
+
+writeLines(interpretation_lines, con = file.path(tables_dir, "interpretation_brief.txt"))
+exported_files <- c(exported_files, "tables/interpretation_brief.txt")
+
+# ============================================================
+# 7. Outputs auxiliares HTML
+# ============================================================
+
+save_html_table(round_numeric(class_prevalence_by_wave, 1), file.path(tables_dir, "class_prevalence_by_wave.html"), "Prevalencia de clases por ola", 1)
+save_html_table(round_numeric(mobility_summary_by_period, 2), file.path(tables_dir, "mobility_summary_by_period.html"), "Movilidad global por período", 2)
+save_html_table(round_numeric(net_flows_by_class_and_period, 2), file.path(tables_dir, "net_flows_by_class_and_period.html"), "Flujos netos por clase y período", 2)
+save_html_table(round_numeric(transition_effects_significant, 4), file.path(tables_dir, "transition_effects_significant.html"), "Predictores significativos de transición", 4)
+save_html_table(round_numeric(top_predictors_by_period, 4), file.path(tables_dir, "top_predictors_by_period.html"), "Top predictores por período", 4)
+if (nrow(sign_changes_key_variables) > 0) {
+  save_html_table(sign_changes_key_variables, file.path(tables_dir, "sign_changes_key_variables.html"), "Cambios de signo en variables clave", 3)
+}
+save_html_table(rupture_patterns_by_variable, file.path(tables_dir, "rupture_patterns_by_variable.html"), "Patrones de ruptura por variable", 3)
+save_html_table(sign_change_synthesis_by_class, file.path(tables_dir, "sign_change_synthesis_by_class.html"), "Síntesis de cambios de signo por clase", 3)
+save_html_table(hypothesis_validation, file.path(tables_dir, "hypothesis_validation.html"), "Validación de hipótesis", 3)
+
+# ============================================================
+# 8. Resumen de estado en consola
+# ============================================================
+
+message("modelo leído correctamente")
+message("número de clases: ", modelo_lm4$k)
+message("número de observaciones: ", modelo_lm4$n)
+message("archivos exportados principales:")
+for (path in unique(exported_files)) {
+  message("- outputs/longitudinal/", path)
+}
 

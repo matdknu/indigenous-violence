@@ -1,0 +1,22 @@
+variable,comparacion,patron,n_signos,n_cambios,cambio_signo
+Edad,Clase 2 vs Clase 1,+ | - | - | + | + | + | - | + | - | + | - | - | - | + | - | - | + | - | + | -,2,13,TRUE
+Edad,Clase 3 vs Clase 1,+ | - | + | + | + | - | + | - | + | + | + | - | + | - | + | - | + | - | + | -,2,15,TRUE
+Edad,Clase 4 vs Clase 1,+ | + | - | + | - | - | + | - | - | + | + | - | + | + | + | - | + | - | + | -,2,13,TRUE
+Identidad indígena,Clase 2 vs Clase 1,- | - | + | -,2,2,TRUE
+Identidad indígena,Clase 3 vs Clase 1,+ | + | - | -,2,1,TRUE
+Identidad indígena,Clase 4 vs Clase 1,+ | - | - | +,2,2,TRUE
+Frecuencia de contacto,Clase 2 vs Clase 1,+ | - | - | +,2,2,TRUE
+Frecuencia de contacto,Clase 3 vs Clase 1,+ | - | - | +,2,2,TRUE
+Frecuencia de contacto,Clase 4 vs Clase 1,- | - | + | +,2,1,TRUE
+Identificación con la causa,Clase 2 vs Clase 1,- | + | - | -,2,2,TRUE
+Identificación con la causa,Clase 3 vs Clase 1,+ | + | - | -,2,1,TRUE
+Identificación con la causa,Clase 4 vs Clase 1,+ | + | - | +,2,2,TRUE
+Justicia procedimental,Clase 2 vs Clase 1,+ | - | + | -,2,3,TRUE
+Justicia procedimental,Clase 3 vs Clase 1,- | - | + | -,2,2,TRUE
+Justicia procedimental,Clase 4 vs Clase 1,+ | + | + | -,2,1,TRUE
+Confianza en pueblos originarios,Clase 2 vs Clase 1,- | + | - | +,2,3,TRUE
+Confianza en pueblos originarios,Clase 3 vs Clase 1,- | + | - | -,2,2,TRUE
+Confianza en pueblos originarios,Clase 4 vs Clase 1,- | + | - | +,2,3,TRUE
+Percepción de conflicto,Clase 2 vs Clase 1,+ | - | - | -,2,1,TRUE
+Percepción de conflicto,Clase 3 vs Clase 1,+ | + | + | -,2,1,TRUE
+Percepción de conflicto,Clase 4 vs Clase 1,+ | - | + | -,2,3,TRUE

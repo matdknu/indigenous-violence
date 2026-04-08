@@ -1,0 +1,2 @@
+selected_k,k_with_min_bic,selected_model_BIC,selected_model_AIC,selected_model_logLik,sample_subjects,sample_rows,balanced_waves,modBasic,modManifest,paramLatent,missing_policy
+4,4,20981.47206883734,19832.43689744321,-9690.218448721605,1193,4774,4,3,FM,multilogit,Balanced 4-wave panel; median imputation only for d5_1; complete-case on remaining variables

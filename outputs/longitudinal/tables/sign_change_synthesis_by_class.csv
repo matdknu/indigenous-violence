@@ -1,0 +1,20 @@
+variable,patron,n_cambios,Clase 2 vs Clase 1,Clase 3 vs Clase 1,Clase 4 vs Clase 1,patron_general
+Edad,+ | - | - | + | + | + | - | + | - | + | - | - | - | + | - | - | + | - | + | -,13,+ | - | - | + | + | + | - | + | - | + | - | - | - | + | - | - | + | - | + | - (13 cambios),NA,NA,Volatilidad compartida o baja
+Edad,+ | - | + | + | + | - | + | - | + | + | + | - | + | - | + | - | + | - | + | -,15,NA,+ | - | + | + | + | - | + | - | + | + | + | - | + | - | + | - | + | - | + | - (15 cambios),NA,Volatilidad compartida o baja
+Edad,+ | + | - | + | - | - | + | - | - | + | + | - | + | + | + | - | + | - | + | -,13,NA,NA,+ | + | - | + | - | - | + | - | - | + | + | - | + | + | + | - | + | - | + | - (13 cambios),Volatilidad compartida o baja
+Identidad indígena,- | - | + | -,2,- | - | + | - (2 cambios),NA,NA,Clase 2 más volátil
+Identidad indígena,+ | + | - | -,1,NA,+ | + | - | - (1 cambios),NA,Volatilidad compartida o baja
+Identidad indígena,+ | - | - | +,2,NA,NA,+ | - | - | + (2 cambios),Clase 4 más volátil
+Frecuencia de contacto,+ | - | - | +,2,+ | - | - | + (2 cambios),+ | - | - | + (2 cambios),NA,Clase 2 más volátil
+Frecuencia de contacto,- | - | + | +,1,NA,NA,- | - | + | + (1 cambios),Volatilidad compartida o baja
+Identificación con la causa,- | + | - | -,2,- | + | - | - (2 cambios),NA,NA,Clase 2 más volátil
+Identificación con la causa,+ | + | - | -,1,NA,+ | + | - | - (1 cambios),NA,Volatilidad compartida o baja
+Identificación con la causa,+ | + | - | +,2,NA,NA,+ | + | - | + (2 cambios),Clase 4 más volátil
+Justicia procedimental,+ | - | + | -,3,+ | - | + | - (3 cambios),NA,NA,Clase 2 más volátil
+Justicia procedimental,- | - | + | -,2,NA,- | - | + | - (2 cambios),NA,Clase 3 más volátil
+Justicia procedimental,+ | + | + | -,1,NA,NA,+ | + | + | - (1 cambios),Volatilidad compartida o baja
+Confianza en pueblos originarios,- | + | - | +,3,- | + | - | + (3 cambios),NA,- | + | - | + (3 cambios),Clase 2 más volátil
+Confianza en pueblos originarios,- | + | - | -,2,NA,- | + | - | - (2 cambios),NA,Clase 3 más volátil
+Percepción de conflicto,+ | - | - | -,1,+ | - | - | - (1 cambios),NA,NA,Volatilidad compartida o baja
+Percepción de conflicto,+ | + | + | -,1,NA,+ | + | + | - (1 cambios),NA,Volatilidad compartida o baja
+Percepción de conflicto,+ | - | + | -,3,NA,NA,+ | - | + | - (3 cambios),Clase 4 más volátil

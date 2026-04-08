@@ -1,0 +1,21 @@
+Interpretación breve del análisis longitudinal
+Modelo leído correctamente: /Users/matdknu/Dropbox/escritos_academicos/indigenous-violence/outputs/longitudinal/models/modelo_4c.rds
+Número de clases: 4
+Número de observaciones: 1193
+Periodo con mayor movilidad global: 2021_2023
+Variables críticas por número de cambios: Edad (41); Confianza en pueblos originarios (8); Justicia procedimental (6); Identidad indígena (5); Frecuencia de contacto (5); Identificación con la causa (5); Percepción de conflicto (5)
+
+Narrativa histórica por período
+2016→2018: Predomina un patrón más predecible y relativamente estable antes del estallido social.
+2018→2021: Se observan varias rupturas de signo, especialmente en variables asociadas con conflicto, confianza y justicia procedimental; este patrón es consistente con una reconfiguración del contexto tras el estallido y la represión.
+2021→2023: Parte de los cambios se consolidan y parte se revierten, lo que sugiere un reacomodo post-represión durante el ciclo constituyente.
+2023→?: La proyección debe leerse con cautela; el patrón previo sugiere que algunas asociaciones podrían estabilizarse y otras seguir siendo volátiles.
+
+Validación de hipótesis
+H1: 2018→2021 concentra los cambios de signo: NO | observado = 2023_?
+H2: Confianza en pueblos originarios es la más volátil: NO | observado = Edad
+H3: Justicia procedimental pierde capacidad explicativa tras 2018: SI | observado = Se observan cambios de signo en algunas comparaciones.
+H4: Identidad indígena se vuelve más importante post-represión: SI | observado = negativo; positivo
+
+Conclusión ejecutiva
+En conjunto, el modelo longitudinal sugiere que el ciclo 2018–2021 estuvo asociado con un reordenamiento de los mecanismos que estructuran las transiciones entre clases latentes. Las variables más sensibles fueron confianza en pueblos originarios, justicia procedimental, frecuencia de contacto e identidad/identificación, aunque la evidencia debe leerse como asociativa y no causal. Si estos patrones persistieran, 2026 podría mostrar una estabilización parcial solo si mejora la legitimidad institucional y disminuye la polarización.

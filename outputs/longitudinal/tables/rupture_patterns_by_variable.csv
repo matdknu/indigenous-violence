@@ -1,0 +1,25 @@
+variable,n_pos,n_neg,2016_2018,2018_2021,2021_2023,2023_?,n_cambios,ruptura_clave,interpretacion
+Edad,10,5,+,NA,NA,NA,41,2016_2018,Sugiere reordenamientos generacionales entre periodos.
+Edad,8,7,NA,+,+,NA,41,2016_2018,Sugiere reordenamientos generacionales entre periodos.
+Edad,6,9,NA,NA,NA,-,41,2016_2018,Sugiere reordenamientos generacionales entre periodos.
+Identidad indígena,2,1,+,NA,NA,NA,5,2021_2023,"La identidad mantiene relevancia, aunque su signo no es completamente estable."
+Identidad indígena,1,2,NA,-,-,-,5,2021_2023,"La identidad mantiene relevancia, aunque su signo no es completamente estable."
+Frecuencia de contacto,2,1,+,NA,NA,NA,5,2018_2021,El contacto aparece como mecanismo menos estable de lo esperado entre periodos.
+Frecuencia de contacto,0,3,NA,-,NA,NA,5,2018_2021,El contacto aparece como mecanismo menos estable de lo esperado entre periodos.
+Frecuencia de contacto,1,2,NA,NA,-,NA,5,2018_2021,El contacto aparece como mecanismo menos estable de lo esperado entre periodos.
+Frecuencia de contacto,3,0,NA,NA,NA,+,5,2018_2021,El contacto aparece como mecanismo menos estable de lo esperado entre periodos.
+Identificación con la causa,2,1,+,NA,NA,NA,5,2018_2021,La identificación parece politizarse y variar con la coyuntura.
+Identificación con la causa,3,0,NA,+,NA,NA,5,2018_2021,La identificación parece politizarse y variar con la coyuntura.
+Identificación con la causa,0,3,NA,NA,-,NA,5,2018_2021,La identificación parece politizarse y variar con la coyuntura.
+Identificación con la causa,1,2,NA,NA,NA,-,5,2018_2021,La identificación parece politizarse y variar con la coyuntura.
+Justicia procedimental,2,1,+,NA,NA,NA,6,2018_2021,Consistente con cambios en la evaluación del trato estatal según el contexto político.
+Justicia procedimental,1,2,NA,-,NA,NA,6,2018_2021,Consistente con cambios en la evaluación del trato estatal según el contexto político.
+Justicia procedimental,3,0,NA,NA,+,NA,6,2018_2021,Consistente con cambios en la evaluación del trato estatal según el contexto político.
+Justicia procedimental,0,3,NA,NA,NA,-,6,2018_2021,Consistente con cambios en la evaluación del trato estatal según el contexto político.
+Confianza en pueblos originarios,0,3,-,NA,-,NA,8,2018_2021,Patrón compatible con reordenamiento de la confianza tras el ciclo de conflicto y represión.
+Confianza en pueblos originarios,3,0,NA,+,NA,NA,8,2018_2021,Patrón compatible con reordenamiento de la confianza tras el ciclo de conflicto y represión.
+Confianza en pueblos originarios,2,1,NA,NA,NA,+,8,2018_2021,Patrón compatible con reordenamiento de la confianza tras el ciclo de conflicto y represión.
+Percepción de conflicto,3,0,+,NA,NA,NA,5,2018_2021,Compatible con una mayor estructuración política de la percepción de conflicto.
+Percepción de conflicto,1,2,NA,-,NA,NA,5,2018_2021,Compatible con una mayor estructuración política de la percepción de conflicto.
+Percepción de conflicto,2,1,NA,NA,+,NA,5,2018_2021,Compatible con una mayor estructuración política de la percepción de conflicto.
+Percepción de conflicto,0,3,NA,NA,NA,-,5,2018_2021,Compatible con una mayor estructuración política de la percepción de conflicto.

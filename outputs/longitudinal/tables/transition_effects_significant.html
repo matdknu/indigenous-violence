@@ -280,526 +280,1093 @@ border: 0;
 
 </head>
 <body>
-<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<caption>Resultados (log-odds y OR) relativos a Clase 1 (referencia)</caption>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Predictores significativos de transición</caption>
  <thead>
   <tr>
-   <th style="text-align:left;"> Variable </th>
-   <th style="text-align:left;"> Comparación </th>
-   <th style="text-align:right;"> Coef. </th>
-   <th style="text-align:right;"> SE </th>
-   <th style="text-align:right;"> IC Inf. </th>
-   <th style="text-align:right;"> IC Sup. </th>
-   <th style="text-align:right;"> OR </th>
-   <th style="text-align:right;"> OR IC Inf. </th>
-   <th style="text-align:right;"> OR IC Sup. </th>
-   <th style="text-align:left;"> Signif. </th>
+   <th style="text-align:left;"> term </th>
+   <th style="text-align:left;"> variable </th>
+   <th style="text-align:right;"> clase_origen </th>
+   <th style="text-align:left;"> ola_origen </th>
+   <th style="text-align:left;"> periodo </th>
+   <th style="text-align:left;"> clase_destino </th>
+   <th style="text-align:left;"> comparacion </th>
+   <th style="text-align:right;"> coeficiente </th>
+   <th style="text-align:right;"> se </th>
+   <th style="text-align:right;"> z </th>
+   <th style="text-align:right;"> p_value </th>
+   <th style="text-align:right;"> or </th>
+   <th style="text-align:right;"> or_ic_lower </th>
+   <th style="text-align:right;"> or_ic_upper </th>
+   <th style="text-align:left;"> significativo </th>
+   <th style="text-align:left;"> signo </th>
+   <th style="text-align:left;"> interpretacion </th>
   </tr>
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> confianza_ppoo </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> -0.339 </td>
-   <td style="text-align:right;"> 0.120 </td>
-   <td style="text-align:right;"> -0.574 </td>
-   <td style="text-align:right;"> -0.104 </td>
-   <td style="text-align:right;"> 0.713 </td>
-   <td style="text-align:right;"> 0.563 </td>
-   <td style="text-align:right;"> 0.901 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -2.6609 </td>
+   <td style="text-align:right;"> 0.9473 </td>
+   <td style="text-align:right;"> -2.8088 </td>
+   <td style="text-align:right;"> 0.0050 </td>
+   <td style="text-align:right;"> 0.0699 </td>
+   <td style="text-align:right;"> 0.0109 </td>
+   <td style="text-align:right;"> 0.4475 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -0.163 </td>
-   <td style="text-align:right;"> 0.127 </td>
-   <td style="text-align:right;"> -0.413 </td>
-   <td style="text-align:right;"> 0.086 </td>
-   <td style="text-align:right;"> 0.849 </td>
-   <td style="text-align:right;"> 0.662 </td>
-   <td style="text-align:right;"> 1.090 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -5.1146 </td>
+   <td style="text-align:right;"> 0.9693 </td>
+   <td style="text-align:right;"> -5.2765 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0060 </td>
+   <td style="text-align:right;"> 0.0009 </td>
+   <td style="text-align:right;"> 0.0402 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.341 </td>
-   <td style="text-align:right;"> 0.144 </td>
-   <td style="text-align:right;"> -0.622 </td>
-   <td style="text-align:right;"> -0.059 </td>
-   <td style="text-align:right;"> 0.711 </td>
-   <td style="text-align:right;"> 0.537 </td>
-   <td style="text-align:right;"> 0.943 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> indiindi </td>
+   <td style="text-align:left;"> Identidad indígena </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.5966 </td>
+   <td style="text-align:right;"> 0.2854 </td>
+   <td style="text-align:right;"> 2.0908 </td>
+   <td style="text-align:right;"> 0.0366 </td>
+   <td style="text-align:right;"> 1.8160 </td>
+   <td style="text-align:right;"> 1.0380 </td>
+   <td style="text-align:right;"> 3.1771 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> conflicto_estado </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> 0.152 </td>
-   <td style="text-align:right;"> 0.120 </td>
-   <td style="text-align:right;"> -0.083 </td>
-   <td style="text-align:right;"> 0.387 </td>
-   <td style="text-align:right;"> 1.164 </td>
-   <td style="text-align:right;"> 0.920 </td>
-   <td style="text-align:right;"> 1.473 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> edad^4 </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.6890 </td>
+   <td style="text-align:right;"> 0.2714 </td>
+   <td style="text-align:right;"> 2.5387 </td>
+   <td style="text-align:right;"> 0.0111 </td>
+   <td style="text-align:right;"> 1.9917 </td>
+   <td style="text-align:right;"> 1.1701 </td>
+   <td style="text-align:right;"> 3.3904 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> 0.468 </td>
-   <td style="text-align:right;"> 0.143 </td>
-   <td style="text-align:right;"> 0.187 </td>
-   <td style="text-align:right;"> 0.748 </td>
-   <td style="text-align:right;"> 1.596 </td>
-   <td style="text-align:right;"> 1.206 </td>
-   <td style="text-align:right;"> 2.113 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> edad^4 </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.8580 </td>
+   <td style="text-align:right;"> 0.3277 </td>
+   <td style="text-align:right;"> 2.6183 </td>
+   <td style="text-align:right;"> 0.0088 </td>
+   <td style="text-align:right;"> 2.3583 </td>
+   <td style="text-align:right;"> 1.2407 </td>
+   <td style="text-align:right;"> 4.4826 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> 0.030 </td>
-   <td style="text-align:right;"> 0.129 </td>
-   <td style="text-align:right;"> -0.223 </td>
-   <td style="text-align:right;"> 0.283 </td>
-   <td style="text-align:right;"> 1.030 </td>
-   <td style="text-align:right;"> 0.800 </td>
-   <td style="text-align:right;"> 1.327 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d1_1 </td>
+   <td style="text-align:left;"> Percepción de conflicto </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.4979 </td>
+   <td style="text-align:right;"> 0.1453 </td>
+   <td style="text-align:right;"> 3.4263 </td>
+   <td style="text-align:right;"> 0.0006 </td>
+   <td style="text-align:right;"> 1.6453 </td>
+   <td style="text-align:right;"> 1.2375 </td>
+   <td style="text-align:right;"> 2.1875 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> edad25_34 </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> 0.263 </td>
-   <td style="text-align:right;"> 0.410 </td>
-   <td style="text-align:right;"> -0.541 </td>
-   <td style="text-align:right;"> 1.066 </td>
-   <td style="text-align:right;"> 1.300 </td>
-   <td style="text-align:right;"> 0.582 </td>
-   <td style="text-align:right;"> 2.904 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> c5 </td>
+   <td style="text-align:left;"> Confianza en pueblos originarios </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.2608 </td>
+   <td style="text-align:right;"> 0.1141 </td>
+   <td style="text-align:right;"> -2.2858 </td>
+   <td style="text-align:right;"> 0.0223 </td>
+   <td style="text-align:right;"> 0.7704 </td>
+   <td style="text-align:right;"> 0.6160 </td>
+   <td style="text-align:right;"> 0.9635 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -0.095 </td>
-   <td style="text-align:right;"> 0.387 </td>
-   <td style="text-align:right;"> -0.853 </td>
-   <td style="text-align:right;"> 0.663 </td>
-   <td style="text-align:right;"> 0.910 </td>
-   <td style="text-align:right;"> 0.426 </td>
-   <td style="text-align:right;"> 1.941 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> c5 </td>
+   <td style="text-align:left;"> Confianza en pueblos originarios </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.4379 </td>
+   <td style="text-align:right;"> 0.1274 </td>
+   <td style="text-align:right;"> -3.4387 </td>
+   <td style="text-align:right;"> 0.0006 </td>
+   <td style="text-align:right;"> 0.6454 </td>
+   <td style="text-align:right;"> 0.5028 </td>
+   <td style="text-align:right;"> 0.8283 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.330 </td>
-   <td style="text-align:right;"> 0.487 </td>
-   <td style="text-align:right;"> -1.286 </td>
-   <td style="text-align:right;"> 0.625 </td>
-   <td style="text-align:right;"> 0.719 </td>
-   <td style="text-align:right;"> 0.276 </td>
-   <td style="text-align:right;"> 1.868 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.7396 </td>
+   <td style="text-align:right;"> 0.1073 </td>
+   <td style="text-align:right;"> 6.8956 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 2.0952 </td>
+   <td style="text-align:right;"> 1.6979 </td>
+   <td style="text-align:right;"> 2.5853 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> edad35_44 </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> 0.446 </td>
-   <td style="text-align:right;"> 0.401 </td>
-   <td style="text-align:right;"> -0.341 </td>
-   <td style="text-align:right;"> 1.232 </td>
-   <td style="text-align:right;"> 1.562 </td>
-   <td style="text-align:right;"> 0.711 </td>
-   <td style="text-align:right;"> 3.429 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.2270 </td>
+   <td style="text-align:right;"> 0.1108 </td>
+   <td style="text-align:right;"> -2.0485 </td>
+   <td style="text-align:right;"> 0.0405 </td>
+   <td style="text-align:right;"> 0.7969 </td>
+   <td style="text-align:right;"> 0.6413 </td>
+   <td style="text-align:right;"> 0.9902 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -0.364 </td>
-   <td style="text-align:right;"> 0.399 </td>
-   <td style="text-align:right;"> -1.147 </td>
-   <td style="text-align:right;"> 0.418 </td>
-   <td style="text-align:right;"> 0.695 </td>
-   <td style="text-align:right;"> 0.318 </td>
-   <td style="text-align:right;"> 1.519 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.6374 </td>
+   <td style="text-align:right;"> 0.1131 </td>
+   <td style="text-align:right;"> 5.6339 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 1.8915 </td>
+   <td style="text-align:right;"> 1.5153 </td>
+   <td style="text-align:right;"> 2.3611 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> 0.272 </td>
-   <td style="text-align:right;"> 0.433 </td>
-   <td style="text-align:right;"> -0.578 </td>
-   <td style="text-align:right;"> 1.121 </td>
-   <td style="text-align:right;"> 1.312 </td>
-   <td style="text-align:right;"> 0.561 </td>
-   <td style="text-align:right;"> 3.068 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.2808 </td>
+   <td style="text-align:right;"> 0.1015 </td>
+   <td style="text-align:right;"> -2.7669 </td>
+   <td style="text-align:right;"> 0.0057 </td>
+   <td style="text-align:right;"> 0.7552 </td>
+   <td style="text-align:right;"> 0.6189 </td>
+   <td style="text-align:right;"> 0.9214 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> edad45_54 </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> -0.006 </td>
-   <td style="text-align:right;"> 0.387 </td>
-   <td style="text-align:right;"> -0.764 </td>
-   <td style="text-align:right;"> 0.753 </td>
-   <td style="text-align:right;"> 0.994 </td>
-   <td style="text-align:right;"> 0.466 </td>
-   <td style="text-align:right;"> 2.123 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:left;"> 2016 </td>
+   <td style="text-align:left;"> 2016_2018 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.4330 </td>
+   <td style="text-align:right;"> 0.1292 </td>
+   <td style="text-align:right;"> 3.3515 </td>
+   <td style="text-align:right;"> 0.0008 </td>
+   <td style="text-align:right;"> 1.5419 </td>
+   <td style="text-align:right;"> 1.1970 </td>
+   <td style="text-align:right;"> 1.9862 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -0.441 </td>
-   <td style="text-align:right;"> 0.368 </td>
-   <td style="text-align:right;"> -1.161 </td>
-   <td style="text-align:right;"> 0.280 </td>
-   <td style="text-align:right;"> 0.644 </td>
-   <td style="text-align:right;"> 0.313 </td>
-   <td style="text-align:right;"> 1.323 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -6.3129 </td>
+   <td style="text-align:right;"> 1.2665 </td>
+   <td style="text-align:right;"> -4.9844 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0018 </td>
+   <td style="text-align:right;"> 0.0002 </td>
+   <td style="text-align:right;"> 0.0217 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.030 </td>
-   <td style="text-align:right;"> 0.421 </td>
-   <td style="text-align:right;"> -0.856 </td>
-   <td style="text-align:right;"> 0.796 </td>
-   <td style="text-align:right;"> 0.970 </td>
-   <td style="text-align:right;"> 0.425 </td>
-   <td style="text-align:right;"> 2.216 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> edad.L </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -1.0842 </td>
+   <td style="text-align:right;"> 0.5171 </td>
+   <td style="text-align:right;"> -2.0965 </td>
+   <td style="text-align:right;"> 0.0360 </td>
+   <td style="text-align:right;"> 0.3382 </td>
+   <td style="text-align:right;"> 0.1227 </td>
+   <td style="text-align:right;"> 0.9318 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> edad55_64 </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> -0.505 </td>
-   <td style="text-align:right;"> 0.423 </td>
-   <td style="text-align:right;"> -1.335 </td>
-   <td style="text-align:right;"> 0.325 </td>
-   <td style="text-align:right;"> 0.604 </td>
-   <td style="text-align:right;"> 0.263 </td>
-   <td style="text-align:right;"> 1.384 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> c5 </td>
+   <td style="text-align:left;"> Confianza en pueblos originarios </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.5107 </td>
+   <td style="text-align:right;"> 0.1426 </td>
+   <td style="text-align:right;"> 3.5821 </td>
+   <td style="text-align:right;"> 0.0003 </td>
+   <td style="text-align:right;"> 1.6665 </td>
+   <td style="text-align:right;"> 1.2602 </td>
+   <td style="text-align:right;"> 2.2037 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -1.001 </td>
-   <td style="text-align:right;"> 0.407 </td>
-   <td style="text-align:right;"> -1.799 </td>
-   <td style="text-align:right;"> -0.203 </td>
-   <td style="text-align:right;"> 0.367 </td>
-   <td style="text-align:right;"> 0.165 </td>
-   <td style="text-align:right;"> 0.816 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> c5 </td>
+   <td style="text-align:left;"> Confianza en pueblos originarios </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.4332 </td>
+   <td style="text-align:right;"> 0.1869 </td>
+   <td style="text-align:right;"> 2.3174 </td>
+   <td style="text-align:right;"> 0.0205 </td>
+   <td style="text-align:right;"> 1.5422 </td>
+   <td style="text-align:right;"> 1.0691 </td>
+   <td style="text-align:right;"> 2.2246 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.547 </td>
-   <td style="text-align:right;"> 0.435 </td>
-   <td style="text-align:right;"> -1.399 </td>
-   <td style="text-align:right;"> 0.305 </td>
-   <td style="text-align:right;"> 0.579 </td>
-   <td style="text-align:right;"> 0.247 </td>
-   <td style="text-align:right;"> 1.357 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.5552 </td>
+   <td style="text-align:right;"> 0.1299 </td>
+   <td style="text-align:right;"> -4.2752 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.5740 </td>
+   <td style="text-align:right;"> 0.4450 </td>
+   <td style="text-align:right;"> 0.7403 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> edad65+ </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> -0.210 </td>
-   <td style="text-align:right;"> 0.411 </td>
-   <td style="text-align:right;"> -1.016 </td>
-   <td style="text-align:right;"> 0.596 </td>
-   <td style="text-align:right;"> 0.810 </td>
-   <td style="text-align:right;"> 0.362 </td>
-   <td style="text-align:right;"> 1.815 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -1.2866 </td>
+   <td style="text-align:right;"> 0.2156 </td>
+   <td style="text-align:right;"> -5.9664 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.2762 </td>
+   <td style="text-align:right;"> 0.1810 </td>
+   <td style="text-align:right;"> 0.4215 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -0.791 </td>
-   <td style="text-align:right;"> 0.433 </td>
-   <td style="text-align:right;"> -1.640 </td>
-   <td style="text-align:right;"> 0.057 </td>
-   <td style="text-align:right;"> 0.453 </td>
-   <td style="text-align:right;"> 0.194 </td>
-   <td style="text-align:right;"> 1.059 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.4554 </td>
+   <td style="text-align:right;"> 0.1897 </td>
+   <td style="text-align:right;"> 2.4000 </td>
+   <td style="text-align:right;"> 0.0164 </td>
+   <td style="text-align:right;"> 1.5768 </td>
+   <td style="text-align:right;"> 1.0871 </td>
+   <td style="text-align:right;"> 2.2870 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.263 </td>
-   <td style="text-align:right;"> 0.440 </td>
-   <td style="text-align:right;"> -1.125 </td>
-   <td style="text-align:right;"> 0.599 </td>
-   <td style="text-align:right;"> 0.769 </td>
-   <td style="text-align:right;"> 0.325 </td>
-   <td style="text-align:right;"> 1.821 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.2863 </td>
+   <td style="text-align:right;"> 0.1153 </td>
+   <td style="text-align:right;"> 2.4827 </td>
+   <td style="text-align:right;"> 0.0130 </td>
+   <td style="text-align:right;"> 1.3315 </td>
+   <td style="text-align:right;"> 1.0621 </td>
+   <td style="text-align:right;"> 1.6692 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> frq_contacto </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> 0.124 </td>
-   <td style="text-align:right;"> 0.098 </td>
-   <td style="text-align:right;"> -0.068 </td>
-   <td style="text-align:right;"> 0.315 </td>
-   <td style="text-align:right;"> 1.132 </td>
-   <td style="text-align:right;"> 0.935 </td>
-   <td style="text-align:right;"> 1.371 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 1.1509 </td>
+   <td style="text-align:right;"> 0.2684 </td>
+   <td style="text-align:right;"> 4.2878 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 3.1611 </td>
+   <td style="text-align:right;"> 1.8679 </td>
+   <td style="text-align:right;"> 5.3495 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> 0.084 </td>
-   <td style="text-align:right;"> 0.095 </td>
-   <td style="text-align:right;"> -0.102 </td>
-   <td style="text-align:right;"> 0.269 </td>
-   <td style="text-align:right;"> 1.087 </td>
-   <td style="text-align:right;"> 0.903 </td>
-   <td style="text-align:right;"> 1.309 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:left;"> 2018 </td>
+   <td style="text-align:left;"> 2018_2021 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.9269 </td>
+   <td style="text-align:right;"> 0.1668 </td>
+   <td style="text-align:right;"> 5.5567 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 2.5266 </td>
+   <td style="text-align:right;"> 1.8220 </td>
+   <td style="text-align:right;"> 3.5037 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.205 </td>
-   <td style="text-align:right;"> 0.113 </td>
-   <td style="text-align:right;"> -0.427 </td>
-   <td style="text-align:right;"> 0.016 </td>
-   <td style="text-align:right;"> 0.815 </td>
-   <td style="text-align:right;"> 0.653 </td>
-   <td style="text-align:right;"> 1.016 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 4.9096 </td>
+   <td style="text-align:right;"> 1.0917 </td>
+   <td style="text-align:right;"> 4.4971 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 135.5905 </td>
+   <td style="text-align:right;"> 15.9558 </td>
+   <td style="text-align:right;"> 1152.2344 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> id_causa </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> -0.569 </td>
-   <td style="text-align:right;"> 0.108 </td>
-   <td style="text-align:right;"> -0.781 </td>
-   <td style="text-align:right;"> -0.357 </td>
-   <td style="text-align:right;"> 0.566 </td>
-   <td style="text-align:right;"> 0.458 </td>
-   <td style="text-align:right;"> 0.700 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -4.6369 </td>
+   <td style="text-align:right;"> 1.8484 </td>
+   <td style="text-align:right;"> -2.5085 </td>
+   <td style="text-align:right;"> 0.0121 </td>
+   <td style="text-align:right;"> 0.0097 </td>
+   <td style="text-align:right;"> 0.0003 </td>
+   <td style="text-align:right;"> 0.3628 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> 0.511 </td>
-   <td style="text-align:right;"> 0.126 </td>
-   <td style="text-align:right;"> 0.263 </td>
-   <td style="text-align:right;"> 0.759 </td>
-   <td style="text-align:right;"> 1.667 </td>
-   <td style="text-align:right;"> 1.301 </td>
-   <td style="text-align:right;"> 2.135 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> mujerMujer </td>
+   <td style="text-align:left;"> Mujer </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 1.5678 </td>
+   <td style="text-align:right;"> 0.5260 </td>
+   <td style="text-align:right;"> 2.9809 </td>
+   <td style="text-align:right;"> 0.0029 </td>
+   <td style="text-align:right;"> 4.7961 </td>
+   <td style="text-align:right;"> 1.7107 </td>
+   <td style="text-align:right;"> 13.4461 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> 0.158 </td>
-   <td style="text-align:right;"> 0.133 </td>
-   <td style="text-align:right;"> -0.103 </td>
-   <td style="text-align:right;"> 0.418 </td>
-   <td style="text-align:right;"> 1.171 </td>
-   <td style="text-align:right;"> 0.902 </td>
-   <td style="text-align:right;"> 1.520 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> edad.L </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 7.5190 </td>
+   <td style="text-align:right;"> 0.3688 </td>
+   <td style="text-align:right;"> 20.3874 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 1842.8022 </td>
+   <td style="text-align:right;"> 894.4226 </td>
+   <td style="text-align:right;"> 3796.7736 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> indiindi </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> 0.447 </td>
-   <td style="text-align:right;"> 0.232 </td>
-   <td style="text-align:right;"> -0.009 </td>
-   <td style="text-align:right;"> 0.903 </td>
-   <td style="text-align:right;"> 1.564 </td>
-   <td style="text-align:right;"> 0.991 </td>
-   <td style="text-align:right;"> 2.466 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> edad.Q </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -1.0133 </td>
+   <td style="text-align:right;"> 0.4262 </td>
+   <td style="text-align:right;"> -2.3776 </td>
+   <td style="text-align:right;"> 0.0174 </td>
+   <td style="text-align:right;"> 0.3630 </td>
+   <td style="text-align:right;"> 0.1574 </td>
+   <td style="text-align:right;"> 0.8369 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> 0.473 </td>
-   <td style="text-align:right;"> 0.235 </td>
-   <td style="text-align:right;"> 0.013 </td>
-   <td style="text-align:right;"> 0.933 </td>
-   <td style="text-align:right;"> 1.604 </td>
-   <td style="text-align:right;"> 1.013 </td>
-   <td style="text-align:right;"> 2.542 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> edad.Q </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -6.9464 </td>
+   <td style="text-align:right;"> 0.3875 </td>
+   <td style="text-align:right;"> -17.9258 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0010 </td>
+   <td style="text-align:right;"> 0.0005 </td>
+   <td style="text-align:right;"> 0.0021 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> 0.586 </td>
-   <td style="text-align:right;"> 0.249 </td>
-   <td style="text-align:right;"> 0.097 </td>
-   <td style="text-align:right;"> 1.075 </td>
-   <td style="text-align:right;"> 1.797 </td>
-   <td style="text-align:right;"> 1.102 </td>
-   <td style="text-align:right;"> 2.930 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> edad.C </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 4.7834 </td>
+   <td style="text-align:right;"> 0.3769 </td>
+   <td style="text-align:right;"> 12.6920 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 119.5071 </td>
+   <td style="text-align:right;"> 57.0933 </td>
+   <td style="text-align:right;"> 250.1509 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> intercept </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> -0.794 </td>
-   <td style="text-align:right;"> 0.853 </td>
-   <td style="text-align:right;"> -2.467 </td>
-   <td style="text-align:right;"> 0.878 </td>
-   <td style="text-align:right;"> 0.452 </td>
-   <td style="text-align:right;"> 0.085 </td>
-   <td style="text-align:right;"> 2.407 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> edad^4 </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -1.8207 </td>
+   <td style="text-align:right;"> 0.4056 </td>
+   <td style="text-align:right;"> -4.4891 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.1619 </td>
+   <td style="text-align:right;"> 0.0731 </td>
+   <td style="text-align:right;"> 0.3585 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -3.563 </td>
-   <td style="text-align:right;"> 1.015 </td>
-   <td style="text-align:right;"> -5.552 </td>
-   <td style="text-align:right;"> -1.573 </td>
-   <td style="text-align:right;"> 0.028 </td>
-   <td style="text-align:right;"> 0.004 </td>
-   <td style="text-align:right;"> 0.207 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> d1_1 </td>
+   <td style="text-align:left;"> Percepción de conflicto </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.5950 </td>
+   <td style="text-align:right;"> 0.1408 </td>
+   <td style="text-align:right;"> -4.2253 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.5516 </td>
+   <td style="text-align:right;"> 0.4185 </td>
+   <td style="text-align:right;"> 0.7269 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -1.628 </td>
-   <td style="text-align:right;"> 0.990 </td>
-   <td style="text-align:right;"> -3.568 </td>
-   <td style="text-align:right;"> 0.312 </td>
-   <td style="text-align:right;"> 0.196 </td>
-   <td style="text-align:right;"> 0.028 </td>
-   <td style="text-align:right;"> 1.366 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 0.6506 </td>
+   <td style="text-align:right;"> 0.1502 </td>
+   <td style="text-align:right;"> 4.3298 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 1.9166 </td>
+   <td style="text-align:right;"> 1.4277 </td>
+   <td style="text-align:right;"> 2.5729 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> mujer1 </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> -0.366 </td>
-   <td style="text-align:right;"> 0.227 </td>
-   <td style="text-align:right;"> -0.811 </td>
-   <td style="text-align:right;"> 0.079 </td>
-   <td style="text-align:right;"> 0.694 </td>
-   <td style="text-align:right;"> 0.445 </td>
-   <td style="text-align:right;"> 1.082 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 1.6510 </td>
+   <td style="text-align:right;"> 0.2169 </td>
+   <td style="text-align:right;"> 7.6133 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 5.2120 </td>
+   <td style="text-align:right;"> 3.4074 </td>
+   <td style="text-align:right;"> 7.9725 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -0.469 </td>
-   <td style="text-align:right;"> 0.228 </td>
-   <td style="text-align:right;"> -0.916 </td>
-   <td style="text-align:right;"> -0.022 </td>
-   <td style="text-align:right;"> 0.626 </td>
-   <td style="text-align:right;"> 0.400 </td>
-   <td style="text-align:right;"> 0.979 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 1.6020 </td>
+   <td style="text-align:right;"> 0.2095 </td>
+   <td style="text-align:right;"> 7.6462 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 4.9631 </td>
+   <td style="text-align:right;"> 3.2916 </td>
+   <td style="text-align:right;"> 7.4835 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.327 </td>
-   <td style="text-align:right;"> 0.258 </td>
-   <td style="text-align:right;"> -0.834 </td>
-   <td style="text-align:right;"> 0.179 </td>
-   <td style="text-align:right;"> 0.721 </td>
-   <td style="text-align:right;"> 0.434 </td>
-   <td style="text-align:right;"> 1.196 </td>
-   <td style="text-align:left;"> No </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.9027 </td>
+   <td style="text-align:right;"> 0.1999 </td>
+   <td style="text-align:right;"> -4.5159 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.4055 </td>
+   <td style="text-align:right;"> 0.2740 </td>
+   <td style="text-align:right;"> 0.6000 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> procidimental_ppoo </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> 0.489 </td>
-   <td style="text-align:right;"> 0.118 </td>
-   <td style="text-align:right;"> 0.258 </td>
-   <td style="text-align:right;"> 0.719 </td>
-   <td style="text-align:right;"> 1.630 </td>
-   <td style="text-align:right;"> 1.295 </td>
-   <td style="text-align:right;"> 2.053 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -1.8211 </td>
+   <td style="text-align:right;"> 0.2799 </td>
+   <td style="text-align:right;"> -6.5067 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.1618 </td>
+   <td style="text-align:right;"> 0.0935 </td>
+   <td style="text-align:right;"> 0.2801 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> -0.293 </td>
-   <td style="text-align:right;"> 0.123 </td>
-   <td style="text-align:right;"> -0.535 </td>
-   <td style="text-align:right;"> -0.051 </td>
-   <td style="text-align:right;"> 0.746 </td>
-   <td style="text-align:right;"> 0.585 </td>
-   <td style="text-align:right;"> 0.950 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> 2021 </td>
+   <td style="text-align:left;"> 2021_2023 </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -1.0001 </td>
+   <td style="text-align:right;"> 0.2687 </td>
+   <td style="text-align:right;"> -3.7225 </td>
+   <td style="text-align:right;"> 0.0002 </td>
+   <td style="text-align:right;"> 0.3678 </td>
+   <td style="text-align:right;"> 0.2172 </td>
+   <td style="text-align:right;"> 0.6228 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> 0.873 </td>
-   <td style="text-align:right;"> 0.133 </td>
-   <td style="text-align:right;"> 0.613 </td>
-   <td style="text-align:right;"> 1.133 </td>
-   <td style="text-align:right;"> 2.395 </td>
-   <td style="text-align:right;"> 1.846 </td>
-   <td style="text-align:right;"> 3.106 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 4.9765 </td>
+   <td style="text-align:right;"> 1.4827 </td>
+   <td style="text-align:right;"> 3.3564 </td>
+   <td style="text-align:right;"> 0.0008 </td>
+   <td style="text-align:right;"> 144.9701 </td>
+   <td style="text-align:right;"> 7.9283 </td>
+   <td style="text-align:right;"> 2650.8023 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   <td style="text-align:left;vertical-align: top !important;" rowspan="3"> urbano_rural </td>
-   <td style="text-align:left;"> Class 2 vs Class 1 </td>
-   <td style="text-align:right;"> 0.798 </td>
-   <td style="text-align:right;"> 0.248 </td>
-   <td style="text-align:right;"> 0.311 </td>
-   <td style="text-align:right;"> 1.284 </td>
-   <td style="text-align:right;"> 2.221 </td>
-   <td style="text-align:right;"> 1.365 </td>
-   <td style="text-align:right;"> 3.613 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:left;"> intercept </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 5.9078 </td>
+   <td style="text-align:right;"> 1.4815 </td>
+   <td style="text-align:right;"> 3.9878 </td>
+   <td style="text-align:right;"> 0.0001 </td>
+   <td style="text-align:right;"> 367.8981 </td>
+   <td style="text-align:right;"> 20.1679 </td>
+   <td style="text-align:right;"> 6711.1173 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 3 vs Class 1 </td>
-   <td style="text-align:right;"> 0.609 </td>
-   <td style="text-align:right;"> 0.276 </td>
-   <td style="text-align:right;"> 0.068 </td>
-   <td style="text-align:right;"> 1.151 </td>
-   <td style="text-align:right;"> 1.839 </td>
-   <td style="text-align:right;"> 1.071 </td>
-   <td style="text-align:right;"> 3.160 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> edad.L </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -6.5447 </td>
+   <td style="text-align:right;"> 0.4855 </td>
+   <td style="text-align:right;"> -13.4803 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0014 </td>
+   <td style="text-align:right;"> 0.0006 </td>
+   <td style="text-align:right;"> 0.0037 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
   <tr>
-   
-   <td style="text-align:left;"> Class 4 vs Class 1 </td>
-   <td style="text-align:right;"> -0.733 </td>
-   <td style="text-align:right;"> 0.363 </td>
-   <td style="text-align:right;"> -1.444 </td>
-   <td style="text-align:right;"> -0.021 </td>
-   <td style="text-align:right;"> 0.481 </td>
-   <td style="text-align:right;"> 0.236 </td>
-   <td style="text-align:right;"> 0.979 </td>
-   <td style="text-align:left;"> Sí </td>
+   <td style="text-align:left;"> edad.L </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -6.2841 </td>
+   <td style="text-align:right;"> 0.5090 </td>
+   <td style="text-align:right;"> -12.3453 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0019 </td>
+   <td style="text-align:right;"> 0.0007 </td>
+   <td style="text-align:right;"> 0.0051 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad.L </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -6.3319 </td>
+   <td style="text-align:right;"> 0.5606 </td>
+   <td style="text-align:right;"> -11.2949 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0018 </td>
+   <td style="text-align:right;"> 0.0006 </td>
+   <td style="text-align:right;"> 0.0053 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad.Q </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 6.6749 </td>
+   <td style="text-align:right;"> 0.4201 </td>
+   <td style="text-align:right;"> 15.8885 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 792.2904 </td>
+   <td style="text-align:right;"> 347.7590 </td>
+   <td style="text-align:right;"> 1805.0552 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad.Q </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 6.1902 </td>
+   <td style="text-align:right;"> 0.4683 </td>
+   <td style="text-align:right;"> 13.2193 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 487.9389 </td>
+   <td style="text-align:right;"> 194.8793 </td>
+   <td style="text-align:right;"> 1221.7014 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad.Q </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 5.4485 </td>
+   <td style="text-align:right;"> 0.5285 </td>
+   <td style="text-align:right;"> 10.3084 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 232.4106 </td>
+   <td style="text-align:right;"> 82.4794 </td>
+   <td style="text-align:right;"> 654.8871 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad.C </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -4.0070 </td>
+   <td style="text-align:right;"> 0.5325 </td>
+   <td style="text-align:right;"> -7.5247 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0182 </td>
+   <td style="text-align:right;"> 0.0064 </td>
+   <td style="text-align:right;"> 0.0516 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad.C </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -3.4871 </td>
+   <td style="text-align:right;"> 0.5128 </td>
+   <td style="text-align:right;"> -6.8003 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0306 </td>
+   <td style="text-align:right;"> 0.0112 </td>
+   <td style="text-align:right;"> 0.0836 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad.C </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -3.3562 </td>
+   <td style="text-align:right;"> 0.5811 </td>
+   <td style="text-align:right;"> -5.7755 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.0349 </td>
+   <td style="text-align:right;"> 0.0112 </td>
+   <td style="text-align:right;"> 0.1089 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad^4 </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> 2.0172 </td>
+   <td style="text-align:right;"> 0.5566 </td>
+   <td style="text-align:right;"> 3.6242 </td>
+   <td style="text-align:right;"> 0.0003 </td>
+   <td style="text-align:right;"> 7.5173 </td>
+   <td style="text-align:right;"> 2.5251 </td>
+   <td style="text-align:right;"> 22.3793 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad^4 </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> 1.4505 </td>
+   <td style="text-align:right;"> 0.5387 </td>
+   <td style="text-align:right;"> 2.6925 </td>
+   <td style="text-align:right;"> 0.0071 </td>
+   <td style="text-align:right;"> 4.2651 </td>
+   <td style="text-align:right;"> 1.4838 </td>
+   <td style="text-align:right;"> 12.2598 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> edad^4 </td>
+   <td style="text-align:left;"> Edad </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> 1.6676 </td>
+   <td style="text-align:right;"> 0.5871 </td>
+   <td style="text-align:right;"> 2.8403 </td>
+   <td style="text-align:right;"> 0.0045 </td>
+   <td style="text-align:right;"> 5.2994 </td>
+   <td style="text-align:right;"> 1.6767 </td>
+   <td style="text-align:right;"> 16.7489 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> positivo </td>
+   <td style="text-align:left;"> Asociado con mayor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> d1_1 </td>
+   <td style="text-align:left;"> Percepción de conflicto </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.5892 </td>
+   <td style="text-align:right;"> 0.2389 </td>
+   <td style="text-align:right;"> -2.4666 </td>
+   <td style="text-align:right;"> 0.0136 </td>
+   <td style="text-align:right;"> 0.5547 </td>
+   <td style="text-align:right;"> 0.3473 </td>
+   <td style="text-align:right;"> 0.8860 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Clase 2 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.6255 </td>
+   <td style="text-align:right;"> 0.1867 </td>
+   <td style="text-align:right;"> -3.3502 </td>
+   <td style="text-align:right;"> 0.0008 </td>
+   <td style="text-align:right;"> 0.5350 </td>
+   <td style="text-align:right;"> 0.3710 </td>
+   <td style="text-align:right;"> 0.7714 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> d5_1 </td>
+   <td style="text-align:left;"> Justicia procedimental </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 4 </td>
+   <td style="text-align:left;"> Clase 4 vs Clase 1 </td>
+   <td style="text-align:right;"> -1.1034 </td>
+   <td style="text-align:right;"> 0.2327 </td>
+   <td style="text-align:right;"> -4.7408 </td>
+   <td style="text-align:right;"> 0.0000 </td>
+   <td style="text-align:right;"> 0.3318 </td>
+   <td style="text-align:right;"> 0.2102 </td>
+   <td style="text-align:right;"> 0.5235 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> d6_1 </td>
+   <td style="text-align:left;"> Identificación con la causa </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:left;"> 2023 </td>
+   <td style="text-align:left;"> 2023_? </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:left;"> Clase 3 vs Clase 1 </td>
+   <td style="text-align:right;"> -0.4516 </td>
+   <td style="text-align:right;"> 0.1978 </td>
+   <td style="text-align:right;"> -2.2837 </td>
+   <td style="text-align:right;"> 0.0224 </td>
+   <td style="text-align:right;"> 0.6366 </td>
+   <td style="text-align:right;"> 0.4320 </td>
+   <td style="text-align:right;"> 0.9380 </td>
+   <td style="text-align:left;"> TRUE </td>
+   <td style="text-align:left;"> negativo </td>
+   <td style="text-align:left;"> Asociado con menor probabilidad relativa de transición. </td>
   </tr>
 </tbody>
 </table>

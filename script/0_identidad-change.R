@@ -131,6 +131,3 @@ print(knitr::kable(df_cat, digits = 3))
 
 cat("\n# === Category summary (5 types) ===\n")
 print(knitr::kable(resumen_cat, digits = 3))
-
-
-

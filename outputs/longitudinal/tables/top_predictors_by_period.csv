@@ -1,0 +1,13 @@
+periodo,ola_origen,variable,comparacion,coeficiente,or,or_ic_lower,or_ic_upper,p_value,interpretacion
+2016_2018,2016,intercept,Clase 4 vs Clase 1,-5.1146,0.006,9e-4,0.0402,0,Asociado con menor probabilidad relativa de transición.
+2016_2018,2016,intercept,Clase 3 vs Clase 1,-2.6609,0.0699,0.0109,0.4475,0.005,Asociado con menor probabilidad relativa de transición.
+2016_2018,2016,Edad,Clase 4 vs Clase 1,0.858,2.3583,1.2407,4.4826,0.0088,Asociado con mayor probabilidad relativa de transición.
+2018_2021,2018,intercept,Clase 4 vs Clase 1,-6.3129,0.0018,2e-4,0.0217,0,Asociado con menor probabilidad relativa de transición.
+2018_2021,2018,Justicia procedimental,Clase 3 vs Clase 1,-1.2866,0.2762,0.181,0.4215,0,Asociado con menor probabilidad relativa de transición.
+2018_2021,2018,Identificación con la causa,Clase 3 vs Clase 1,1.1509,3.1611,1.8679,5.3495,0,Asociado con mayor probabilidad relativa de transición.
+2021_2023,2021,Edad,Clase 3 vs Clase 1,7.519,1842.8022,894.4226,3796.7736,0,Asociado con mayor probabilidad relativa de transición.
+2021_2023,2021,Edad,Clase 3 vs Clase 1,-6.9464,0.001,5e-4,0.0021,0,Asociado con menor probabilidad relativa de transición.
+2021_2023,2021,intercept,Clase 2 vs Clase 1,4.9096,135.5905,15.9558,1152.2344,0,Asociado con mayor probabilidad relativa de transición.
+2023_?,2023,Edad,Clase 2 vs Clase 1,6.6749,792.2904,347.759,1805.0552,0,Asociado con mayor probabilidad relativa de transición.
+2023_?,2023,Edad,Clase 2 vs Clase 1,-6.5447,0.0014,6e-4,0.0037,0,Asociado con menor probabilidad relativa de transición.
+2023_?,2023,Edad,Clase 4 vs Clase 1,-6.3319,0.0018,6e-4,0.0053,0,Asociado con menor probabilidad relativa de transición.

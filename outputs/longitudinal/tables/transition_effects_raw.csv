@@ -1,0 +1,169 @@
+term,variable,clase_origen,ola_origen,periodo,clase_destino,comparacion,coeficiente,se,z,p_value,or,or_ic_lower,or_ic_upper,significativo,signo
+intercept,intercept,1,2016,2016_2018,2,Clase 2 vs Clase 1,-0.9632,0.7762,-1.241,0.2146,0.3817,0.0834,1.7473,FALSE,negativo
+intercept,intercept,1,2016,2016_2018,3,Clase 3 vs Clase 1,-2.6609,0.9473,-2.8088,0.005,0.0699,0.0109,0.4475,TRUE,negativo
+intercept,intercept,1,2016,2016_2018,4,Clase 4 vs Clase 1,-5.1146,0.9693,-5.2765,0,0.006,9e-4,0.0402,TRUE,negativo
+urbano_rural,Zona urbana,1,2016,2016_2018,2,Clase 2 vs Clase 1,-0.4853,0.2874,-1.6888,0.0913,0.6155,0.3504,1.081,FALSE,negativo
+urbano_rural,Zona urbana,1,2016,2016_2018,3,Clase 3 vs Clase 1,-0.5971,0.3427,-1.7427,0.0814,0.5504,0.2812,1.0773,FALSE,negativo
+urbano_rural,Zona urbana,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.4609,0.2815,1.6372,0.1016,1.5854,0.9131,2.7527,FALSE,positivo
+mujerMujer,Mujer,1,2016,2016_2018,2,Clase 2 vs Clase 1,0.021,0.2259,0.093,0.9259,1.0212,0.6559,1.59,FALSE,positivo
+mujerMujer,Mujer,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.1469,0.2402,0.6114,0.5409,1.1582,0.7233,1.8547,FALSE,positivo
+mujerMujer,Mujer,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.3997,0.2741,1.4581,0.1448,1.4913,0.8715,2.5521,FALSE,positivo
+indiindi,Identidad indígena,1,2016,2016_2018,2,Clase 2 vs Clase 1,-0.0906,0.2245,-0.4036,0.6865,0.9134,0.5883,1.4181,FALSE,negativo
+indiindi,Identidad indígena,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.0457,0.2412,0.1894,0.8498,1.0467,0.6524,1.6795,FALSE,positivo
+indiindi,Identidad indígena,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.5966,0.2854,2.0908,0.0366,1.816,1.038,3.1771,TRUE,positivo
+edad.L,Edad,1,2016,2016_2018,2,Clase 2 vs Clase 1,0.3987,0.3588,1.1112,0.2665,1.4899,0.73740000000000006,3.0102,FALSE,positivo
+edad.L,Edad,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.1486,0.4386,0.3387,0.7348,1.1602,0.4911,2.7409,FALSE,positivo
+edad.L,Edad,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.414,0.4536,0.9128,0.3614,1.5129,0.6219,3.6805,FALSE,positivo
+edad.Q,Edad,1,2016,2016_2018,2,Clase 2 vs Clase 1,-0.0352,0.3417,-0.1029,0.918,0.9654,0.4942,1.886,FALSE,negativo
+edad.Q,Edad,1,2016,2016_2018,3,Clase 3 vs Clase 1,-0.6438,0.4196,-1.5344,0.1249,0.5253,0.2308,1.1955,FALSE,negativo
+edad.Q,Edad,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.2176,0.4293,0.507,0.6122,1.2431,0.5359,2.8835,FALSE,positivo
+edad.C,Edad,1,2016,2016_2018,2,Clase 2 vs Clase 1,-0.5007,0.3035,-1.6501,0.0989,0.6061,0.3344,1.0986,FALSE,negativo
+edad.C,Edad,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.1858,0.3308,0.5618,0.5743,1.2042,0.6296,2.3032,FALSE,positivo
+edad.C,Edad,1,2016,2016_2018,4,Clase 4 vs Clase 1,-0.2669,0.3754,-0.7109,0.4771,0.7657,0.3669,1.5983,FALSE,negativo
+edad^4,Edad,1,2016,2016_2018,2,Clase 2 vs Clase 1,0.689,0.2714,2.5387,0.0111,1.9917,1.1701,3.3904,TRUE,positivo
+edad^4,Edad,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.377,0.2678,1.4077,0.1592,1.4579,0.8625,2.4642,FALSE,positivo
+edad^4,Edad,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.858,0.3277,2.6183,0.0088,2.3583,1.2407,4.4826,TRUE,positivo
+edad^5,Edad,1,2016,2016_2018,2,Clase 2 vs Clase 1,0.2788,0.2623,1.063,0.2878,1.3215,0.7904,2.2096,FALSE,positivo
+edad^5,Edad,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.285,0.2532,1.1259,0.2602,1.3298,0.8097,2.1841,FALSE,positivo
+edad^5,Edad,1,2016,2016_2018,4,Clase 4 vs Clase 1,-0.3053,0.3063,-0.9967,0.3189,0.7369,0.4043,1.3432,FALSE,negativo
+d1_1,Percepción de conflicto,1,2016,2016_2018,2,Clase 2 vs Clase 1,0.121,0.1066,1.1347,0.2565,1.1286,0.9158,1.391,FALSE,positivo
+d1_1,Percepción de conflicto,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.2328,0.1298,1.7935,0.0729,1.2621,0.9786,1.6276,FALSE,positivo
+d1_1,Percepción de conflicto,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.4979,0.1453,3.4263,6e-4,1.6453,1.2375,2.1875,TRUE,positivo
+c5,Confianza en pueblos originarios,1,2016,2016_2018,2,Clase 2 vs Clase 1,-0.2608,0.1141,-2.2858,0.0223,0.7704,0.616,0.9635,TRUE,negativo
+c5,Confianza en pueblos originarios,1,2016,2016_2018,3,Clase 3 vs Clase 1,-0.0449,0.1265,-0.3547,0.7229,0.9561,0.7462,1.2251,FALSE,negativo
+c5,Confianza en pueblos originarios,1,2016,2016_2018,4,Clase 4 vs Clase 1,-0.4379,0.1274,-3.4387,6e-4,0.6454,0.5028,0.8283,TRUE,negativo
+d5_1,Justicia procedimental,1,2016,2016_2018,2,Clase 2 vs Clase 1,0.7396,0.1073,6.8956,0,2.0952,1.6979,2.5853,TRUE,positivo
+d5_1,Justicia procedimental,1,2016,2016_2018,3,Clase 3 vs Clase 1,-0.227,0.1108,-2.0485,0.0405,0.7969,0.6413,0.9902,TRUE,negativo
+d5_1,Justicia procedimental,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.6374,0.1131,5.6339,0,1.8915,1.5153,2.3611,TRUE,positivo
+d6_1,Identificación con la causa,1,2016,2016_2018,2,Clase 2 vs Clase 1,-0.2808,0.1015,-2.7669,0.0057,0.7552,0.6189,0.9214,TRUE,negativo
+d6_1,Identificación con la causa,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.433,0.1292,3.3515,8e-4,1.5419,1.197,1.9862,TRUE,positivo
+d6_1,Identificación con la causa,1,2016,2016_2018,4,Clase 4 vs Clase 1,0.2073,0.129,1.6077,0.1079,1.2304,0.9556,1.5842,FALSE,positivo
+c13,Frecuencia de contacto,1,2016,2016_2018,2,Clase 2 vs Clase 1,0.0597,0.1023,0.5835,0.5595,1.0615,0.8687,1.2971,FALSE,positivo
+c13,Frecuencia de contacto,1,2016,2016_2018,3,Clase 3 vs Clase 1,0.1584,0.1047,1.5129,0.1303,1.1716,0.9543,1.4384,FALSE,positivo
+c13,Frecuencia de contacto,1,2016,2016_2018,4,Clase 4 vs Clase 1,-0.1876,0.1113,-1.6852,0.092,0.829,0.6665,1.0311,FALSE,negativo
+intercept,intercept,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.3764,0.8701,-0.4326,0.6653,0.6863,0.1247,3.7775,FALSE,negativo
+intercept,intercept,2,2018,2018_2021,3,Clase 3 vs Clase 1,-2.7323,1.5225,-1.7947,0.0727,0.0651,0.0033,1.2862,FALSE,negativo
+intercept,intercept,2,2018,2018_2021,4,Clase 4 vs Clase 1,-6.3129,1.2665,-4.9844,0,0.0018,2e-4,0.0217,TRUE,negativo
+urbano_rural,Zona urbana,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.1969,0.2536,-0.7765,0.4375,0.8213,0.4997,1.35,FALSE,negativo
+urbano_rural,Zona urbana,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.0987,0.4015,0.2459,0.8057,1.1038,0.5025,2.4247,FALSE,positivo
+urbano_rural,Zona urbana,2,2018,2018_2021,4,Clase 4 vs Clase 1,-0.4943,0.3502,-1.4114,0.1581,0.61,0.307,1.2118,FALSE,negativo
+mujerMujer,Mujer,2,2018,2018_2021,2,Clase 2 vs Clase 1,0.1487,0.2466,0.6031,0.5465,1.1603,0.7156,1.8815,FALSE,positivo
+mujerMujer,Mujer,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.2426,0.3778,0.6421,0.5208,1.2745,0.6078,2.6727,FALSE,positivo
+mujerMujer,Mujer,2,2018,2018_2021,4,Clase 4 vs Clase 1,0.3597,0.3463,1.0385,0.299,1.4328,0.7268,2.8248,FALSE,positivo
+indiindi,Identidad indígena,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.1334,0.2525,-0.5284,0.5972,0.8751,0.5335,1.4354,FALSE,negativo
+indiindi,Identidad indígena,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.6142,0.4109,1.4949,0.135,1.8481,0.826,4.1348,FALSE,positivo
+indiindi,Identidad indígena,2,2018,2018_2021,4,Clase 4 vs Clase 1,-0.4085,0.3403,-1.2003,0.23,0.6646,0.3411,1.295,FALSE,negativo
+edad.L,Edad,2,2018,2018_2021,2,Clase 2 vs Clase 1,1.145,0.9342,1.2257,0.2203,3.1424,0.5036,19.6092,FALSE,positivo
+edad.L,Edad,2,2018,2018_2021,3,Clase 3 vs Clase 1,-1.0842,0.5171,-2.0965,0.036,0.3382,0.1227,0.9318,TRUE,negativo
+edad.L,Edad,2,2018,2018_2021,4,Clase 4 vs Clase 1,-0.3177,0.5432,-0.5848,0.5587,0.7279,0.251,2.1108,FALSE,negativo
+edad.Q,Edad,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.6228,0.8561,-0.7274,0.467,0.5365,0.1002,2.8726,FALSE,negativo
+edad.Q,Edad,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.8714,0.5072,1.7181,0.0858,2.3902,0.8846,6.4586,FALSE,positivo
+edad.Q,Edad,2,2018,2018_2021,4,Clase 4 vs Clase 1,0.4988,0.5434,0.9179,0.3586,1.6468,0.5676,4.7774,FALSE,positivo
+edad.C,Edad,2,2018,2018_2021,2,Clase 2 vs Clase 1,0.6835,0.6246,1.0942,0.2739,1.9808,0.5823,6.738,FALSE,positivo
+edad.C,Edad,2,2018,2018_2021,3,Clase 3 vs Clase 1,-0.7906,0.4741,-1.6675,0.0954,0.4536,0.1791,1.1487,FALSE,negativo
+edad.C,Edad,2,2018,2018_2021,4,Clase 4 vs Clase 1,-0.4673,0.4596,-1.0167,0.3093,0.6267,0.2546,1.5427,FALSE,negativo
+edad^4,Edad,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.3606,0.4021,-0.8969,0.3698,0.6973,0.3171,1.5333,FALSE,negativo
+edad^4,Edad,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.1921,0.4316,0.445,0.6563,1.2118,0.52,2.8236,FALSE,positivo
+edad^4,Edad,2,2018,2018_2021,4,Clase 4 vs Clase 1,-0.6669,0.4192,-1.5908,0.1117,0.5133,0.2257,1.1674,FALSE,negativo
+edad^5,Edad,2,2018,2018_2021,2,Clase 2 vs Clase 1,0.081,0.2922,0.2771,0.7817,1.0843,0.6116,1.9226,FALSE,positivo
+edad^5,Edad,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.1063,0.4155,0.2559,0.798,1.1122,0.4926,2.5108,FALSE,positivo
+edad^5,Edad,2,2018,2018_2021,4,Clase 4 vs Clase 1,0.6643,0.4455,1.4913,0.1359,1.9432,0.8116,4.6529,FALSE,positivo
+d1_1,Percepción de conflicto,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.1788,0.115,-1.5546,0.12,0.8363,0.6675,1.0477,FALSE,negativo
+d1_1,Percepción de conflicto,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.0372,0.2053,0.1811,0.8563,1.0379,0.6941,1.5519,FALSE,positivo
+d1_1,Percepción de conflicto,2,2018,2018_2021,4,Clase 4 vs Clase 1,-0.006,0.1634,-0.0365,0.9709,0.9941,0.7217,1.3692,FALSE,negativo
+c5,Confianza en pueblos originarios,2,2018,2018_2021,2,Clase 2 vs Clase 1,0.5107,0.1426,3.5821,3e-4,1.6665,1.2602,2.2037,TRUE,positivo
+c5,Confianza en pueblos originarios,2,2018,2018_2021,3,Clase 3 vs Clase 1,0.368,0.1964,1.8737,0.061,1.4448,0.9832,2.1232,FALSE,positivo
+c5,Confianza en pueblos originarios,2,2018,2018_2021,4,Clase 4 vs Clase 1,0.4332,0.1869,2.3174,0.0205,1.5422,1.0691,2.2246,TRUE,positivo
+d5_1,Justicia procedimental,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.5552,0.1299,-4.2752,0,0.574,0.445,0.7403,TRUE,negativo
+d5_1,Justicia procedimental,2,2018,2018_2021,3,Clase 3 vs Clase 1,-1.2866,0.21560000000000001,-5.9664,0,0.2762,0.181,0.4215,TRUE,negativo
+d5_1,Justicia procedimental,2,2018,2018_2021,4,Clase 4 vs Clase 1,0.4554,0.1897,2.4,0.0164,1.5768,1.0871,2.287,TRUE,positivo
+d6_1,Identificación con la causa,2,2018,2018_2021,2,Clase 2 vs Clase 1,0.2863,0.1153,2.4827,0.013,1.3315,1.0621,1.6692,TRUE,positivo
+d6_1,Identificación con la causa,2,2018,2018_2021,3,Clase 3 vs Clase 1,1.1509,0.2684,4.2878,0,3.1611,1.8679,5.3495,TRUE,positivo
+d6_1,Identificación con la causa,2,2018,2018_2021,4,Clase 4 vs Clase 1,0.9269,0.1668,5.5567,0,2.5266,1.822,3.5037,TRUE,positivo
+c13,Frecuencia de contacto,2,2018,2018_2021,2,Clase 2 vs Clase 1,-0.163,0.1061,-1.5368,0.1243,0.8496,0.6901,1.0459,FALSE,negativo
+c13,Frecuencia de contacto,2,2018,2018_2021,3,Clase 3 vs Clase 1,-0.2971,0.1616,-1.8382,0.066,0.7429,0.5412,1.0199,FALSE,negativo
+c13,Frecuencia de contacto,2,2018,2018_2021,4,Clase 4 vs Clase 1,-0.1659,0.145,-1.1442,0.2526,0.8471,0.6375,1.1256,FALSE,negativo
+intercept,intercept,3,2021,2021_2023,2,Clase 2 vs Clase 1,4.9096,1.0917,4.4971,0,135.5905,15.9558,1152.2344,TRUE,positivo
+intercept,intercept,3,2021,2021_2023,3,Clase 3 vs Clase 1,-2.7346,1.5177,-1.8018,0.0716,0.0649,0.0033,1.2713,FALSE,negativo
+intercept,intercept,3,2021,2021_2023,4,Clase 4 vs Clase 1,-4.6369,1.8484,-2.5085,0.0121,0.0097,3e-4,0.3628,TRUE,negativo
+urbano_rural,Zona urbana,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.4302,0.3403,-1.2642,0.2062,0.6504,0.3338,1.2672,FALSE,negativo
+urbano_rural,Zona urbana,3,2021,2021_2023,3,Clase 3 vs Clase 1,0.847,0.4409,1.9211,0.0547,2.3326,0.983,5.535,FALSE,positivo
+urbano_rural,Zona urbana,3,2021,2021_2023,4,Clase 4 vs Clase 1,0.5712,0.417,1.37,0.1707,1.7704,0.7819,4.0086,FALSE,positivo
+mujerMujer,Mujer,3,2021,2021_2023,2,Clase 2 vs Clase 1,0.3009,0.2557,1.1766,0.2394,1.3511,0.8184,2.2303,FALSE,positivo
+mujerMujer,Mujer,3,2021,2021_2023,3,Clase 3 vs Clase 1,0.7919,0.4103,1.9302,0.0536,2.2077,0.9878,4.9338,FALSE,positivo
+mujerMujer,Mujer,3,2021,2021_2023,4,Clase 4 vs Clase 1,1.5678,0.526,2.9809,0.0029,4.7961,1.7107,13.4461,TRUE,positivo
+indiindi,Identidad indígena,3,2021,2021_2023,2,Clase 2 vs Clase 1,0.0842,0.2912,0.289,0.7726,1.0878,0.6147,1.9249,FALSE,positivo
+indiindi,Identidad indígena,3,2021,2021_2023,3,Clase 3 vs Clase 1,-0.4877,0.4156,-1.1737,0.2405,0.614,0.2719,1.3865,FALSE,negativo
+indiindi,Identidad indígena,3,2021,2021_2023,4,Clase 4 vs Clase 1,-0.4982,0.4096,-1.2164,0.2238,0.6076,0.2723,1.356,FALSE,negativo
+edad.L,Edad,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.2781,0.4559,-0.61,0.5419,0.7572,0.3099,1.8504,FALSE,negativo
+edad.L,Edad,3,2021,2021_2023,3,Clase 3 vs Clase 1,7.519,0.3688,20.3874,0,1842.8022,894.4226,3796.7736,TRUE,positivo
+edad.L,Edad,3,2021,2021_2023,4,Clase 4 vs Clase 1,0.1222,0.6366,0.192,0.8478,1.13,0.3245,3.9347,FALSE,positivo
+edad.Q,Edad,3,2021,2021_2023,2,Clase 2 vs Clase 1,-1.0133,0.4262,-2.3776,0.0174,0.363,0.1574,0.8369,TRUE,negativo
+edad.Q,Edad,3,2021,2021_2023,3,Clase 3 vs Clase 1,-6.9464,0.3875,-17.9258,0,0.001,5e-4,0.0021,TRUE,negativo
+edad.Q,Edad,3,2021,2021_2023,4,Clase 4 vs Clase 1,-0.4662,0.5899,-0.7902,0.4294,0.6274,0.1974,1.9939,FALSE,negativo
+edad.C,Edad,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.2325,0.3435,-0.677,0.4984,0.7925,0.4042,1.5538,FALSE,negativo
+edad.C,Edad,3,2021,2021_2023,3,Clase 3 vs Clase 1,4.7834,0.3769,12.692,0,119.5071,57.0933,250.1509,TRUE,positivo
+edad.C,Edad,3,2021,2021_2023,4,Clase 4 vs Clase 1,0.1633,0.502,0.3252,0.745,1.1773,0.4402,3.1491,FALSE,positivo
+edad^4,Edad,3,2021,2021_2023,2,Clase 2 vs Clase 1,0.1664,0.2901,0.5735,0.5663,1.181,0.6689,2.0853,FALSE,positivo
+edad^4,Edad,3,2021,2021_2023,3,Clase 3 vs Clase 1,-1.8207,0.4056,-4.4891,0,0.1619,0.0731,0.3585,TRUE,negativo
+edad^4,Edad,3,2021,2021_2023,4,Clase 4 vs Clase 1,0.6055,0.4374,1.3845,0.1662,1.8322,0.7775,4.3177,FALSE,positivo
+edad^5,Edad,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.0738,0.2637,-0.2798,0.7796,0.9289,0.554,1.5574,FALSE,negativo
+edad^5,Edad,3,2021,2021_2023,3,Clase 3 vs Clase 1,0.6588,0.4254,1.5485,0.1215,1.9325,0.8394,4.4488,FALSE,positivo
+edad^5,Edad,3,2021,2021_2023,4,Clase 4 vs Clase 1,0.06,0.3902,0.1536,0.8779,1.0618,0.4942,2.2814,FALSE,positivo
+d1_1,Percepción de conflicto,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.595,0.1408,-4.2253,0,0.5516,0.4185,0.7269,TRUE,negativo
+d1_1,Percepción de conflicto,3,2021,2021_2023,3,Clase 3 vs Clase 1,0.2932,0.2371,1.237,0.2161,1.3408,0.8425,2.1337,FALSE,positivo
+d1_1,Percepción de conflicto,3,2021,2021_2023,4,Clase 4 vs Clase 1,0.3145,0.2416,1.3017,0.193,1.3695,0.853,2.1989,FALSE,positivo
+c5,Confianza en pueblos originarios,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.1837,0.1577,-1.1654,0.2439,0.8322,0.6109,1.1335,FALSE,negativo
+c5,Confianza en pueblos originarios,3,2021,2021_2023,3,Clase 3 vs Clase 1,-0.0273,0.2398,-0.1137,0.9095,0.9731,0.6082,1.5569,FALSE,negativo
+c5,Confianza en pueblos originarios,3,2021,2021_2023,4,Clase 4 vs Clase 1,-0.0966,0.2287,-0.4221,0.6729,0.908,0.5799,1.4216,FALSE,negativo
+d5_1,Justicia procedimental,3,2021,2021_2023,2,Clase 2 vs Clase 1,0.6506,0.1502,4.3298,0,1.9166,1.4277,2.5729,TRUE,positivo
+d5_1,Justicia procedimental,3,2021,2021_2023,3,Clase 3 vs Clase 1,1.651,0.2169,7.6133,0,5.212,3.4074,7.9725,TRUE,positivo
+d5_1,Justicia procedimental,3,2021,2021_2023,4,Clase 4 vs Clase 1,1.602,0.2095,7.6462,0,4.9631,3.2916,7.4835,TRUE,positivo
+d6_1,Identificación con la causa,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.9027,0.1999,-4.5159,0,0.4055,0.274,0.6,TRUE,negativo
+d6_1,Identificación con la causa,3,2021,2021_2023,3,Clase 3 vs Clase 1,-1.8211,0.2799,-6.5067,0,0.1618,0.0935,0.2801,TRUE,negativo
+d6_1,Identificación con la causa,3,2021,2021_2023,4,Clase 4 vs Clase 1,-1.0001,0.2687,-3.7225,2e-4,0.3678,0.2172,0.6228,TRUE,negativo
+c13,Frecuencia de contacto,3,2021,2021_2023,2,Clase 2 vs Clase 1,-0.0063,0.1102,-0.0567,0.9548,0.9938,0.8006,1.2335,FALSE,negativo
+c13,Frecuencia de contacto,3,2021,2021_2023,3,Clase 3 vs Clase 1,-0.2152,0.1624,-1.3253,0.1851,0.8064,0.5865,1.1086,FALSE,negativo
+c13,Frecuencia de contacto,3,2021,2021_2023,4,Clase 4 vs Clase 1,0.0638,0.1584,0.4024,0.6874,1.0658,0.7813,1.454,FALSE,positivo
+intercept,intercept,4,2023,2023_?,2,Clase 2 vs Clase 1,4.9765,1.4827,3.3564,8e-4,144.9701,7.9283,2650.8023,TRUE,positivo
+intercept,intercept,4,2023,2023_?,3,Clase 3 vs Clase 1,5.9078,1.4815,3.9878,1e-4,367.8981,20.1679,6711.1173,TRUE,positivo
+intercept,intercept,4,2023,2023_?,4,Clase 4 vs Clase 1,3.7018,1.9489,1.8994,0.0575,40.5189,0.8886,1847.591,FALSE,positivo
+urbano_rural,Zona urbana,4,2023,2023_?,2,Clase 2 vs Clase 1,0.1075,0.4629,0.2322,0.8164,1.1135,0.4494,2.7587,FALSE,positivo
+urbano_rural,Zona urbana,4,2023,2023_?,3,Clase 3 vs Clase 1,0.0443,0.467,0.0949,0.9244,1.0453,0.4186,2.6106,FALSE,positivo
+urbano_rural,Zona urbana,4,2023,2023_?,4,Clase 4 vs Clase 1,-1.4195,0.7998,-1.7748,0.0759,0.2418,0.0504,1.1596,FALSE,negativo
+mujerMujer,Mujer,4,2023,2023_?,2,Clase 2 vs Clase 1,0.5278,0.4439,1.1889,0.2345,1.6952,0.7101,4.0467,FALSE,positivo
+mujerMujer,Mujer,4,2023,2023_?,3,Clase 3 vs Clase 1,-0.3165,0.4465,-0.7089,0.4784,0.7287,0.3037,1.7483,FALSE,negativo
+mujerMujer,Mujer,4,2023,2023_?,4,Clase 4 vs Clase 1,0.6886,0.5144,1.3387,0.1807,1.9909,0.7265,5.456,FALSE,positivo
+indiindi,Identidad indígena,4,2023,2023_?,2,Clase 2 vs Clase 1,-0.433,0.4619,-0.9373,0.3486,0.6486,0.2623,1.6039,FALSE,negativo
+indiindi,Identidad indígena,4,2023,2023_?,3,Clase 3 vs Clase 1,-0.4075,0.4612,-0.8835,0.377,0.6653,0.2694,1.643,FALSE,negativo
+indiindi,Identidad indígena,4,2023,2023_?,4,Clase 4 vs Clase 1,0.1533,0.5433,0.2822,0.7778,1.1657,0.4019,3.3812,FALSE,positivo
+edad.L,Edad,4,2023,2023_?,2,Clase 2 vs Clase 1,-6.5447,0.4855,-13.4803,0,0.0014,6e-4,0.0037,TRUE,negativo
+edad.L,Edad,4,2023,2023_?,3,Clase 3 vs Clase 1,-6.2841,0.509,-12.3453,0,0.0019,7e-4,0.0051,TRUE,negativo
+edad.L,Edad,4,2023,2023_?,4,Clase 4 vs Clase 1,-6.3319,0.5606,-11.2949,0,0.0018,6e-4,0.0053,TRUE,negativo
+edad.Q,Edad,4,2023,2023_?,2,Clase 2 vs Clase 1,6.6749,0.4201,15.8885,0,792.2904,347.759,1805.0552,TRUE,positivo
+edad.Q,Edad,4,2023,2023_?,3,Clase 3 vs Clase 1,6.1902,0.4683,13.2193,0,487.9389,194.8793,1221.7014,TRUE,positivo
+edad.Q,Edad,4,2023,2023_?,4,Clase 4 vs Clase 1,5.4485,0.5285,10.3084,0,232.4106,82.4794,654.8871,TRUE,positivo
+edad.C,Edad,4,2023,2023_?,2,Clase 2 vs Clase 1,-4.007,0.5325,-7.5247,0,0.0182,0.0064,0.0516,TRUE,negativo
+edad.C,Edad,4,2023,2023_?,3,Clase 3 vs Clase 1,-3.4871,0.5128,-6.8003,0,0.0306,0.0112,0.0836,TRUE,negativo
+edad.C,Edad,4,2023,2023_?,4,Clase 4 vs Clase 1,-3.3562,0.5811,-5.7755,0,0.0349,0.0112,0.1089,TRUE,negativo
+edad^4,Edad,4,2023,2023_?,2,Clase 2 vs Clase 1,2.0172,0.5566,3.6242,3e-4,7.5173,2.5251,22.3793,TRUE,positivo
+edad^4,Edad,4,2023,2023_?,3,Clase 3 vs Clase 1,1.4505,0.5387,2.6925,0.0071,4.2651,1.4838,12.2598,TRUE,positivo
+edad^4,Edad,4,2023,2023_?,4,Clase 4 vs Clase 1,1.6676,0.5871,2.8403,0.0045,5.2994,1.6767,16.7489,TRUE,positivo
+edad^5,Edad,4,2023,2023_?,2,Clase 2 vs Clase 1,-0.8321,0.4755,-1.7497,0.0802,0.4351,0.1713,1.1052,FALSE,negativo
+edad^5,Edad,4,2023,2023_?,3,Clase 3 vs Clase 1,-0.7373,0.4927,-1.4964,0.1345,0.4784,0.1821,1.2566,FALSE,negativo
+edad^5,Edad,4,2023,2023_?,4,Clase 4 vs Clase 1,-0.0596,0.523,-0.114,0.9093,0.9421,0.338,2.6261,FALSE,negativo
+d1_1,Percepción de conflicto,4,2023,2023_?,2,Clase 2 vs Clase 1,-0.5892,0.2389,-2.4666,0.0136,0.5547,0.3473,0.886,TRUE,negativo
+d1_1,Percepción de conflicto,4,2023,2023_?,3,Clase 3 vs Clase 1,-0.4859,0.2526,-1.9233,0.0544,0.6152,0.3749,1.0093,FALSE,negativo
+d1_1,Percepción de conflicto,4,2023,2023_?,4,Clase 4 vs Clase 1,-0.018,0.303,-0.0595,0.9526,0.9821,0.5423,1.7788,FALSE,negativo
+c5,Confianza en pueblos originarios,4,2023,2023_?,2,Clase 2 vs Clase 1,0.2058,0.2401,0.8573,0.3913,1.2285,0.7674,1.9666,FALSE,positivo
+c5,Confianza en pueblos originarios,4,2023,2023_?,3,Clase 3 vs Clase 1,-0.1269,0.2574,-0.493,0.622,0.8808,0.5319,1.4588,FALSE,negativo
+c5,Confianza en pueblos originarios,4,2023,2023_?,4,Clase 4 vs Clase 1,0.2535,0.2725,0.9303,0.3522,1.2886,0.7553,2.1984,FALSE,positivo
+d5_1,Justicia procedimental,4,2023,2023_?,2,Clase 2 vs Clase 1,-0.6255,0.1867,-3.3502,8e-4,0.535,0.371,0.7714,TRUE,negativo
+d5_1,Justicia procedimental,4,2023,2023_?,3,Clase 3 vs Clase 1,-0.0326,0.1874,-0.1737,0.8621,0.968,0.6704,1.3977,FALSE,negativo
+d5_1,Justicia procedimental,4,2023,2023_?,4,Clase 4 vs Clase 1,-1.1034,0.2327,-4.7408,0,0.3318,0.2102,0.5235,TRUE,negativo
+d6_1,Identificación con la causa,4,2023,2023_?,2,Clase 2 vs Clase 1,-0.0678,0.2048,-0.3308,0.7408,0.9345,0.6255,1.3962,FALSE,negativo
+d6_1,Identificación con la causa,4,2023,2023_?,3,Clase 3 vs Clase 1,-0.4516,0.1978,-2.2837,0.0224,0.6366,0.432,0.938,TRUE,negativo
+d6_1,Identificación con la causa,4,2023,2023_?,4,Clase 4 vs Clase 1,0.1974,0.2427,0.8135,0.4159,1.2182,0.7571,1.9602,FALSE,positivo
+c13,Frecuencia de contacto,4,2023,2023_?,2,Clase 2 vs Clase 1,0.1003,0.1861,0.539,0.5899,1.1055,0.7676,1.5921,FALSE,positivo
+c13,Frecuencia de contacto,4,2023,2023_?,3,Clase 3 vs Clase 1,0.1149,0.1903,0.604,0.5458,1.1218,0.7726,1.6288,FALSE,positivo
+c13,Frecuencia de contacto,4,2023,2023_?,4,Clase 4 vs Clase 1,0.0931,0.2306,0.4037,0.6864,1.0975,0.6985,1.7246,FALSE,positivo
