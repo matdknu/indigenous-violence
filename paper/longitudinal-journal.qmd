@@ -1,0 +1,226 @@
+---
+title: "Dinámicas longitudinales de legitimación de la violencia interétnica en Chile, 2016-2023"
+subtitle: "Resumen analítico para formato tipo journal"
+author:
+  - name: "Matías Deneken"
+  - name: "Ana Figuerido"
+  - name: "Roberto González"
+  - name: "Monica Gerber"
+  - name: "Roberto Cantillán"
+  - name: "Federico Díaz"
+execute:
+  echo: false
+  warning: false
+  message: false
+freeze: auto
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    df-print: paged
+    theme: cosmo
+  pdf:
+    documentclass: article
+    number-sections: true
+    geometry:
+      - margin=1in
+---
+
+```{r}
+library(dplyr)
+library(readr)
+library(knitr)
+library(kableExtra)
+library(glue)
+library(knitr)
+
+root <- ".."
+out_long <- file.path(root, "outputs", "longitudinal")
+
+panel_stage <- readr::read_csv(file.path(out_long, "data", "panel_stage_summary.csv"), show_col_types = FALSE)
+model_fit <- readr::read_csv(file.path(out_long, "tables", "model_selection_fit_indices.csv"), show_col_types = FALSE)
+model_summary <- readr::read_csv(file.path(out_long, "tables", "model_selection_summary.csv"), show_col_types = FALSE)
+class_labels <- readr::read_csv(file.path(out_long, "tables", "class_labels_proposed.csv"), show_col_types = FALSE)
+prev_wave <- readr::read_csv(file.path(out_long, "tables", "class_prevalence_by_wave.csv"), show_col_types = FALSE)
+mobility <- readr::read_csv(file.path(out_long, "tables", "mobility_summary_by_period.csv"), show_col_types = FALSE)
+top_predictors <- readr::read_csv(file.path(out_long, "tables", "top_predictors_by_period.csv"), show_col_types = FALSE)
+rupture_patterns <- readr::read_csv(file.path(out_long, "tables", "rupture_patterns_by_variable.csv"), show_col_types = FALSE)
+hypothesis <- readr::read_csv(file.path(out_long, "tables", "hypothesis_validation.csv"), show_col_types = FALSE)
+
+analysis_subjects <- panel_stage %>% filter(stage == "analysis_subjects") %>% pull(value)
+analysis_rows <- panel_stage %>% filter(stage == "analysis_rows") %>% pull(value)
+selected_k <- model_summary$selected_k[[1]]
+selected_bic <- round(model_summary$selected_model_BIC[[1]], 2)
+```
+
+## Abstract
+Este documento organiza las principales salidas del análisis longitudinal en un formato breve de artículo. Sobre una muestra panel balanceada de `r analysis_subjects` personas (`r analysis_rows` observaciones-persona), se compararon modelos de 1 a 6 clases latentes y se retuvo una solución de `r selected_k` clases. Los resultados sugieren heterogeneidad sustantiva en la legitimación de repertorios de violencia, cambios en la prevalencia de clases entre olas y variación temporal en los predictores de pertenencia y transición. En línea con una lectura prudente, las asociaciones observadas son compatibles con una reconfiguración del contexto político entre 2018 y 2023, especialmente en torno a conflicto, confianza y justicia procedimental.
+
+**Keywords:** violencia interétnica, clases latentes, transición latente, Chile, longitudinal, conflicto indígena
+
+## 1. Diseño analítico
+El pipeline longitudinal quedó separado en dos etapas. Primero, `script/02_create-class.R` prepara la muestra panel balanceada, compara modelos candidatos y guarda el modelo final en `outputs/longitudinal/models/modelo_4c.rds`. Segundo, `script/03_predictors.R` lee ese modelo y genera los outputs descriptivos e inferenciales longitudinales.
+
+La política de missing fijada en el pipeline fue la siguiente: recodificación de códigos especiales a `NA`, restricción a panel balanceado de cuatro olas, imputación puntual de `d5_1` con la mediana del panel balanceado y `complete-case` para las demás variables analíticas.
+
+## 2. Selección del modelo
+La solución final retenida fue de `r selected_k` clases, con `BIC = r selected_bic`. La figura siguiente resume la comparación de modelos candidatos.
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "model_selection_bic.png"))
+```
+
+```{r}
+model_fit %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2))) %>%
+  kable(
+    caption = "Índices de ajuste para la comparación de modelos longitudinales",
+    booktabs = TRUE
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+## 3. Perfiles latentes
+La estructura sustantiva de las clases se resume en las probabilidades condicionales de respuesta y en una propuesta breve de rotulación. El objetivo de estas etiquetas es descriptivo y sirve como base para la narrativa del paper, no como tipología cerrada.
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "conditional_probabilities_by_class.png"))
+```
+
+```{r}
+class_labels %>%
+  rename(
+    Clase = class,
+    Etiqueta = proposed_label,
+    Descripción = short_description,
+    `Apoyo control (%)` = mean_control_endorsement,
+    `Apoyo cambio (%)` = mean_change_endorsement
+  ) %>%
+  kable(
+    caption = "Etiquetas sustantivas propuestas para las cuatro clases",
+    booktabs = TRUE
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+## 4. Prevalencia y movilidad por ola
+La prevalencia de clases cambia entre olas, lo que sugiere que la distribución de perfiles no permaneció estable a lo largo del panel. La tabla y figura siguientes resumen esa evolución.
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "class_prevalence_by_wave.png"))
+```
+
+```{r}
+prev_wave %>%
+  mutate(across(where(is.numeric), ~ round(.x, 1))) %>%
+  kable(
+    caption = "Prevalencia de clases por ola",
+    booktabs = TRUE
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+La movilidad agregada fue heterogénea entre periodos. El resumen siguiente permite identificar en qué tramo la distribución fue más estable y en cuál se observó mayor movilidad.
+
+```{r}
+mobility %>%
+  mutate(across(where(is.numeric), ~ round(.x, 1))) %>%
+  kable(
+    caption = "Movilidad global por periodo de transición",
+    booktabs = TRUE
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "transition_matrix_mean.png"))
+```
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "transition_matrices_by_period.png"))
+```
+
+## 5. Predictores de pertenencia y transición
+Los efectos de pertenencia inicial informan qué covariables están asociadas con una mayor o menor probabilidad relativa de comenzar en determinadas clases, usando la clase 1 como referencia.
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "initial_membership_odds_ratios.png"))
+```
+
+Para las transiciones, la tabla siguiente resume los predictores más fuertes por periodo. La interpretación debe mantenerse en clave asociativa: un OR mayor a 1 es compatible con una mayor probabilidad relativa de transición hacia la comparación indicada, y un OR menor a 1 con una menor probabilidad relativa.
+
+```{r}
+top_predictors %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+  rename(
+    Periodo = periodo,
+    `Ola origen` = ola_origen,
+    Variable = variable,
+    Comparación = comparacion,
+    Coeficiente = coeficiente,
+    OR = or,
+    `IC inferior` = or_ic_lower,
+    `IC superior` = or_ic_upper,
+    `p` = p_value,
+    Interpretación = interpretacion
+  ) %>%
+  kable(
+    caption = "Principales predictores de transición por periodo",
+    booktabs = TRUE
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+## 6. Estabilidad de signos y patrones de ruptura
+Una parte central del análisis longitudinal es evaluar si los signos de los coeficientes de transición permanecen estables o cambian entre periodos. Las dos figuras siguientes condensan esa información para las variables clave.
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "sign_change_matrix.png"))
+```
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "sign_heatmap_by_period.png"))
+```
+
+La tabla de ruptura resume, para cada variable, el patrón dominante por periodo, el tramo de ruptura clave y una interpretación breve.
+
+```{r}
+rupture_patterns %>%
+  kable(
+    caption = "Patrones de ruptura por variable",
+    booktabs = TRUE
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+## 7. Evaluación de hipótesis
+La validación de hipótesis debe entenderse como una síntesis descriptiva del patrón empírico, no como prueba causal. El cuadro siguiente resume predicciones, observados y validación sustantiva preliminar.
+
+```{r}
+hypothesis %>%
+  rename(
+    Hipótesis = hypothesis,
+    Predicción = prediction,
+    Observado = observed,
+    `Validada` = validated
+  ) %>%
+  kable(
+    caption = "Síntesis de validación de hipótesis",
+    booktabs = TRUE
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+## 8. Timeline de ruptura
+Como cierre visual, la siguiente figura resume el número de rupturas de signo por periodo y permite ubicar el análisis en una secuencia temporal coherente con el ciclo político reciente.
+
+```{r}
+knitr::include_graphics(file.path(out_long, "plots", "rupture_timeline.png"))
+```
+
+## 9. Nota para escritura del paper
+Este `.qmd` está pensado como borrador de resultados tipo journal. Si quieres, el siguiente paso puede ser cualquiera de estos dos:
+
+- convertir este borrador en una versión más cercana a un paper completo con introducción, métodos y discusión desarrollados
+- renderizarlo y ajustar tamaño/orden de figuras y tablas para una salida final en HTML o PDF
