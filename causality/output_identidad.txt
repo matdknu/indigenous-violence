@@ -1,0 +1,171 @@
+Warning message:
+In left_join(subset_data, a5_data, by = c("folio", "ola")) :
+  Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 3636 of `x` matches multiple rows in `y`.
+ℹ Row 10045 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  "many-to-many"` to silence this warning.
+
+ ====================================================================== 
+DIAGNÓSTICO IDENTIDAD: a4 (id_indi), a5, a6 (id_chile) por grupo étnico
+====================================================================== 
+
+--- Medias baseline (ola 2) ---
+# A tibble: 2 × 12
+  indigeneous a4_id_pueblo_media a4_sd a5_importancia_media a5_sd
+  <fct>                    <dbl> <dbl>                <dbl> <dbl>
+1 no_indi                   2.56  1.35                 2.71  1.38
+2 indi                      3.92  1.15                 4.12  1.02
+# ℹ 7 more variables: a6_id_chile_media <dbl>, a6_sd <dbl>,
+#   predominancia_media <dbl>, predominancia_sd <dbl>, cor_a4_a6 <dbl>,
+#   cor_a4_a5 <dbl>, n <int>
+
+--- Distribución a4 (id. pueblo originario = id_indi) por grupo ---
+
+Indígenas:
+
+   1    2    3    4    5 <NA> 
+  37   78  133  260  334    3 
+
+No indígenas:
+
+   1    2    3    4    5 <NA> 
+ 223  154  137  146   66    9 
+
+--- Distribución a6 (id. Chile = id_chile) por grupo ---
+
+Indígenas:
+
+   1    2    3    4    5 <NA> 
+   6   29   67  294  448    1 
+
+No indígenas:
+
+   1    2    3    4    5 <NA> 
+   8   21   42  184  479    1 
+
+--- Tabla cruzada id_indi × id_chile entre INDÍGENAS (ola 2) ---
+Filas = id_indi (id pueblo), Columnas = id_chile (id Chile)
+
+       id_chile
+id_indi   1   2   3   4   5 <NA>
+   1      1   1   1  13  20    1
+   2      1   6   7  28  36    0
+   3      0   5  13  51  64    0
+   4      1   6  19 120 114    0
+   5      3  10  27  82 212    0
+   <NA>   0   1   0   0   2    0
+
+--- Correlación id_indi–a5 (¿forman un índice?) ---
+r(id_indi, a5) = 0.821 
+→ Alta correlación: se pueden promediar en idx_id_etnica
+
+--- Variables derivadas (ola 2) ---
+# A tibble: 2 × 7
+  indigeneous id_ingroup_media id_outgroup_media brecha_id_media
+  <fct>                  <dbl>             <dbl>           <dbl>
+1 no_indi                 4.51              2.62           1.88 
+2 indi                    4.02              4.36          -0.339
+# ℹ 3 more variables: predominancia_media <dbl>, id_dual_media <dbl>, n <int>
+
+Interpretación esperada:
+  Indígenas: brecha_id > 0 (se identifican más con pueblo que con Chile)
+  No indígenas: brecha_id < 0 (se identifican más con Chile que con pueblo)
+✓ Figura distribución identidad guardada
+✓ Figura predominancia guardada
+✓ Figura identidad ingroup/outgroup guardada
+
+ ====================================================================== 
+ANÁLISIS DE HETEROGENEIDAD POR PREDOMINANCIA IDENTITARIA
+====================================================================== 
+
+Distribución predominancia baseline:
+  Indígenas:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+-4.0000 -1.0000  0.0000 -0.3387  0.0000  4.0000       2 
+  No indígenas:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ -4.000  -3.000  -2.000  -1.883  -1.000   3.000       8 
+
+Terciles de predominancia (ola 2):
+           predom_cat
+indigeneous Nacional Equilibrio Étnica
+    no_indi      249        297    181
+    indi         289        368    186
+
+--- Modelos DiD por tercil de predominancia (Modelo C) ---
+
+  Control  | Tercil: Nacional    | β =  2.352 | SE = 0.691 | p = 0.000725
+  Control  | Tercil: Equilibrio  | β = -2.041 | SE = 0.787 | p = 0.00978
+  Control  | Tercil: Étnica     | β =  1.555 | SE = 0.578 | p = 0.00734
+
+  Cambio   | Tercil: Nacional    | β =  1.954 | SE = 0.698 | p = 0.00528
+  Cambio   | Tercil: Equilibrio  | β =  0.724 | SE = 0.826 | p = 0.381
+  Cambio   | Tercil: Étnica     | β =  0.384 | SE = 0.672 | p = 0.568
+
+
+--- Modelo con predominancia continua como moderador ---
+
+idx_vio_control — términos con predominancia:
+# A tibble: 12 × 4
+   term                                               estimate std.error p.value
+   <chr>                                                 <dbl>     <dbl>   <dbl>
+ 1 predominancia_base                                   -0.06      0.045   0.178
+ 2 periodoestallido:predominancia_base                   0.025     0.057   0.666
+ 3 periododecreto:predominancia_base                    -0.026     0.062   0.676
+ 4 indigeneousindi:predominancia_base                    0.05      0.066   0.444
+ 5 zona_decretodecreto:predominancia_base               -0.238     0.119   0.046
+ 6 periodoestallido:indigeneousindi:predominancia_ba…   -0.088     0.084   0.296
+ 7 periododecreto:indigeneousindi:predominancia_base    -0.03      0.09    0.735
+ 8 periodoestallido:zona_decretodecreto:predominanci…    0.229     0.152   0.131
+ 9 periododecreto:zona_decretodecreto:predominancia_…    0.214     0.178   0.229
+10 indigeneousindi:zona_decretodecreto:predominancia…    0.092     0.185   0.621
+11 periodoestallido:indigeneousindi:zona_decretodecr…   -0.172     0.23    0.454
+12 periododecreto:indigeneousindi:zona_decretodecret…    0.033     0.286   0.907
+
+idx_vio_resguardo — términos con predominancia:
+# A tibble: 12 × 4
+   term                                               estimate std.error p.value
+   <chr>                                                 <dbl>     <dbl>   <dbl>
+ 1 predominancia_base                                    0.037     0.049   0.444
+ 2 periodoestallido:predominancia_base                  -0.006     0.062   0.929
+ 3 periododecreto:predominancia_base                    -0.046     0.066   0.493
+ 4 indigeneousindi:predominancia_base                    0.025     0.072   0.731
+ 5 zona_decretodecreto:predominancia_base               -0.134     0.13    0.303
+ 6 periodoestallido:indigeneousindi:predominancia_ba…    0.066     0.091   0.469
+ 7 periododecreto:indigeneousindi:predominancia_base     0.007     0.097   0.94 
+ 8 periodoestallido:zona_decretodecreto:predominanci…    0.266     0.164   0.105
+ 9 periododecreto:zona_decretodecreto:predominancia_…    0.214     0.192   0.267
+10 indigeneousindi:zona_decretodecreto:predominancia…    0.256     0.202   0.205
+11 periodoestallido:indigeneousindi:zona_decretodecr…   -0.58      0.249   0.02 
+12 periododecreto:indigeneousindi:zona_decretodecret…   -0.387     0.31    0.212
+
+
+ ====================================================================== 
+RESUMEN PARA DECISIÓN
+====================================================================== 
+
+PREGUNTAS A RESPONDER CON ESTE OUTPUT:
+
+1. ¿id_indi (a4) tiene varianza entre no indígenas?
+   Si >80% responden 1 o 2 → ingroup/outgroup NO viable
+   Si hay dispersión → ingroup/outgroup viable
+
+2. ¿id_indi (a4) y a5 correlacionan alto (r > 0.7)?
+   Si sí → promediar en idx_id_etnica
+   Si no → usar id_indi sola
+
+3. ¿La predominancia (étnica − nacional) varía por zona?
+   Si sí → la zona puede afectar identidades → cuidado con
+   post-tratamiento
+
+4. ¿El efecto DiD varía por tercil de predominancia?
+   Si sí → análisis de heterogeneidad viable y publicable
+   Si no → la identidad no modera el efecto
+
+5. ¿La interacción cuádruple (DiD × predominancia) es significativa?
+   Si sí → la predominancia identitaria en baseline condiciona
+   la respuesta al decreto
+   Si no → el efecto es homogéneo por perfil identitario
+
+✓ 08_identidad_ingroup.R ejecutado correctamente.

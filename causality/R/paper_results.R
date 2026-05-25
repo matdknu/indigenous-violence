@@ -99,6 +99,7 @@ build_paper_results <- function(
     mecanismo = NULL,
     robustez = NULL,
     subset_data = NULL,
+    hetero_identidad = NULL,
     term_did_decreto = "periododecreto:indigeneousindi:cerca_conflictocerca",
     term_did_estallido = "periodoestallido:indigeneousindi:cerca_conflictocerca"
 ) {
@@ -129,31 +130,61 @@ build_paper_results <- function(
   tau3_resg <- tidy_term(mC_resg, term_did_estallido)
   tau3_sig <- any(c(tau3_ctrl$p.value, tau3_resg$p.value) < 0.05, na.rm = TRUE)
 
-  ate_ctrl <- mecanismo$ate_ctrl %||% NA_real_
-  ate_resg <- mecanismo$ate_resg %||% NA_real_
+  # ── Mediación: extraer desde comparacion_atenuacion o modelos directos ──────
+  ate_ctrl <- NA_real_
+  ate_resg <- NA_real_
+  
+  if (!is.null(mecanismo$comparacion_atenuacion)) {
+    comp <- mecanismo$comparacion_atenuacion
+    # Usar Ingroup lag como mediador principal
+    ate_ctrl_row <- comp |> 
+      dplyr::filter(.data$vd == "Vio. control", .data$mediador == "Ingroup lag")
+    ate_resg_row <- comp |> 
+      dplyr::filter(.data$vd == "Vio. resguardo", .data$mediador == "Ingroup lag")
+    
+    if (nrow(ate_ctrl_row)) ate_ctrl <- ate_ctrl_row$atenuacion[1]
+    if (nrow(ate_resg_row)) ate_resg <- ate_resg_row$atenuacion[1]
+  }
 
   med_ctrl_sin <- med_ctrl_med <- med_resg_sin <- med_resg_med <- list(
     estimate = NA_real_, p.value = NA_real_
   )
-  if (!is.null(mecanismo$m2_ctrl_sin)) {
-    r <- tidy_term(mecanismo$m2_ctrl_sin, term_did_decreto)
+  
+  # Modelos SIN mediador
+  # Detectar qué término DiD usar (cerca_conflicto o zona_decreto)
+  term_did_mecanismo <- term_did_decreto
+  if (!is.null(mecanismo$m_ctrl_sin)) {
+    terms_available <- broom.mixed::tidy(mecanismo$m_ctrl_sin, effects = "fixed")$term
+    if (any(grepl("zona_decreto", terms_available))) {
+      term_did_mecanismo <- gsub("cerca_conflictocerca", "zona_decretodecreto", term_did_decreto)
+    }
+  }
+  
+  if (!is.null(mecanismo$m_ctrl_sin)) {
+    r <- tidy_term(mecanismo$m_ctrl_sin, term_did_mecanismo)
     if (nrow(r)) med_ctrl_sin <- list(estimate = r$estimate, p.value = r$p.value)
   }
-  if (!is.null(mecanismo$m2_ctrl_med)) {
-    r <- tidy_term(mecanismo$m2_ctrl_med, term_did_decreto)
-    if (nrow(r)) med_ctrl_med <- list(estimate = r$estimate, p.value = r$p.value)
-  }
-  if (!is.null(mecanismo$m2_resg_sin)) {
-    r <- tidy_term(mecanismo$m2_resg_sin, term_did_decreto)
+  if (!is.null(mecanismo$m_resg_sin)) {
+    r <- tidy_term(mecanismo$m_resg_sin, term_did_mecanismo)
     if (nrow(r)) med_resg_sin <- list(estimate = r$estimate, p.value = r$p.value)
   }
-  if (!is.null(mecanismo$m2_resg_med)) {
-    r <- tidy_term(mecanismo$m2_resg_med, term_did_decreto)
+  
+  # Modelos CON mediador (ingroup_lag como principal)
+  if (!is.null(mecanismo$m_ctrl_ingroup)) {
+    r <- tidy_term(mecanismo$m_ctrl_ingroup, term_did_mecanismo)
+    if (nrow(r)) med_ctrl_med <- list(estimate = r$estimate, p.value = r$p.value)
+  }
+  if (!is.null(mecanismo$m_resg_ingroup)) {
+    r <- tidy_term(mecanismo$m_resg_ingroup, term_did_mecanismo)
     if (nrow(r)) med_resg_med <- list(estimate = r$estimate, p.value = r$p.value)
   }
 
-  med_ctrl_attenua <- med_ctrl_sin$estimate > med_ctrl_med$estimate
-  med_resg_attenua <- med_resg_sin$estimate > med_resg_med$estimate
+  med_ctrl_attenua <- !is.na(med_ctrl_sin$estimate) && 
+                      !is.na(med_ctrl_med$estimate) &&
+                      med_ctrl_sin$estimate > med_ctrl_med$estimate
+  med_resg_attenua <- !is.na(med_resg_sin$estimate) && 
+                      !is.na(med_resg_med$estimate) &&
+                      med_resg_sin$estimate > med_resg_med$estimate
 
   n_panel <- if (!is.null(subset_data)) {
     length(unique(subset_data$folio))
@@ -175,17 +206,109 @@ build_paper_results <- function(
     dplyr::filter(.data$especificacion == "IPW trim 5–95%")
 
   r_just_ctrl <- r_just_resg <- NA_real_
-  if (!is.null(subset_data) && "just_proc_lag" %in% names(subset_data)) {
-    d4 <- subset_data |> dplyr::filter(.data$ola == 4)
-    r_just_ctrl <- stats::cor(
-      d4$just_proc_lag, d4$idx_vio_control, use = "pairwise.complete.obs"
-    )
-    r_just_resg <- stats::cor(
-      d4$just_proc_lag, d4$idx_vio_resguardo, use = "pairwise.complete.obs"
-    )
+  if (!is.null(subset_data)) {
+    # Usar ingroup_lag si está disponible, sino just_proc_lag
+    lag_var <- if ("ingroup_lag" %in% names(subset_data)) {
+      "ingroup_lag"
+    } else if ("just_proc_lag" %in% names(subset_data)) {
+      "just_proc_lag"
+    } else {
+      NULL
+    }
+    
+    if (!is.null(lag_var)) {
+      d4 <- subset_data |> dplyr::filter(.data$ola == 4)
+      r_just_ctrl <- stats::cor(
+        d4[[lag_var]], d4$idx_vio_control, use = "pairwise.complete.obs"
+      )
+      r_just_resg <- stats::cor(
+        d4[[lag_var]], d4$idx_vio_resguardo, use = "pairwise.complete.obs"
+      )
+    }
   }
 
   placebo_ns <- all(c(plcb_ctrl$p.value, plcb_resg$p.value) >= 0.05, na.rm = TRUE)
+
+  # ── Efectos de período (Modelo C) y transición (Modelo B) ───────────────────
+  period_estallido_resg <- tidy_term(mC_resg, "periodoestallido")
+  period_decreto_ctrl   <- tidy_term(mC_ctrl, "periododecreto")
+  period_decreto_resg   <- tidy_term(mC_resg, "periododecreto")
+  zona_ola3_resg        <- tidy_term(mC_resg, "periodoestallido:cerca_conflictocerca")
+  baseline_zona_resg    <- tidy_term(mC_resg, "cerca_conflictocerca")
+
+  mB_ctrl <- modelos$mB_ctrl
+  mB_resg <- modelos$mB_resg
+  t2_resg <- tidy_term(mB_resg, "T2_decreto")
+  t2_ctrl <- tidy_term(mB_ctrl, "T2_decreto")
+
+  # ── Baseline justicia procedimental e identidad (ola 2) ─────────────────────
+  brecha_baseline_indi <- brecha_baseline_noindi <- NA_real_
+  predom_brecha_indi <- NA_real_
+  if (!is.null(subset_data)) {
+    bl <- subset_data |> dplyr::filter(.data$ola == 2)
+    brecha_baseline_indi <- bl |>
+      dplyr::filter(.data$indigeneous == "indi") |>
+      dplyr::summarise(m = mean(.data$brecha_just_proc, na.rm = TRUE)) |>
+      dplyr::pull(m)
+    brecha_baseline_noindi <- bl |>
+      dplyr::filter(.data$indigeneous == "no_indi") |>
+      dplyr::summarise(m = mean(.data$brecha_just_proc, na.rm = TRUE)) |>
+      dplyr::pull(m)
+  }
+  if (!is.null(hetero_identidad$predom_baseline)) {
+    predom_brecha_indi <- hetero_identidad$predom_baseline |>
+      dplyr::filter(.data$indigeneous == "indi") |>
+      dplyr::pull(brecha_id)
+  }
+
+  # ── Mecanismo paso 1 (DiD sobre mediadores ingroup/outgroup/brecha) ─────────
+  term_did_mec <- "periododecreto:indigeneousindi:zona_decretodecreto"
+  med_ingroup_did <- med_outgroup_did <- med_brecha_did <- list(
+    estimate = NA_real_, p.value = NA_real_, beta_p = "—"
+  )
+  if (!is.null(mecanismo$m1_ingroup)) {
+    r <- tidy_term(mecanismo$m1_ingroup, term_did_mec)
+    if (nrow(r)) {
+      med_ingroup_did <- list(
+        estimate = r$estimate, p.value = r$p.value,
+        beta_p = fmt_beta_p(r$estimate, r$p.value)
+      )
+    }
+  }
+  if (!is.null(mecanismo$m1_outgroup)) {
+    r <- tidy_term(mecanismo$m1_outgroup, term_did_mec)
+    if (nrow(r)) {
+      med_outgroup_did <- list(
+        estimate = r$estimate, p.value = r$p.value,
+        beta_p = fmt_beta_p(r$estimate, r$p.value)
+      )
+    }
+  }
+  if (!is.null(mecanismo$m1_brecha)) {
+    r <- tidy_term(mecanismo$m1_brecha, term_did_mec)
+    if (nrow(r)) {
+      med_brecha_did <- list(
+        estimate = r$estimate, p.value = r$p.value,
+        beta_p = fmt_beta_p(r$estimate, r$p.value)
+      )
+    }
+  }
+
+  # ── Heterogeneidad identitaria (terciles) ───────────────────────────────────
+  hetero_terciles <- if (!is.null(hetero_identidad$resultados)) {
+    hetero_identidad$resultados |>
+      dplyr::transmute(
+        vd = dplyr::if_else(.data$vd == "idx_vio_control",
+                            "Control social", "Cambio social"),
+        tercil = .data$tercil,
+        estimate = .data$estimate,
+        std.error = .data$std.error,
+        p.value = .data$p.value,
+        beta_p = fmt_beta_p(.data$estimate, .data$p.value)
+      )
+  } else {
+    NULL
+  }
 
   list(
     resumen_robustez = resumen,
@@ -219,7 +342,21 @@ build_paper_results <- function(
     r_just_resg = r_just_resg,
     placebo_ns = placebo_ns,
     diag_ipw_orig = if (nrow(diag_orig)) as.list(diag_orig[1, ]) else NULL,
-    diag_ipw_trim595 = if (nrow(diag_trim)) as.list(diag_trim[1, ]) else NULL
+    diag_ipw_trim595 = if (nrow(diag_trim)) as.list(diag_trim[1, ]) else NULL,
+    period_estallido_resg = as.list(period_estallido_resg),
+    period_decreto_ctrl = as.list(period_decreto_ctrl),
+    period_decreto_resg = as.list(period_decreto_resg),
+    zona_ola3_resg = as.list(zona_ola3_resg),
+    baseline_zona_resg = as.list(baseline_zona_resg),
+    t2_resg = as.list(t2_resg),
+    t2_ctrl = as.list(t2_ctrl),
+    brecha_baseline_indi = brecha_baseline_indi,
+    brecha_baseline_noindi = brecha_baseline_noindi,
+    predom_brecha_indi = predom_brecha_indi,
+    med_ingroup_did = med_ingroup_did,
+    med_outgroup_did = med_outgroup_did,
+    med_brecha_did = med_brecha_did,
+    hetero_terciles = hetero_terciles
   )
 }
 
