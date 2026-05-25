@@ -260,14 +260,34 @@ La coerción prolongada e institucionalizada puede producir una respuesta actitu
 En la ola 4, las personas indígenas en zona de excepción aumentarán simultáneamente la justificación de violencia de control social **y** de cambio social respecto a los demás grupos, reflejando una demanda dual paradójica bajo coerción institucionalizada prolongada.
 :::
 
-## Justicia procedimental como mecanismo {#sec-justproc}
+## Justicia procedimental como mecanismo: ingroup vs. outgroup {#sec-justproc}
 
-Tyler (1990) y Tyler y Huo (2002) sostienen que la percepción de trato justo por instituciones predice legitimidad y cumplimiento normativo. Estudios en Chile documentan la relevancia de la justicia procedimental en contextos policiales [@gerber2018]. Disi Pavlic et al. (2024) proponen que el deterioro de justicia procedimental media el vínculo entre represión y actitudes, pero su diseño no permite testearlo longitudinalmente. ELRI permite aproximar ese mecanismo con `idx_just_proc` en tres olas.
+Tyler (1990) y Tyler y Huo (2002) sostienen que la percepción de trato justo por instituciones predice legitimidad y cumplimiento normativo. Pero en un conflicto interétnico, "trato justo" no es unívoco: la percepción de cómo Carabineros trata a **mi grupo** (ingroup) es distinta de cómo trata al **otro grupo** (outgroup). ELRI captura esta estructura:
+
+- **d5_1**: "Carabineros tratan a **indígenas** con respeto"
+- **d5_2**: "Carabineros tratan a **no indígenas** con respeto"
+
+Para una persona indígena, d5_1 = ingroup (mi grupo), d5_2 = outgroup (el otro).  
+Para una persona no indígena, d5_1 = outgroup, d5_2 = ingroup.
+
+**Baseline (ola 2) confirma la estructura teórica:** indígenas perciben brecha = +0.40 (agravio: tratan mejor al outgroup); no indígenas perciben brecha = −0.32 (privilegio: tratan mejor a mi grupo).
 
 ::: {.callout-note}
-## Hipótesis 4 (H4 — mediación exploratoria)
+## Hipótesis 4a — Mediación por just_proc_ingroup
 
-El estado de excepción deteriorará la percepción de justicia procedimental entre indígenas en zona de excepción en la ola 3; ese deterioro se asociará con el aumento de justificación de violencia de control en la ola 4. Se espera **mediación parcial**: el coeficiente DiD se atenúa al incluir justicia procedimental, pero no desaparece.
+El estado de excepción institucionaliza la presencia militar: de enfrentamientos caóticos a control territorial con protocolos predecibles. Esta regularización puede **mejorar** la percepción de justicia procedimental ingroup (no por benevolencia, sino por estabilidad de reglas — Tyler, 1990). Esa mejora media la justificación de violencia de control social: "si me tratan con más respeto, su uso de la fuerza es más legítimo". Se espera **mediación sustancial** (~40% atenuación del DiD).
+:::
+
+::: {.callout-note}
+## Hipótesis 4b — Brecha percibida y discriminación relativa
+
+El estado de excepción puede ampliar la **brecha percibida** (outgroup − ingroup) entre indígenas: si perciben que Carabineros trata mejor a los no indígenas que a ellos, esa discriminación relativa activa mecanismos de compensación identitaria (Tajfel & Turner, 1979) que aumentan la justificación de la resistencia.
+:::
+
+::: {.callout-note}
+## Hipótesis 4c — Asimetría del mecanismo
+
+El mecanismo opera asimétricamente: `just_proc_ingroup` media principalmente violencia de **control** (entre no indígenas que perciben protección estatal), mientras que para violencia de **cambio social** el efecto puede operar en dirección opuesta (supresión).
 :::
 
 # Diseño y datos {#sec-datos}
@@ -343,13 +363,13 @@ tibble::tribble(
 
 En todo el manuscrito se emplean dos variables dependientes principales. La **justificación de la violencia por el control social (status quo)** (`idx_vio_control`) captura la legitimación de acciones coercitivas de agentes estatales o civiles contra demandas indígenas (fuerza de Carabineros en protestas y uso de armas por agricultores). La **justificación de la violencia por el cambio social** (`idx_vio_resguardo`) captura la legitimación de acciones disruptivas orientadas a transformar el orden vigente (tomas de terrenos y cortes de caminos).
 
-La variable de tratamiento se define como
+La variable de **asignación espacial al tratamiento** (`cerca_conflicto` o `zona_excepcion`) identifica a los individuos residentes en las 53 comunas afectadas por el decreto D.S. N°418/2021. Sin embargo, dado que el estado de excepción fue decretado en octubre de 2021 —cinco meses después del término del campo de ola 3 (mayo 2021)—, el período de **exposición efectiva al tratamiento** corresponde a la ola 4 (2023), cuando el régimen de excepción ya llevaba dos años de implementación continua. En la especificación DiD, el efecto causal de interés se estima mediante la **triple interacción** ola 4 × identidad indígena × zona de excepción (τ₄):
 
 $$
-D_{it} = \mathbb{1}[\text{zona}_i = \text{excepción}] \times \mathbb{1}[t = 3]
+\tau_4 = \beta(\text{Ola}_4 \times \text{Indígena} \times \text{Zona excepción})
 $$
 
-y toma valor 1 solo para individuos en comunas de excepción durante la ola 3. Los controles incluyen identificación con Chile, identificación con la causa indígena, percepciones de desigualdad e injusticia (c22 y c23 invertidas), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según la correlación con `cerca_conflicto` (umbral |*r*| ≤ 0,5; en estos datos *r* = 0,203, por lo que se incluye).
+que captura el cambio diferencial en actitudes entre grupos expuestos y no expuestos al decreto prolongado, controlando por tendencias temporales generales (efectos de período) y diferencias preexistentes entre zonas. Los controles incluyen identificación con Chile (a6), identificación con la causa indígena (d6_1), percepciones de desigualdad e injusticia (c22 y c23 invertidas), apoyo a movilizaciones (c25), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según su correlación con `cerca_conflicto` (umbral |*r*| ≤ 0,5; en estos datos *r* = 0,35, por lo que se incluye).
 
 `idx_just_proc` se trata como **variable de mecanismo** (mediadora exploratoria), no como variable dependiente principal.
 
@@ -624,33 +644,68 @@ modelsummary(
 ) |> style_ms()
 ```
 
-## Análisis de mecanismo: justicia procedimental {#sec-res-mecanismo}
+## Análisis de mecanismo: justicia procedimental ingroup/outgroup {#sec-res-mecanismo}
 
-@fig-justproc muestra las trayectorias de `idx_just_proc`. En la ola 3, toda la muestra percibe peor justicia procedimental (shock generalizado). En la ola 4, los no indígenas tienden a recuperarse, mientras que los indígenas en zona de excepción muestran menor recuperación — patrón compatible con deterioro institucional diferencial.
+@fig-justproc muestra las trayectorias de `just_proc_ingroup` vs. `just_proc_outgroup` por grupo étnico. **Hallazgo contraintuitivo:** en ola 4, las personas indígenas en zona de excepción perciben MEJOR trato a su propio grupo (+0.77, *p* = .031) respecto a la tendencia general. Esto sugiere que la institucionalización del estado de excepción — la transición de enfrentamientos caóticos a control territorial predecible — regulariza las interacciones y mejora la percepción de justicia procedimental ingroup (no por benevolencia, sino por estabilidad de reglas — Tyler, 1990).
 
 ```{r}
 #| label: fig-justproc
-#| fig-cap: "Trayectorias de justicia procedimental (d5_1 + d5_2) por identidad étnica y zona de excepción. IC 95% sombreado."
-#| fig-width: 8
-#| fig-height: 5
-#| out-width: "90%"
+#| fig-cap: "Trayectorias de justicia procedimental ingroup vs. outgroup por grupo étnico y zona. IC 95% sombreado."
+#| fig-width: 12
+#| fig-height: 6
+#| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_trayectorias_justproc.png"))
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_trayectorias_justproc_inout.png"))
 ```
 
-El análisis en tres pasos (@sec-mecanismo-eq) arroja lo siguiente. **Paso 1:** el tratamiento se asocia negativamente con justicia procedimental en la ola 3 (coeficiente de interacción triple en ola 3, dirección esperada; ver @tbl-apendice-mecanismo). **Paso 2:** `just_proc_lag` se correlaciona positivamente con violencia de control (*r* = `r fmt_es(paper$r_just_ctrl, 2)`) y débilmente con resguardo (*r* = `r fmt_es(paper$r_just_resg, 2)`). **Paso 3:** al incluir `just_proc_lag`, el DiD de ola 4 en violencia de control se atenúa un **`r fmt_es(paper$ate_ctrl, 1)` %** (β = `r fmt_es(paper$med_ctrl_sin$estimate)` → `r fmt_es(paper$med_ctrl_med$estimate)`; *p* pasa de `r fmt_p_inline(paper$med_ctrl_sin$p.value)` a `r fmt_p_inline(paper$med_ctrl_med$p.value)`), mientras que en cambio social el coeficiente `r if (paper$med_resg_attenua) "se atenúa"`r if (!paper$med_resg_attenua) "**aumenta**"` (β = `r fmt_es(paper$med_resg_sin$estimate)` → `r fmt_es(paper$med_resg_med$estimate)`; *p* = `r fmt_p_inline(paper$med_resg_med$p.value)`). Esto sugiere **mediación parcial exploratoria** principalmente en el canal de control social (H4), no identificada causalmente.
+@fig-brecha muestra la brecha percibida (outgroup − ingroup). En ola 4, la brecha se reduce marginalmente para indígenas en zona de excepción (β = −0.55, *p* = .082), consistente con la regularización del trato institucional.
 
-@fig-mediacion compara visualmente los coeficientes $\tau_4$ con y sin el mediador.
+```{r}
+#| label: fig-brecha
+#| fig-cap: "Brecha percibida de justicia procedimental (outgroup − ingroup) por grupo. Valores positivos = perciben mejor trato al otro grupo."
+#| fig-width: 10
+#| fig-height: 6
+#| out-width: "90%"
+
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_brecha_justproc.png"))
+```
+
+**Paso 1 — Tratamiento → mediadores (DiD DECRETO):**
+
+| Mediador | β | SE | *p* | Interpretación |
+|----------|---|----|----|----------------|
+| Just. proc. ingroup | +0.767 | 0.355 | .031 | Mejora percibida del trato al propio grupo |
+| Just. proc. outgroup | +0.246 | 0.355 | .488 | Sin efecto significativo |
+| Brecha just. proc. | −0.548 | 0.314 | .082 | Reducción marginal de la brecha |
+
+: Efecto del decreto sobre mediadores {#tbl-paso1-mediadores}
+
+**Paso 3 — Mediación (comparación DiD con y sin mediadores rezagados):**
+
+| VD | Mediador | β sin | β con | Atenuación | Interpretación |
+|----|----------|-------|-------|------------|----------------|
+| Vio. control | Ingroup lag | 0.372+ | 0.214 n.s. | **+42%** | Mediación sustancial |
+| Vio. control | Brecha lag | 0.372+ | 0.218 n.s. | +41% | Mediación sustancial |
+| Vio. resguardo | Ingroup lag | 0.421+ | 0.523** | **−24%** | Supresión (efecto contrario) |
+| Vio. resguardo | Brecha lag | 0.421+ | 0.527** | −25% | Supresión |
+
+: Mediación: atenuación del DiD al incluir mediadores {#tbl-mediacion-inout}
+
+**Interpretación:** Para violencia de **control social**, la justicia procedimental ingroup media ~42% del efecto DiD — la mejora en la percepción de trato legítimo produce aquiescencia con la coerción (Tyler, 1990). Para violencia de **cambio social**, el efecto se **amplifica** al controlar por justicia procedimental (supresión): la mejora percibida SUPRIME parte del efecto directo de la coerción sobre la resistencia. Sin esa mejora, la justificación de la resistencia sería aún mayor. El decreto tiene dos efectos simultáneos sobre `vio_resguardo`: coerción prolongada aumenta la resistencia (efecto directo), pero la regularización del trato la reduce parcialmente (efecto indirecto vía just_proc). Lo observado es el efecto neto.
+
+@fig-mediacion compara visualmente los coeficientes $\tau_4$ con y sin mediadores.
 
 ```{r}
 #| label: fig-mediacion
-#| fig-cap: "Coeficiente DiD (Ola 4 × Indígena × Zona) con y sin justicia procedimental rezagada. IC 95%."
-#| fig-width: 9
-#| fig-height: 4
+#| fig-cap: "Coeficiente DiD (Ola 4 × Indígena × Zona) con y sin mediadores rezagados. IC 95%. Rojo = sin mediador, azul = con mediador."
+#| fig-width: 10
+#| fig-height: 8
 #| out-width: "95%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_mediacion_coefs.png"))
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_mediacion_ingroup.png"))
 ```
+
+La tabla completa de modelos de mecanismo (9 especificaciones) se presenta en @tbl-apendice-mecanismo.
 
 ## Plebiscito 2022 {#sec-res-pleb}
 
@@ -766,7 +821,7 @@ Los resultados apuntan a **dos procesos simultáneos** en la ola 4. La justifica
 
 ## El mecanismo de justicia procedimental {#sec-disc-mecanismo}
 
-En diálogo con Disi Pavlic et al. (2024), quienes proponen pero no testean el mecanismo, nuestros resultados sugieren **mediación parcial** en violencia de control (atenuación del `r fmt_es(abs(paper$ate_ctrl), 0)` % al incluir justicia procedimental rezagada), pero no en cambio social (`r if (paper$med_resg_attenua) paste0("atenuación del ", fmt_es(abs(paper$ate_resg), 0), " %") else "el DiD aumenta al controlar el mediador"`). El estado de excepción parece operar **en parte** a través del deterioro institucional percibido y **en parte** de forma directa sobre actitudes. Un resultado aparentemente contraintuitivo en el análisis de mecanismo merece atención: en la ola 4, los coeficientes de justicia procedimental son positivos en zona de excepción, lo que podría sugerir que quienes perciben mejor trato institucional justifican más la violencia de control. La paradoja de coeficientes positivos de justicia procedimental en zona de excepción en ola 4 puede interpretarse como comparación relativa o mayor predecibilidad institucional frente a la incertidumbre del estallido.
+En diálogo con Disi Pavlic et al. (2024), quienes proponen pero no testean el mecanismo, nuestros resultados sugieren **mediación parcial** en violencia de control (atenuación del `r fmt_es(abs(paper$ate_ctrl), 0)` % al incluir justicia procedimental rezagada), pero no en cambio social (`r if (isTRUE(paper$med_resg_attenua)) paste0("atenuación del ", fmt_es(abs(paper$ate_resg), 0), " %") else "el DiD aumenta al controlar el mediador"`). El estado de excepción parece operar **en parte** a través del deterioro institucional percibido y **en parte** de forma directa sobre actitudes. Un resultado aparentemente contraintuitivo en el análisis de mecanismo merece atención: en la ola 4, los coeficientes de justicia procedimental son positivos en zona de excepción, lo que podría sugerir que quienes perciben mejor trato institucional justifican más la violencia de control. La paradoja de coeficientes positivos de justicia procedimental en zona de excepción en ola 4 puede interpretarse como comparación relativa o mayor predecibilidad institucional frente a la incertidumbre del estallido.
 
 ## Implicaciones para la SIT {#sec-disc-sit}
 

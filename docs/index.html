@@ -973,11 +973,11 @@ Tabla&nbsp;2: Operacionalización de variables principales
 </div>
 </div>
 <p>En todo el manuscrito se emplean dos variables dependientes principales. La <strong>justificación de la violencia por el control social (status quo)</strong> (<code>idx_vio_control</code>) captura la legitimación de acciones coercitivas de agentes estatales o civiles contra demandas indígenas (fuerza de Carabineros en protestas y uso de armas por agricultores). La <strong>justificación de la violencia por el cambio social</strong> (<code>idx_vio_resguardo</code>) captura la legitimación de acciones disruptivas orientadas a transformar el orden vigente (tomas de terrenos y cortes de caminos).</p>
-<p>La variable de tratamiento se define como</p>
+<p>La variable de <strong>asignación espacial al tratamiento</strong> (<code>cerca_conflicto</code> o <code>zona_excepcion</code>) identifica a los individuos residentes en las 53 comunas afectadas por el decreto D.S. N°418/2021. Sin embargo, dado que el estado de excepción fue decretado en octubre de 2021 —cinco meses después del término del campo de ola 3 (mayo 2021)—, el período de <strong>exposición efectiva al tratamiento</strong> corresponde a la ola 4 (2023), cuando el régimen de excepción ya llevaba dos años de implementación continua. En la especificación DiD, el efecto causal de interés se estima mediante la <strong>triple interacción</strong> ola 4 × identidad indígena × zona de excepción (τ₄):</p>
 <p><span class="math display">\[
-D_{it} = \mathbb{1}[\text{zona}_i = \text{excepción}] \times \mathbb{1}[t = 3]
+\tau_4 = \beta(\text{Ola}_4 \times \text{Indígena} \times \text{Zona excepción})
 \]</span></p>
-<p>y toma valor 1 solo para individuos en comunas de excepción durante la ola 3. Los controles incluyen identificación con Chile, identificación con la causa indígena, percepciones de desigualdad e injusticia (c22 y c23 invertidas), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según la correlación con <code>cerca_conflicto</code> (umbral |<em>r</em>| ≤ 0,5; en estos datos <em>r</em> = 0,203, por lo que se incluye).</p>
+<p>que captura el cambio diferencial en actitudes entre grupos expuestos y no expuestos al decreto prolongado, controlando por tendencias temporales generales (efectos de período) y diferencias preexistentes entre zonas. Los controles incluyen identificación con Chile (a6), identificación con la causa indígena (d6_1), percepciones de desigualdad e injusticia (c22 y c23 invertidas), apoyo a movilizaciones (c25), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según su correlación con <code>cerca_conflicto</code> (umbral |<em>r</em>| ≤ 0,5; en estos datos <em>r</em> = 0,35, por lo que se incluye).</p>
 <p><code>idx_just_proc</code> se trata como <strong>variable de mecanismo</strong> (mediadora exploratoria), no como variable dependiente principal.</p>
 </section>
 <section id="sec-estrategia" class="level2" data-number="3.4">
@@ -2578,7 +2578,7 @@ Tabla&nbsp;4: Estadísticos descriptivos de variables principales por período e
 <div id="fig-trayectorias" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-trayectorias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_trayectorias.png" class="img-fluid figure-img" style="width:100.0%">
+<img src="../output/figuras/fig_trayectorias.png" class="img-fluid figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trayectorias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;1: Trayectorias medias de justificación de la violencia por el control social (status quo) y por el cambio social, por identidad étnica y zona de excepción. Línea sólida: zona de excepción; línea punteada: lejos del conflicto.
@@ -2604,7 +2604,7 @@ Figura&nbsp;1: Trayectorias medias de justificación de la violencia por el cont
 <div id="fig-medias" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-medias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_medias_predichas.png" class="img-fluid figure-img" style="width:100.0%">
+<img src="../output/figuras/fig_medias_predichas.png" class="img-fluid figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-medias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;2: Medias predichas de justificación de la violencia por grupo (identidad × zona) y período (olas 2–4), según modelos M2. Intervalos de confianza al 95 %; controles en valores de referencia.
@@ -3251,7 +3251,7 @@ Tabla&nbsp;5: Modelo C (M2): coeficientes DiD de tres períodos. Sincronizado co
 <div id="fig-justproc" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-justproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_trayectorias_justproc_inout.png" class="img-fluid figure-img" style="width:100.0%">
+<img src="../output/figuras/fig_trayectorias_justproc_inout.png" class="img-fluid figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-justproc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;3: Trayectorias de justicia procedimental ingroup vs.&nbsp;outgroup por grupo étnico y zona. IC 95% sombreado.
@@ -3266,7 +3266,7 @@ Figura&nbsp;3: Trayectorias de justicia procedimental ingroup vs.&nbsp;outgroup 
 <div id="fig-brecha" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-brecha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_brecha_justproc.png" class="img-fluid figure-img" style="width:90.0%">
+<img src="../output/figuras/fig_brecha_justproc.png" class="img-fluid figure-img" style="width:90.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-brecha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;4: Brecha percibida de justicia procedimental (outgroup − ingroup) por grupo. Valores positivos = perciben mejor trato al otro grupo.
@@ -3397,7 +3397,7 @@ Tabla&nbsp;7: Mediación: atenuación del DiD al incluir mediadores
 <div id="fig-mediacion" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-mediacion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_mediacion_ingroup.png" class="img-fluid figure-img" style="width:95.0%">
+<img src="../output/figuras/fig_mediacion_ingroup.png" class="img-fluid figure-img" style="width:95.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mediacion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;5: Coeficiente DiD (Ola 4 × Indígena × Zona) con y sin mediadores rezagados. IC 95%. Rojo = sin mediador, azul = con mediador.
@@ -4208,7 +4208,7 @@ Tabla&nbsp;8: Modelos logísticos de participación y voto en el plebiscito cons
 <div id="fig-rechazo" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rechazo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_prob_rechazo.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+<img src="../output/figuras/fig_prob_rechazo.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rechazo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;6: Probabilidades predichas de voto Rechazo por identidad étnica y zona de residencia (plebiscito septiembre 2022). Intervalos de confianza al 95 %; resto de variables en sus medias.
@@ -4226,7 +4226,7 @@ Figura&nbsp;6: Probabilidades predichas de voto Rechazo por identidad étnica y 
 <div id="fig-robustez" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_robustez_comparativa.png" class="img-fluid figure-img" style="width:100.0%">
+<img src="../output/figuras/fig_robustez_comparativa.png" class="img-fluid figure-img" style="width:100.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;7: Estabilidad del efecto DiD (Ola 4 × Indígena × Zona) a través de especificaciones. IC 95%.
@@ -4761,7 +4761,7 @@ Tabla&nbsp;9: Resumen de análisis de robustez. Coeficiente de interés: Ola 4 �
 <div id="fig-pesos-ipw" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-pesos-ipw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_hist_pesos_ipw.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
+<img src="../output/figuras/fig_hist_pesos_ipw.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pesos-ipw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;8: Distribución de pesos IPW en ola 2 (baseline). Líneas verticales: percentiles 1 y 99.
@@ -8244,7 +8244,7 @@ Tabla&nbsp;15: Análisis de mecanismo en tres pasos. Sincronizado con output/tab
 <div id="fig-apendice-coef" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-apendice-coef-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figuras/fig_coeficientes.png" class="img-fluid figure-img" width="1950">
+<img src="../output/figuras/fig_coeficientes.png" class="img-fluid figure-img" width="1950">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-apendice-coef-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figura&nbsp;9: Efectos fijos del modelo M2 con IC 95% (Apéndice).

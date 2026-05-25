@@ -973,11 +973,11 @@ Tabla&nbsp;2: Operacionalización de variables principales
 </div>
 </div>
 <p>En todo el manuscrito se emplean dos variables dependientes principales. La <strong>justificación de la violencia por el control social (status quo)</strong> (<code>idx_vio_control</code>) captura la legitimación de acciones coercitivas de agentes estatales o civiles contra demandas indígenas (fuerza de Carabineros en protestas y uso de armas por agricultores). La <strong>justificación de la violencia por el cambio social</strong> (<code>idx_vio_resguardo</code>) captura la legitimación de acciones disruptivas orientadas a transformar el orden vigente (tomas de terrenos y cortes de caminos).</p>
-<p>La variable de tratamiento se define como</p>
+<p>La variable de <strong>asignación espacial al tratamiento</strong> (<code>cerca_conflicto</code> o <code>zona_excepcion</code>) identifica a los individuos residentes en las 53 comunas afectadas por el decreto D.S. N°418/2021. Sin embargo, dado que el estado de excepción fue decretado en octubre de 2021 —cinco meses después del término del campo de ola 3 (mayo 2021)—, el período de <strong>exposición efectiva al tratamiento</strong> corresponde a la ola 4 (2023), cuando el régimen de excepción ya llevaba dos años de implementación continua. En la especificación DiD, el efecto causal de interés se estima mediante la <strong>triple interacción</strong> ola 4 × identidad indígena × zona de excepción (τ₄):</p>
 <p><span class="math display">\[
-D_{it} = \mathbb{1}[\text{zona}_i = \text{excepción}] \times \mathbb{1}[t = 3]
+\tau_4 = \beta(\text{Ola}_4 \times \text{Indígena} \times \text{Zona excepción})
 \]</span></p>
-<p>y toma valor 1 solo para individuos en comunas de excepción durante la ola 3. Los controles incluyen identificación con Chile, identificación con la causa indígena, percepciones de desigualdad e injusticia (c22 y c23 invertidas), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según la correlación con <code>cerca_conflicto</code> (umbral |<em>r</em>| ≤ 0,5; en estos datos <em>r</em> = 0,203, por lo que se incluye).</p>
+<p>que captura el cambio diferencial en actitudes entre grupos expuestos y no expuestos al decreto prolongado, controlando por tendencias temporales generales (efectos de período) y diferencias preexistentes entre zonas. Los controles incluyen identificación con Chile (a6), identificación con la causa indígena (d6_1), percepciones de desigualdad e injusticia (c22 y c23 invertidas), apoyo a movilizaciones (c25), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según su correlación con <code>cerca_conflicto</code> (umbral |<em>r</em>| ≤ 0,5; en estos datos <em>r</em> = 0,35, por lo que se incluye).</p>
 <p><code>idx_just_proc</code> se trata como <strong>variable de mecanismo</strong> (mediadora exploratoria), no como variable dependiente principal.</p>
 </section>
 <section id="sec-estrategia" class="level2" data-number="3.4">
