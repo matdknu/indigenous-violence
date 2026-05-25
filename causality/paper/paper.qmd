@@ -226,7 +226,7 @@ Estudios previos han mostrado que la exposición directa a represión policial d
 
 Las contribuciones son cuatro. Primero, el primer análisis longitudinal con diseño espejo que captura dos shocks secuenciales — estallido social y estado de excepción — con sus efectos diferenciales por identidad étnica y territorio. Segundo, la distinción analítica entre justificación de la violencia por el control social (*status quo*) y por el cambio social, mostrando que el estallido abrió una ventana normativa que el decreto no logró cerrar para quienes viven la coerción directamente. Tercero, la descomposición de la justicia procedimental en percepción ingroup (trato a mi grupo) y outgroup (trato al otro grupo), revelando que el estado de excepción se asoció con una mejora en la percepción ingroup entre indígenas — hallazgo contraintuitivo que se interpreta como regularización, no benevolencia. Cuarto, la evidencia de mediación asimétrica: la justicia procedimental media la justificación de violencia de control (`r fmt_es(abs(paper$ate_ctrl), 0)` %) pero suprime la de cambio social (`r fmt_es(paper$ate_resg, 0)` %), indicando que el mismo mecanismo opera en direcciones opuestas según el tipo de violencia.
 
-El artículo se organiza así: @sec-marco presenta el marco teórico con cinco hipótesis organizadas en torno a la secuencia apertura → contención; @sec-datos describe el diseño, los datos y las variables; @sec-modelo formaliza los modelos; @sec-resultados presenta los resultados; @sec-discusion discute los hallazgos; @sec-limitaciones y @sec-conclusiones cierran con limitaciones e implicaciones.
+El artículo se organiza así: @sec-marco presenta el marco teórico con cinco hipótesis organizadas en torno a la secuencia apertura → contención; @sec-datos describe el diseño, los datos y las variables; @sec-modelo formaliza los modelos; @sec-resultados presenta los resultados (descriptivos, DiD, mecanismo, heterogeneidad identitaria y plebiscito); la robustez figura en el Apéndice (@sec-apendice-robustez); @sec-discusion discute los hallazgos; @sec-limitaciones y @sec-conclusiones cierran con limitaciones e implicaciones.
 
 # Marco teórico {#sec-marco}
 
@@ -386,7 +386,7 @@ que captura el cambio diferencial en actitudes entre grupos expuestos y no expue
 
 ## Estrategia analítica {#sec-estrategia}
 
-Se estiman modelos multinivel con intercepto aleatorio por individuo (`folio`). El coeficiente de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción** ($\tau_4$). El análisis de mecanismo descompone la justicia procedimental en percepción ingroup y outgroup, estimando modelos con mediadores rezagados (valor en ola anterior) para aproximar precedencia temporal. Como extensión, se estiman modelos logísticos del plebiscito de 2022 (capturado retrospectivamente en ola 4, 2023).
+Se estiman modelos multinivel con intercepto aleatorio por individuo (`folio`). El coeficiente de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción** ($\tau_4$). El análisis de mecanismo descompone la justicia procedimental en percepción ingroup y outgroup, estimando modelos con mediadores rezagados (valor en ola anterior) para aproximar precedencia temporal. Los análisis de robustez (PSM, IPW, placebo, modelos por ítem y codificación ordinal) se reportan en el Apéndice (@sec-apendice-robustez). Como extensión, se estiman modelos logísticos del plebiscito de 2022 (capturado retrospectivamente en ola 4, 2023).
 
 # Modelo estadístico {#sec-modelo}
 
@@ -806,72 +806,7 @@ modelsummary(
 knitr::include_graphics(file.path(root_dir, "output/figuras/fig_prob_rechazo.png"))
 ```
 
-## Robustez de las estimaciones {#sec-res-robustez}
-
-@fig-robustez resume la estabilidad del coeficiente $\tau_4$ a través de especificaciones (principal, IPW, PSM, placebo). @tbl-robustez detalla los valores numéricos.
-
-```{r}
-#| label: fig-robustez
-#| fig-cap: "Estabilidad del efecto DiD (Ola 4 × Indígena × Zona) a través de especificaciones. IC 95%."
-#| fig-width: 10
-#| fig-height: 6
-#| out-width: "100%"
-
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_robustez_comparativa.png"))
-```
-
-## Análisis complementarios de robustez {#sec-robustez-detalle}
-
-Para paliar la imposibilidad de testear formalmente tendencias paralelas con una sola ola pretratamiento, se implementaron análisis complementarios de balance en ola 2, propensity score matching (PSM), ponderación inversa de la probabilidad (IPW) con diagnóstico de pesos extremos, un placebo pretratamiento (olas 1–2) y modelos por ítem. El coeficiente de interés en todas las especificaciones es la triple interacción **Ola 4 × identidad indígena × zona de excepción**.
-
-```{r}
-#| label: tbl-robustez
-#| tbl-cap: "Resumen de análisis de robustez. Coeficiente de interés: Ola 4 × Indígena × Zona [DiD] (β). Sincronizado con output/tablas/tabla_resumen_robustez.html."
-
-paper$tbl_robustez |>
-  gt() |>
-  tab_style(
-    style = cell_text(weight = "bold"),
-    locations = cells_body(rows = 1)
-  ) |>
-  tab_options(
-    table.border.top.style = "solid",
-    table.border.bottom.style = "solid",
-    column_labels.border.bottom.style = "solid",
-    table_body.hlines.style = "none",
-    table.font.size = px(11)
-  ) |>
-  opt_stylize(style = 1) |>
-  publish_gt()
-```
-
-@tbl-robustez resume los resultados de las especificaciones ya estimadas (ver también @tbl-apendice-robustez). En el modelo principal (M2), la interacción triple es positiva y significativa para violencia de control social (`r paper$tau4_ctrl$beta_p`) y cambio social (`r paper$tau4_resg$beta_p`). El placebo pretratamiento (olas 1–2) `r if (paper$placebo_ns) "no alcanza significancia en ninguna variable dependiente, lo que es compatible con la ausencia de una divergencia equivalente antes del período analizado" else "muestra al menos un coeficiente significativo; la interpretación causal debe ser más cautelosa"`. En el PSM, los coeficientes mantienen dirección positiva (control: `r paper$psm_ctrl$beta_p`; resguardo: `r paper$psm_resg$beta_p`) pero pierden significancia estadística. La explicación más probable no es solo la reducción muestral (*n* = `r paper$n_psm` folios emparejados), sino el **soporte común estrecho** entre tratados y controles: la zona de excepción concentra características sociodemográficas y territoriales que dificultan encontrar contrapartes válidas fuera de ella, lo que limita la estrategia de matching pero no invalida el diseño DiD condicional.
-
-### Ponderación inversa (IPW) y trimming de pesos
-
-El IPW estimado en ola 2 ajusta por diferencias observables en la probabilidad de residir en zona de excepción. La distribución de pesos presenta **asimetría y valores extremos** que deben reportarse explícitamente (@fig-pesos-ipw). En la especificación original, los pesos oscilan entre `r fmt_es(paper$diag_ipw_orig$min, 2)` y `r fmt_es(paper$diag_ipw_orig$max, 1)` (mediana = `r fmt_es(paper$diag_ipw_orig$mediana, 2)`; media = `r fmt_es(paper$diag_ipw_orig$media, 2)`; p95 = `r fmt_es(paper$diag_ipw_orig$p95, 2)`; p99 = `r fmt_es(paper$diag_ipw_orig$p99, 1)`). Tras truncar al percentil 5–95 %, el rango se reduce a [`r fmt_es(paper$diag_ipw_trim595$min, 2)`; `r fmt_es(paper$diag_ipw_trim595$max, 2)`], con media = `r fmt_es(paper$diag_ipw_trim595$media, 2)` y mediana = `r fmt_es(paper$diag_ipw_trim595$mediana, 2)`.
-
-Los resultados del @tbl-robustez indican **robustez parcial** respecto de la dirección del efecto, aunque no del tamaño exacto:
-
-- **Violencia de control social.** El IPW original (`r paper$ipw_o_ctrl$beta_p`) amplifica la magnitud respecto al modelo principal, pero el efecto **permanece positivo y altamente significativo** tras el trimming (1–99 %: `r paper$ipw_199_ctrl$beta_stars`; 5–95 %: `r paper$ipw_595_ctrl$beta_stars`). Esto sugiere que el aumento ponderado **no parece explicarse exclusivamente por observaciones con pesos extremos**; la magnitud es muy estable una vez aplicado el truncamiento.
-- **Violencia de resguardo territorial.** La dirección positiva se mantiene en todas las especificaciones IPW, pero la **magnitud es sensible al tratamiento de pesos**: el coeficiente pasa de `r paper$ipw_o_resg$beta_p` en el IPW original a `r paper$ipw_199_resg$beta_p` con trimming 1–99 % y `r paper$ipw_595_resg$beta_p` con trimming 5–95 %. La significancia se preserva, pero **las magnitudes deben interpretarse con cautela**.
-
-En conjunto, la evidencia de robustez es **más sólida para la dirección del cambio diferencial posterior** que para el tamaño puntual del coeficiente. Los resultados IPW son **compatibles con** un patrón de aumento diferencial entre personas indígenas en zona de excepción, pero confirman que la ponderación altera sustancialmente las magnitudes estimadas —especialmente en resguardo territorial— y refuerzan la necesidad de mantener un lenguaje prudente en la interpretación cuasi-experimental.
-
-Como **análisis adicional de sensibilidad**, se replicaron los modelos DiD con una codificación ordinal de las variables dependientes (Rechaza [1–2] / Neutral [3] / Justifica [4–5]). Los resultados son consistentes en dirección y significancia con la especificación continua, siendo más sensibles al efecto DiD en cambio social (β = 1,87**, *p* < ,01) que en control social (β = 1,14+, *p* = ,08). Ver @tbl-apendice-likert en el Apéndice.
-
-Como **análisis adicionales recomendados** para futuras versiones del estudio, conviene estimar modelos con controles sociodemográficos solamente (Modelo A), excluir `urbano_rural`, incorporar efectos fijos individuales (*within*), reconstruir índices mediante PCA, excluir comunas limítrofes y contrastar especificaciones con distintos conjuntos de controles pre- y post-tratamiento.
-
-```{r}
-#| label: fig-pesos-ipw
-#| fig-cap: "Distribución de pesos IPW en ola 2 (baseline). Líneas verticales: percentiles 1 y 99."
-#| fig-width: 8
-#| fig-height: 5
-#| out-width: "85%"
-#| fig-align: center
-
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_hist_pesos_ipw.png"))
-```
+Los análisis de robustez (PSM, IPW, placebo pretratamiento, modelos por ítem y codificación ordinal) se reportan en el @sec-apendice-robustez.
 
 # Discusión {#sec-discusion}
 
@@ -973,7 +908,63 @@ modelsummary(
 ) |> style_ms()
 ```
 
-## Tabla A3 — Resumen de robustez {#tbl-apendice-robustez}
+## Análisis de robustez {#sec-apendice-robustez}
+
+Para paliar la imposibilidad de testear formalmente tendencias paralelas con una sola ola pretratamiento, se implementaron análisis complementarios de balance en ola 2, propensity score matching (PSM), ponderación inversa de la probabilidad (IPW) con diagnóstico de pesos extremos, un placebo pretratamiento (olas 1–2), modelos por ítem y una replicación con codificación ordinal de las variables dependientes. En todas las especificaciones el coeficiente de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción** ($\tau_4$).
+
+@fig-apendice-robustez resume la estabilidad de $\tau_4$ entre el modelo principal, IPW, PSM y placebo. @tbl-apendice-robustez-resumen condensa los mismos resultados en formato tabular.
+
+```{r}
+#| label: fig-apendice-robustez
+#| fig-cap: "Estabilidad del efecto DiD (Ola 4 × Indígena × Zona) a través de especificaciones. IC 95%."
+#| fig-width: 10
+#| fig-height: 6
+#| out-width: "100%"
+
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_robustez_comparativa.png"))
+```
+
+```{r}
+#| label: tbl-apendice-robustez-resumen
+#| tbl-cap: "Resumen de análisis de robustez. Coeficiente de interés: Ola 4 × Indígena × Zona [DiD] (β)."
+
+paper$tbl_robustez |>
+  gt() |>
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(rows = 1)
+  ) |>
+  tab_options(
+    table.border.top.style = "solid",
+    table.border.bottom.style = "solid",
+    column_labels.border.bottom.style = "solid",
+    table_body.hlines.style = "none",
+    table.font.size = px(11)
+  ) |>
+  opt_stylize(style = 1) |>
+  publish_gt()
+```
+
+En el modelo principal (Modelo C), la interacción triple es positiva y significativa para violencia de control social (`r paper$tau4_ctrl$beta_p`) y cambio social (`r paper$tau4_resg$beta_p`). El placebo pretratamiento (olas 1–2) `r if (paper$placebo_ns) "no alcanza significancia en ninguna variable dependiente, lo que es compatible con la ausencia de una divergencia equivalente antes del período analizado" else "muestra al menos un coeficiente significativo; la interpretación causal debe ser más cautelosa"`. En el PSM, los coeficientes mantienen dirección positiva (control: `r paper$psm_ctrl$beta_p`; cambio: `r paper$psm_resg$beta_p`) pero pierden significancia estadística. La explicación más probable no es solo la reducción muestral (*n* = `r paper$n_psm` folios emparejados), sino el **soporte común estrecho** entre tratados y controles: la zona de excepción concentra características sociodemográficas y territoriales que dificultan encontrar contrapartes válidas fuera de ella, lo que limita la estrategia de matching pero no invalida el diseño DiD condicional.
+
+### Ponderación inversa (IPW) y trimming de pesos
+
+El IPW estimado en ola 2 ajusta por diferencias observables en la probabilidad de residir en zona de excepción. La distribución de pesos presenta asimetría y valores extremos (@fig-apendice-pesos-ipw). En la especificación original, los pesos oscilan entre `r fmt_es(paper$diag_ipw_orig$min, 2)` y `r fmt_es(paper$diag_ipw_orig$max, 1)` (mediana = `r fmt_es(paper$diag_ipw_orig$mediana, 2)`; media = `r fmt_es(paper$diag_ipw_orig$media, 2)`; p95 = `r fmt_es(paper$diag_ipw_orig$p95, 2)`; p99 = `r fmt_es(paper$diag_ipw_orig$p99, 1)`). Tras truncar al percentil 5–95 %, el rango se reduce a [`r fmt_es(paper$diag_ipw_trim595$min, 2)`; `r fmt_es(paper$diag_ipw_trim595$max, 2)`], con media = `r fmt_es(paper$diag_ipw_trim595$media, 2)` y mediana = `r fmt_es(paper$diag_ipw_trim595$mediana, 2)`.
+
+Para violencia de control social, el IPW original (`r paper$ipw_o_ctrl$beta_p`) amplifica la magnitud respecto al modelo principal, pero el efecto permanece positivo y altamente significativo tras el trimming (1–99 %: `r paper$ipw_199_ctrl$beta_stars`; 5–95 %: `r paper$ipw_595_ctrl$beta_stars`), lo que sugiere que el aumento ponderado no parece explicarse exclusivamente por observaciones con pesos extremos. Para violencia de cambio social, la dirección positiva se mantiene en todas las especificaciones IPW, pero la magnitud es sensible al tratamiento de pesos: el coeficiente pasa de `r paper$ipw_o_resg$beta_p` en el IPW original a `r paper$ipw_199_resg$beta_p` con trimming 1–99 % y `r paper$ipw_595_resg$beta_p` con trimming 5–95 %. En conjunto, la evidencia es más sólida para la **dirección** del cambio diferencial que para el tamaño puntual del coeficiente.
+
+```{r}
+#| label: fig-apendice-pesos-ipw
+#| fig-cap: "Distribución de pesos IPW en ola 2 (baseline). Líneas verticales: percentiles 1 y 99."
+#| fig-width: 8
+#| fig-height: 5
+#| out-width: "85%"
+#| fig-align: center
+
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_hist_pesos_ipw.png"))
+```
+
+### Tabla completa de coeficientes de robustez
 
 ```{r}
 #| label: tbl-apendice-robustez
@@ -1001,6 +992,56 @@ paper$resumen_robustez |>
   ) |>
   tab_options(table.font.size = px(9)) |>
   publish_gt()
+```
+
+### Modelos DiD por ítem {#tbl-apendice-items}
+
+```{r}
+#| label: tbl-apendice-items
+#| tbl-cap: "Modelos DiD por ítem (coeficiente de interés: DiD decreto, ola 4)."
+
+if (!is.null(robustez$item_models) && length(robustez$item_models) > 0) {
+  item_named <- setNames(
+    robustez$item_models,
+    unname(item_labels_paper[names(robustez$item_models)])
+  )
+  modelsummary(
+    item_named,
+    statistic = "({std.error})",
+    stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+    fmt = 3,
+    coef_omit = "edad|mujer|urbano|id_chile|id_causa|perc_|periodo|indigeneous|cerca",
+    gof_map = c("nobs", "icc", "rmse"),
+    output = ms_out()
+  ) |> style_ms()
+}
+```
+
+### Codificación ordinal (sensibilidad) {#tbl-apendice-likert}
+
+Se replicaron los modelos DiD con una codificación ordinal de las variables dependientes (Rechaza [1–2] / Neutral [3] / Justifica [4–5], esquema A simétrico). Los resultados son consistentes en dirección y significancia con la especificación continua, siendo más sensibles al efecto DiD en cambio social (β = 1,87**, *p* < ,01) que en control social (β = 1,14+, *p* = ,08).
+
+```{r}
+#| label: tbl-apendice-likert
+#| tbl-cap: "Comparación DiD: escala continua 1–5 vs. ordinal A vs. ordinal B (CLMM)."
+
+likert_path <- file.path(root_dir, "data/likert_collapse.rds")
+if (file.exists(likert_path)) {
+  likert_obj <- readRDS(likert_path)
+  likert_obj$resumen_modelos |>
+    dplyr::select(spec, vd, estimate, std.error, p.value, sig) |>
+    gt() |>
+    cols_label(
+      spec = "Especificación", vd = "VD",
+      estimate = "β DiD", std.error = "SE",
+      p.value = "p", sig = ""
+    ) |>
+    fmt_number(columns = c(estimate, std.error, p.value), decimals = 3) |>
+    tab_footnote(
+      footnote = "Coeficiente de interés: triple interacción DiD decreto (ola 4 × indígena × zona)."
+    ) |>
+    publish_gt()
+}
 ```
 
 ## Tabla A4 — Consistencia interna {#tbl-apendice-alpha}
@@ -1037,30 +1078,7 @@ tibble::tibble(
   publish_gt()
 ```
 
-## Tabla A5 — Modelos por ítem {#tbl-apendice-items}
-
-```{r}
-#| label: tbl-apendice-items
-#| tbl-cap: "Modelos DiD por ítem (coeficiente de interés: DiD decreto, ola 4)."
-
-if (!is.null(robustez$item_models) && length(robustez$item_models) > 0) {
-  item_named <- setNames(
-    robustez$item_models,
-    unname(item_labels_paper[names(robustez$item_models)])
-  )
-  modelsummary(
-    item_named,
-    statistic = "({std.error})",
-    stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
-    fmt = 3,
-    coef_omit = "edad|mujer|urbano|id_chile|id_causa|perc_|periodo|indigeneous|cerca",
-    gof_map = c("nobs", "icc", "rmse"),
-    output = ms_out()
-  ) |> style_ms()
-}
-```
-
-## Tabla A6 — Análisis de mecanismo ingroup/outgroup {#tbl-apendice-mecanismo}
+## Tabla A5 — Análisis de mecanismo ingroup/outgroup {#tbl-apendice-mecanismo}
 
 ```{r}
 #| label: tbl-apendice-mecanismo
@@ -1095,7 +1113,7 @@ if (!is.null(mecanismo$m1_ingroup)) {
 }
 ```
 
-## Tabla A8 — Heterogeneidad por terciles {#tbl-apendice-hetero}
+## Tabla A6 — Heterogeneidad por terciles {#tbl-apendice-hetero}
 
 ```{r}
 #| label: tbl-apendice-hetero

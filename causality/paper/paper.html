@@ -129,11 +129,6 @@ window.Quarto = {
   <li><a href="#sec-res-mecanismo" id="toc-sec-res-mecanismo" class="nav-link" data-scroll-target="#sec-res-mecanismo"><span class="header-section-number">5.4</span> Análisis de mecanismo: justicia procedimental ingroup/outgroup</a></li>
   <li><a href="#sec-res-hetero" id="toc-sec-res-hetero" class="nav-link" data-scroll-target="#sec-res-hetero"><span class="header-section-number">5.5</span> Heterogeneidad identitaria</a></li>
   <li><a href="#sec-res-pleb" id="toc-sec-res-pleb" class="nav-link" data-scroll-target="#sec-res-pleb"><span class="header-section-number">5.6</span> Plebiscito 2022</a></li>
-  <li><a href="#sec-res-robustez" id="toc-sec-res-robustez" class="nav-link" data-scroll-target="#sec-res-robustez"><span class="header-section-number">5.7</span> Robustez de las estimaciones</a></li>
-  <li><a href="#sec-robustez-detalle" id="toc-sec-robustez-detalle" class="nav-link" data-scroll-target="#sec-robustez-detalle"><span class="header-section-number">5.8</span> Análisis complementarios de robustez</a>
-  <ul class="collapse">
-  <li><a href="#ponderación-inversa-ipw-y-trimming-de-pesos" id="toc-ponderación-inversa-ipw-y-trimming-de-pesos" class="nav-link" data-scroll-target="#ponderación-inversa-ipw-y-trimming-de-pesos"><span class="header-section-number">5.8.1</span> Ponderación inversa (IPW) y trimming de pesos</a></li>
-  </ul></li>
   </ul></li>
   <li><a href="#sec-discusion" id="toc-sec-discusion" class="nav-link" data-scroll-target="#sec-discusion"><span class="header-section-number">6</span> Discusión</a>
   <ul class="collapse">
@@ -149,12 +144,17 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#tbl-apendice-m1m2" id="toc-tbl-apendice-m1m2" class="nav-link" data-scroll-target="#tbl-apendice-m1m2"><span class="header-section-number">9.1</span> Tabla A1 — Modelos A, B y C (apéndice)</a></li>
   <li><a href="#tbl-apendice-pleb" id="toc-tbl-apendice-pleb" class="nav-link" data-scroll-target="#tbl-apendice-pleb"><span class="header-section-number">9.2</span> Tabla A2 — Modelos plebiscito</a></li>
-  <li><a href="#tbl-apendice-robustez" id="toc-tbl-apendice-robustez" class="nav-link" data-scroll-target="#tbl-apendice-robustez"><span class="header-section-number">9.3</span> Tabla A3 — Resumen de robustez</a></li>
+  <li><a href="#sec-apendice-robustez" id="toc-sec-apendice-robustez" class="nav-link" data-scroll-target="#sec-apendice-robustez"><span class="header-section-number">9.3</span> Análisis de robustez</a>
+  <ul class="collapse">
+  <li><a href="#ponderación-inversa-ipw-y-trimming-de-pesos" id="toc-ponderación-inversa-ipw-y-trimming-de-pesos" class="nav-link" data-scroll-target="#ponderación-inversa-ipw-y-trimming-de-pesos"><span class="header-section-number">9.3.1</span> Ponderación inversa (IPW) y trimming de pesos</a></li>
+  <li><a href="#tabla-completa-de-coeficientes-de-robustez" id="toc-tabla-completa-de-coeficientes-de-robustez" class="nav-link" data-scroll-target="#tabla-completa-de-coeficientes-de-robustez"><span class="header-section-number">9.3.2</span> Tabla completa de coeficientes de robustez</a></li>
+  <li><a href="#tbl-apendice-items" id="toc-tbl-apendice-items" class="nav-link" data-scroll-target="#tbl-apendice-items"><span class="header-section-number">9.3.3</span> Modelos DiD por ítem</a></li>
+  <li><a href="#tbl-apendice-likert" id="toc-tbl-apendice-likert" class="nav-link" data-scroll-target="#tbl-apendice-likert"><span class="header-section-number">9.3.4</span> Codificación ordinal (sensibilidad)</a></li>
+  </ul></li>
   <li><a href="#tbl-apendice-alpha" id="toc-tbl-apendice-alpha" class="nav-link" data-scroll-target="#tbl-apendice-alpha"><span class="header-section-number">9.4</span> Tabla A4 — Consistencia interna</a></li>
-  <li><a href="#tbl-apendice-items" id="toc-tbl-apendice-items" class="nav-link" data-scroll-target="#tbl-apendice-items"><span class="header-section-number">9.5</span> Tabla A5 — Modelos por ítem</a></li>
-  <li><a href="#tbl-apendice-mecanismo" id="toc-tbl-apendice-mecanismo" class="nav-link" data-scroll-target="#tbl-apendice-mecanismo"><span class="header-section-number">9.6</span> Tabla A6 — Análisis de mecanismo ingroup/outgroup</a></li>
-  <li><a href="#tbl-apendice-hetero" id="toc-tbl-apendice-hetero" class="nav-link" data-scroll-target="#tbl-apendice-hetero"><span class="header-section-number">9.7</span> Tabla A8 — Heterogeneidad por terciles</a></li>
-  <li><a href="#fig-apendice-coef" id="toc-fig-apendice-coef" class="nav-link" data-scroll-target="#fig-apendice-coef"><span class="header-section-number">9.8</span> Figura A1 — Coeficientes completos M2</a></li>
+  <li><a href="#tbl-apendice-mecanismo" id="toc-tbl-apendice-mecanismo" class="nav-link" data-scroll-target="#tbl-apendice-mecanismo"><span class="header-section-number">9.5</span> Tabla A5 — Análisis de mecanismo ingroup/outgroup</a></li>
+  <li><a href="#tbl-apendice-hetero" id="toc-tbl-apendice-hetero" class="nav-link" data-scroll-target="#tbl-apendice-hetero"><span class="header-section-number">9.6</span> Tabla A6 — Heterogeneidad por terciles</a></li>
+  <li><a href="#fig-apendice-coef" id="toc-fig-apendice-coef" class="nav-link" data-scroll-target="#fig-apendice-coef"><span class="header-section-number">9.7</span> Figura A1 — Coeficientes completos M2</a></li>
   <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul></li>
   </ul>
@@ -221,7 +221,7 @@ window.Quarto = {
 <p>Entre 2018 y 2023, la población de la zona de conflicto experimentó dos coyunturas críticas que alteraron el panorama actitudinal de formas potencialmente contradictorias. El estallido social de octubre de 2019 politizó la violencia como recurso de transformación, generando una apertura normativa en la que la justificación de la violencia se volvió discursivamente aceptable en amplios segmentos de la población. Posteriormente, el decreto del estado de excepción constitucional en octubre de 2021 institucionalizó la presencia militar en 53 comunas de La Araucanía y el Biobío, constituyendo un intento de contención estatal que se prolongó por más de un año. La derrota del Apruebo en el plebiscito constitucional de septiembre de 2022 cerró el canal institucional de cambio abierto por el estallido, dejando a la población de la zona entre la coerción sostenida y la clausura de alternativas políticas formales.</p>
 <p>Estudios previos han mostrado que la exposición directa a represión policial durante el estallido social aumentó la justificación de violencia contra la policía en población no indígena <span class="citation" data-cites="disipavlic2024">(<a href="#ref-disipavlic2024" role="doc-biblioref"><strong>disipavlic2024?</strong></a>)</span>. Sin embargo, permanece inexplorado si estos efectos son homogéneos entre grupos étnicos, si persisten cuando la coerción se institucionaliza en un territorio específico, y por qué mecanismos operan. La pregunta de investigación es: ¿en qué medida el período del estado de excepción se asocia con cambios diferenciales en la justificación de la violencia entre personas indígenas y no indígenas, según su cercanía territorial al conflicto, y cómo media la percepción de justicia procedimental en ese proceso?</p>
 <p>Las contribuciones son cuatro. Primero, el primer análisis longitudinal con diseño espejo que captura dos shocks secuenciales — estallido social y estado de excepción — con sus efectos diferenciales por identidad étnica y territorio. Segundo, la distinción analítica entre justificación de la violencia por el control social (<em>status quo</em>) y por el cambio social, mostrando que el estallido abrió una ventana normativa que el decreto no logró cerrar para quienes viven la coerción directamente. Tercero, la descomposición de la justicia procedimental en percepción ingroup (trato a mi grupo) y outgroup (trato al otro grupo), revelando que el estado de excepción se asoció con una mejora en la percepción ingroup entre indígenas — hallazgo contraintuitivo que se interpreta como regularización, no benevolencia. Cuarto, la evidencia de mediación asimétrica: la justicia procedimental media la justificación de violencia de control (42 %) pero suprime la de cambio social (-24 %), indicando que el mismo mecanismo opera en direcciones opuestas según el tipo de violencia.</p>
-<p>El artículo se organiza así: <a href="#sec-marco" class="quarto-xref">Sección&nbsp;2</a> presenta el marco teórico con cinco hipótesis organizadas en torno a la secuencia apertura → contención; <a href="#sec-datos" class="quarto-xref">Sección&nbsp;3</a> describe el diseño, los datos y las variables; <a href="#sec-modelo" class="quarto-xref">Sección&nbsp;4</a> formaliza los modelos; <a href="#sec-resultados" class="quarto-xref">Sección&nbsp;5</a> presenta los resultados; <a href="#sec-discusion" class="quarto-xref">Sección&nbsp;6</a> discute los hallazgos; <a href="#sec-limitaciones" class="quarto-xref">Sección&nbsp;7</a> y <a href="#sec-conclusiones" class="quarto-xref">Sección&nbsp;8</a> cierran con limitaciones e implicaciones.</p>
+<p>El artículo se organiza así: <a href="#sec-marco" class="quarto-xref">Sección&nbsp;2</a> presenta el marco teórico con cinco hipótesis organizadas en torno a la secuencia apertura → contención; <a href="#sec-datos" class="quarto-xref">Sección&nbsp;3</a> describe el diseño, los datos y las variables; <a href="#sec-modelo" class="quarto-xref">Sección&nbsp;4</a> formaliza los modelos; <a href="#sec-resultados" class="quarto-xref">Sección&nbsp;5</a> presenta los resultados (descriptivos, DiD, mecanismo, heterogeneidad identitaria y plebiscito); la robustez figura en el Apéndice (<a href="#sec-apendice-robustez" class="quarto-xref">Sección&nbsp;9.3</a>); <a href="#sec-discusion" class="quarto-xref">Sección&nbsp;6</a> discute los hallazgos; <a href="#sec-limitaciones" class="quarto-xref">Sección&nbsp;7</a> y <a href="#sec-conclusiones" class="quarto-xref">Sección&nbsp;8</a> cierran con limitaciones e implicaciones.</p>
 </section>
 <section id="sec-marco" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Marco teórico</h1>
@@ -990,7 +990,7 @@ Tabla&nbsp;2: Operacionalización de variables principales
 </section>
 <section id="sec-estrategia" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="sec-estrategia"><span class="header-section-number">3.4</span> Estrategia analítica</h2>
-<p>Se estiman modelos multinivel con intercepto aleatorio por individuo (<code>folio</code>). El coeficiente de interés es la triple interacción <strong>Ola 4 × identidad indígena × zona de excepción</strong> (<span class="math inline">\(\tau_4\)</span>). El análisis de mecanismo descompone la justicia procedimental en percepción ingroup y outgroup, estimando modelos con mediadores rezagados (valor en ola anterior) para aproximar precedencia temporal. Como extensión, se estiman modelos logísticos del plebiscito de 2022 (capturado retrospectivamente en ola 4, 2023).</p>
+<p>Se estiman modelos multinivel con intercepto aleatorio por individuo (<code>folio</code>). El coeficiente de interés es la triple interacción <strong>Ola 4 × identidad indígena × zona de excepción</strong> (<span class="math inline">\(\tau_4\)</span>). El análisis de mecanismo descompone la justicia procedimental en percepción ingroup y outgroup, estimando modelos con mediadores rezagados (valor en ola anterior) para aproximar precedencia temporal. Los análisis de robustez (PSM, IPW, placebo, modelos por ítem y codificación ordinal) se reportan en el Apéndice (<a href="#sec-apendice-robustez" class="quarto-xref">Sección&nbsp;9.3</a>). Como extensión, se estiman modelos logísticos del plebiscito de 2022 (capturado retrospectivamente en ola 4, 2023).</p>
 </section>
 </section>
 <section id="sec-modelo" class="level1" data-number="4">
@@ -2599,7 +2599,7 @@ Figura&nbsp;1: Trayectorias medias de justificación de la violencia por el cont
 </section>
 <section id="sec-res-did" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="sec-res-did"><span class="header-section-number">5.3</span> Modelos DiD principales</h2>
-<p>La comparación LRT (M1 vs.&nbsp;M2<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>) indica que la especificación DiD (<a href="#eq-m2" class="quarto-xref">Ecuación&nbsp;2</a>) mejora el ajuste en violencia de control (<span class="math inline">\(\chi^2_{(5)} &gt; 24\)</span>, <em>p</em> &lt; .001) y resguardo territorial (<em>idem</em>). Los ICC oscilan entre 0,12 y 0,20. Los coeficientes completos de M1 y M2 figuran en la <a href="#tbl-apendice-m1m2" class="quarto-xref">Tabla&nbsp;11</a> (Apéndice).</p>
+<p>La comparación LRT (M1 vs.&nbsp;M2<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>) indica que la especificación DiD (<a href="#eq-m2" class="quarto-xref">Ecuación&nbsp;2</a>) mejora el ajuste en violencia de control (<span class="math inline">\(\chi^2_{(5)} &gt; 24\)</span>, <em>p</em> &lt; .001) y resguardo territorial (<em>idem</em>). Los ICC oscilan entre 0,12 y 0,20. Los coeficientes completos de M1 y M2 figuran en la <a href="#tbl-apendice-m1m2" class="quarto-xref">Tabla&nbsp;10</a> (Apéndice).</p>
 <p>Los modelos DiD revelan dos patrones temporalmente distintos que corresponden a los dos shocks secuenciales. En el Modelo A (transición estallido, olas 2–3), la triple interacción no es significativa para ninguna variable dependiente (control: β = 0,152, <em>p</em> = ,567; cambio: β = -0,076, <em>p</em> = ,787), lo que indica que el estallido tuvo un efecto general de período — la justificación de violencia de cambio social subió para toda la muestra (β = 0,283, <em>p</em> = &lt; .001) — pero no diferencial por identidad y zona. Hay un efecto zona × ola 3 significativo para cambio social (β = 0,464, <em>p</em> = ,025), sugiriendo que las comunas que serían declaradas zona de excepción ya experimentaban mayor justificación de la resistencia, probablemente por la escalada del conflicto mapuche previa al decreto.</p>
 <p>En el Modelo C (tres períodos, principal del paper), el efecto del decreto (<span class="math inline">\(\tau_4\)</span>) es significativo y positivo para ambas variables dependientes: violencia de control social (β = 0,762, <em>p</em> = ,006) y violencia de cambio social (β = 0,837, <em>p</em> = ,004). Las personas indígenas en zona de excepción aumentaron simultáneamente la justificación de ambos tipos de violencia entre la ola 3 y la ola 4, confirmando la hipótesis de demanda dual (H5). Este patrón es particularmente notable porque ocurre contra la tendencia general de la muestra: mientras la justificación de cambio social baja entre olas 3 y 4 (β = -0,246, <em>p</em> = ,004), sube para quienes viven la coerción directamente. El decreto no logró contener la apertura normativa del estallido entre los más afectados.</p>
 <p>Los controles sustantivos confirman la simetría identitaria predicha por H1. La identificación con la causa indígena (id_causa) predice positivamente la justificación de cambio social y negativamente la de control; la identificación con Chile (id_chile) opera como espejo inverso. La percepción de desigualdad e injusticia reduce la justificación de control social, indicando que quienes perciben más injusticia estructural no apoyan más la represión estatal — el canal hacia la justificación de control no pasa por el agravio general sino por la regularización procedimental.</p>
@@ -3411,7 +3411,7 @@ Figura&nbsp;5: Coeficiente DiD (Ola 4 × Indígena × Zona) con y sin mediadores
 </div>
 </div>
 </div>
-<p>La tabla completa de modelos de mecanismo (9 especificaciones) se presenta en <a href="#tbl-apendice-mecanismo" class="quarto-xref">Tabla&nbsp;16</a>.</p>
+<p>La tabla completa de modelos de mecanismo (9 especificaciones) se presenta en <a href="#tbl-apendice-mecanismo" class="quarto-xref">Tabla&nbsp;17</a>.</p>
 </section>
 <section id="sec-res-hetero" class="level2" data-number="5.5">
 <h2 data-number="5.5" class="anchored" data-anchor-id="sec-res-hetero"><span class="header-section-number">5.5</span> Heterogeneidad identitaria</h2>
@@ -3968,7 +3968,7 @@ Tabla&nbsp;8: Efecto DiD (Modelo C) por tercil de predominancia identitaria base
 </section>
 <section id="sec-res-pleb" class="level2" data-number="5.6">
 <h2 data-number="5.6" class="anchored" data-anchor-id="sec-res-pleb"><span class="header-section-number">5.6</span> Plebiscito 2022</h2>
-<p><a href="#tbl-plebiscito" class="quarto-xref">Tabla&nbsp;9</a> resume los modelos logísticos (detalle en <a href="#tbl-apendice-pleb" class="quarto-xref">Tabla&nbsp;12</a>). Entre quienes votaron, la justificación de violencia de <strong>control</strong> se asocia positivamente con el voto Rechazo; la de <strong>resguardo</strong>, negativamente. La <strong>zona de excepción</strong> aumenta las odds de participar y de votar Rechazo; la identidad étnica no predice directamente el voto una vez incluidas actitudes y justicia procedimental. El patrón es compatible con un <strong>canal actitudinal</strong> (estado de excepción → actitudes → voto), no con un efecto directo de identidad o territorio sobre la preferencia electoral.</p>
+<p><a href="#tbl-plebiscito" class="quarto-xref">Tabla&nbsp;9</a> resume los modelos logísticos (detalle en <a href="#tbl-apendice-pleb" class="quarto-xref">Tabla&nbsp;11</a>). Entre quienes votaron, la justificación de violencia de <strong>control</strong> se asocia positivamente con el voto Rechazo; la de <strong>resguardo</strong>, negativamente. La <strong>zona de excepción</strong> aumenta las odds de participar y de votar Rechazo; la identidad étnica no predice directamente el voto una vez incluidas actitudes y justicia procedimental. El patrón es compatible con un <strong>canal actitudinal</strong> (estado de excepción → actitudes → voto), no con un efecto directo de identidad o territorio sobre la preferencia electoral.</p>
 <div class="cell">
 <div id="tbl-plebiscito" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -4775,561 +4775,7 @@ Figura&nbsp;7: Probabilidades predichas de voto Rechazo por identidad étnica y 
 </div>
 </div>
 </div>
-</section>
-<section id="sec-res-robustez" class="level2" data-number="5.7">
-<h2 data-number="5.7" class="anchored" data-anchor-id="sec-res-robustez"><span class="header-section-number">5.7</span> Robustez de las estimaciones</h2>
-<p><a href="#fig-robustez" class="quarto-xref">Figura&nbsp;8</a> resume la estabilidad del coeficiente <span class="math inline">\(\tau_4\)</span> a través de especificaciones (principal, IPW, PSM, placebo). <a href="#tbl-robustez" class="quarto-xref">Tabla&nbsp;10</a> detalla los valores numéricos.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div id="fig-robustez" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="../output/figuras/fig_robustez_comparativa.png" class="img-fluid figure-img" style="width:100.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figura&nbsp;8: Estabilidad del efecto DiD (Ola 4 × Indígena × Zona) a través de especificaciones. IC 95%.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="sec-robustez-detalle" class="level2" data-number="5.8">
-<h2 data-number="5.8" class="anchored" data-anchor-id="sec-robustez-detalle"><span class="header-section-number">5.8</span> Análisis complementarios de robustez</h2>
-<p>Para paliar la imposibilidad de testear formalmente tendencias paralelas con una sola ola pretratamiento, se implementaron análisis complementarios de balance en ola 2, propensity score matching (PSM), ponderación inversa de la probabilidad (IPW) con diagnóstico de pesos extremos, un placebo pretratamiento (olas 1–2) y modelos por ítem. El coeficiente de interés en todas las especificaciones es la triple interacción <strong>Ola 4 × identidad indígena × zona de excepción</strong>.</p>
-<div class="cell">
-<div id="tbl-robustez" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla&nbsp;10: Resumen de análisis de robustez. Coeficiente de interés: Ola 4 × Indígena × Zona [DiD] (β). Sincronizado con output/tablas/tabla_resumen_robustez.html.
-</figcaption>
-<div aria-describedby="tbl-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<div id="aqhbnekhki" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#aqhbnekhki table {
-  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#aqhbnekhki thead, #aqhbnekhki tbody, #aqhbnekhki tfoot, #aqhbnekhki tr, #aqhbnekhki td, #aqhbnekhki th {
-  border-style: none;
-}
-
-#aqhbnekhki p {
-  margin: 0;
-  padding: 0;
-}
-
-#aqhbnekhki .gt_table {
-  display: table;
-  border-collapse: collapse;
-  line-height: normal;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 11px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #004D80;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #004D80;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-
-#aqhbnekhki .gt_caption {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-#aqhbnekhki .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-
-#aqhbnekhki .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-
-#aqhbnekhki .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#aqhbnekhki .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#aqhbnekhki .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#aqhbnekhki .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-
-#aqhbnekhki .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-#aqhbnekhki .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-
-#aqhbnekhki .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-
-#aqhbnekhki .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-#aqhbnekhki .gt_spanner_row {
-  border-bottom-style: hidden;
-}
-
-#aqhbnekhki .gt_group_heading {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  text-align: left;
-}
-
-#aqhbnekhki .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  vertical-align: middle;
-}
-
-#aqhbnekhki .gt_from_md > :first-child {
-  margin-top: 0;
-}
-
-#aqhbnekhki .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-
-#aqhbnekhki .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: none;
-  border-top-width: 1px;
-  border-top-color: #89D3FE;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #89D3FE;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #89D3FE;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-
-#aqhbnekhki .gt_stub {
-  color: #FFFFFF;
-  background-color: #0076BA;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #0076BA;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#aqhbnekhki .gt_stub_row_group {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-  vertical-align: top;
-}
-
-#aqhbnekhki .gt_row_group_first td {
-  border-top-width: 2px;
-}
-
-#aqhbnekhki .gt_row_group_first th {
-  border-top-width: 2px;
-}
-
-#aqhbnekhki .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#aqhbnekhki .gt_first_summary_row {
-  border-top-style: solid;
-  border-top-color: #0076BA;
-}
-
-#aqhbnekhki .gt_first_summary_row.thick {
-  border-top-width: 2px;
-}
-
-#aqhbnekhki .gt_last_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#aqhbnekhki .gt_grand_summary_row {
-  color: #333333;
-  background-color: #89D3FE;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#aqhbnekhki .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #0076BA;
-}
-
-#aqhbnekhki .gt_last_grand_summary_row_top {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: double;
-  border-bottom-width: 6px;
-  border-bottom-color: #0076BA;
-}
-
-#aqhbnekhki .gt_striped {
-  background-color: #F4F4F4;
-}
-
-#aqhbnekhki .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#aqhbnekhki .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#aqhbnekhki .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#aqhbnekhki .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#aqhbnekhki .gt_sourcenote {
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#aqhbnekhki .gt_left {
-  text-align: left;
-}
-
-#aqhbnekhki .gt_center {
-  text-align: center;
-}
-
-#aqhbnekhki .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#aqhbnekhki .gt_font_normal {
-  font-weight: normal;
-}
-
-#aqhbnekhki .gt_font_bold {
-  font-weight: bold;
-}
-
-#aqhbnekhki .gt_font_italic {
-  font-style: italic;
-}
-
-#aqhbnekhki .gt_super {
-  font-size: 65%;
-}
-
-#aqhbnekhki .gt_footnote_marks {
-  font-size: 75%;
-  vertical-align: 0.4em;
-  position: initial;
-}
-
-#aqhbnekhki .gt_asterisk {
-  font-size: 100%;
-  vertical-align: 0;
-}
-
-#aqhbnekhki .gt_indent_1 {
-  text-indent: 5px;
-}
-
-#aqhbnekhki .gt_indent_2 {
-  text-indent: 10px;
-}
-
-#aqhbnekhki .gt_indent_3 {
-  text-indent: 15px;
-}
-
-#aqhbnekhki .gt_indent_4 {
-  text-indent: 20px;
-}
-
-#aqhbnekhki .gt_indent_5 {
-  text-indent: 25px;
-}
-
-#aqhbnekhki .katex-display {
-  display: inline-flex !important;
-  margin-bottom: 0.75em !important;
-}
-
-#aqhbnekhki div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
-  height: 0px !important;
-}
-</style>
-
-<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="header gt_col_headings">
-<th id="Especificación" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Especificación</th>
-<th id="Control-social" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Control social</th>
-<th id="Cambio-social" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Cambio social</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="odd">
-<td class="gt_row gt_left" headers="Especificación" style="font-weight: bold">Modelo principal M2</td>
-<td class="gt_row gt_right" headers="Control social" style="font-weight: bold">0,762 **</td>
-<td class="gt_row gt_right" headers="Cambio social" style="font-weight: bold">0,837 **</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left gt_striped" headers="Especificación">IPW original</td>
-<td class="gt_row gt_right gt_striped" headers="Control social">1,299 ***</td>
-<td class="gt_row gt_right gt_striped" headers="Cambio social">0,693 *</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="Especificación">IPW trim 1–99 %</td>
-<td class="gt_row gt_right" headers="Control social">1,149 ***</td>
-<td class="gt_row gt_right" headers="Cambio social">0,812 **</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left gt_striped" headers="Especificación">IPW trim 5–95 %</td>
-<td class="gt_row gt_right gt_striped" headers="Control social">1,169 ***</td>
-<td class="gt_row gt_right gt_striped" headers="Cambio social">1,035 ***</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="Especificación">PSM (nearest neighbor)</td>
-<td class="gt_row gt_right" headers="Control social">0,558</td>
-<td class="gt_row gt_right" headers="Cambio social">0,691</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left gt_striped" headers="Especificación">Placebo ola 1–2</td>
-<td class="gt_row gt_right gt_striped" headers="Control social">-0,173</td>
-<td class="gt_row gt_right gt_striped" headers="Cambio social">0,128</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-</figure>
-</div>
-</div>
-<p><a href="#tbl-robustez" class="quarto-xref">Tabla&nbsp;10</a> resume los resultados de las especificaciones ya estimadas (ver también <a href="#tbl-apendice-robustez" class="quarto-xref">Tabla&nbsp;13</a>). En el modelo principal (M2), la interacción triple es positiva y significativa para violencia de control social (β = 0,762, <em>p</em> = ,006) y cambio social (β = 0,837, <em>p</em> = ,004). El placebo pretratamiento (olas 1–2) no alcanza significancia en ninguna variable dependiente, lo que es compatible con la ausencia de una divergencia equivalente antes del período analizado. En el PSM, los coeficientes mantienen dirección positiva (control: β = 0,558, <em>p</em> = ,296; resguardo: β = 0,691, <em>p</em> = ,138) pero pierden significancia estadística. La explicación más probable no es solo la reducción muestral (<em>n</em> = 240 folios emparejados), sino el <strong>soporte común estrecho</strong> entre tratados y controles: la zona de excepción concentra características sociodemográficas y territoriales que dificultan encontrar contrapartes válidas fuera de ella, lo que limita la estrategia de matching pero no invalida el diseño DiD condicional.</p>
-<section id="ponderación-inversa-ipw-y-trimming-de-pesos" class="level3" data-number="5.8.1">
-<h3 data-number="5.8.1" class="anchored" data-anchor-id="ponderación-inversa-ipw-y-trimming-de-pesos"><span class="header-section-number">5.8.1</span> Ponderación inversa (IPW) y trimming de pesos</h3>
-<p>El IPW estimado en ola 2 ajusta por diferencias observables en la probabilidad de residir en zona de excepción. La distribución de pesos presenta <strong>asimetría y valores extremos</strong> que deben reportarse explícitamente (<a href="#fig-pesos-ipw" class="quarto-xref">Figura&nbsp;9</a>). En la especificación original, los pesos oscilan entre 1,00 y 46,7 (mediana = 1,13; media = 1,94; p95 = 6,02; p99 = 13,3). Tras truncar al percentil 5–95 %, el rango se reduce a [1,01; 6,02], con media = 1,63 y mediana = 1,13.</p>
-<p>Los resultados del <a href="#tbl-robustez" class="quarto-xref">Tabla&nbsp;10</a> indican <strong>robustez parcial</strong> respecto de la dirección del efecto, aunque no del tamaño exacto:</p>
-<ul>
-<li><strong>Violencia de control social.</strong> El IPW original (β = 1,299, <em>p</em> = &lt; .001) amplifica la magnitud respecto al modelo principal, pero el efecto <strong>permanece positivo y altamente significativo</strong> tras el trimming (1–99 %: 1,149 <strong><em>; 5–95 %: 1,169 </em></strong>). Esto sugiere que el aumento ponderado <strong>no parece explicarse exclusivamente por observaciones con pesos extremos</strong>; la magnitud es muy estable una vez aplicado el truncamiento.</li>
-<li><strong>Violencia de resguardo territorial.</strong> La dirección positiva se mantiene en todas las especificaciones IPW, pero la <strong>magnitud es sensible al tratamiento de pesos</strong>: el coeficiente pasa de β = 0,693, <em>p</em> = ,012 en el IPW original a β = 0,812, <em>p</em> = ,004 con trimming 1–99 % y β = 1,035, <em>p</em> = &lt; .001 con trimming 5–95 %. La significancia se preserva, pero <strong>las magnitudes deben interpretarse con cautela</strong>.</li>
-</ul>
-<p>En conjunto, la evidencia de robustez es <strong>más sólida para la dirección del cambio diferencial posterior</strong> que para el tamaño puntual del coeficiente. Los resultados IPW son <strong>compatibles con</strong> un patrón de aumento diferencial entre personas indígenas en zona de excepción, pero confirman que la ponderación altera sustancialmente las magnitudes estimadas —especialmente en resguardo territorial— y refuerzan la necesidad de mantener un lenguaje prudente en la interpretación cuasi-experimental.</p>
-<p>Como <strong>análisis adicional de sensibilidad</strong>, se replicaron los modelos DiD con una codificación ordinal de las variables dependientes (Rechaza [1–2] / Neutral [3] / Justifica [4–5]). Los resultados son consistentes en dirección y significancia con la especificación continua, siendo más sensibles al efecto DiD en cambio social (β = 1,87**, <em>p</em> &lt; ,01) que en control social (β = 1,14+, <em>p</em> = ,08). Ver <strong>?@tbl-apendice-likert</strong> en el Apéndice.</p>
-<p>Como <strong>análisis adicionales recomendados</strong> para futuras versiones del estudio, conviene estimar modelos con controles sociodemográficos solamente (Modelo A), excluir <code>urbano_rural</code>, incorporar efectos fijos individuales (<em>within</em>), reconstruir índices mediante PCA, excluir comunas limítrofes y contrastar especificaciones con distintos conjuntos de controles pre- y post-tratamiento.</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-pesos-ipw" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-pesos-ipw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="../output/figuras/fig_hist_pesos_ipw.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pesos-ipw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figura&nbsp;9: Distribución de pesos IPW en ola 2 (baseline). Líneas verticales: percentiles 1 y 99.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</section>
+<p>Los análisis de robustez (PSM, IPW, placebo pretratamiento, modelos por ítem y codificación ordinal) se reportan en el <a href="#sec-apendice-robustez" class="quarto-xref">Sección&nbsp;9.3</a>.</p>
 </section>
 </section>
 <section id="sec-discusion" class="level1" data-number="6">
@@ -5386,7 +4832,7 @@ Figura&nbsp;9: Distribución de pesos IPW en ola 2 (baseline). Líneas verticale
 <div id="tbl-apendice-m1m2" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-m1m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla&nbsp;11: Modelos por transición (A/B) y tres períodos (C). Sincronizado con tabla_apendice_m1_m2.html.
+Tabla&nbsp;10: Modelos por transición (A/B) y tres períodos (C). Sincronizado con tabla_apendice_m1_m2.html.
 </figcaption>
 <div aria-describedby="tbl-apendice-m1m2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -6477,7 +5923,7 @@ Tabla&nbsp;11: Modelos por transición (A/B) y tres períodos (C). Sincronizado 
 <div id="tbl-apendice-pleb" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-pleb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla&nbsp;12: Modelos logísticos del plebiscito 2022 (Apéndice). Odds ratios.
+Tabla&nbsp;11: Modelos logísticos del plebiscito 2022 (Apéndice). Odds ratios.
 </figcaption>
 <div aria-describedby="tbl-apendice-pleb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -7088,8 +6534,552 @@ Tabla&nbsp;12: Modelos logísticos del plebiscito 2022 (Apéndice). Odds ratios.
 </div>
 </div>
 </section>
-<section id="tbl-apendice-robustez" class="level2" data-number="9.3">
-<h2 data-number="9.3" class="anchored" data-anchor-id="tbl-apendice-robustez"><span class="header-section-number">9.3</span> Tabla A3 — Resumen de robustez</h2>
+<section id="sec-apendice-robustez" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="sec-apendice-robustez"><span class="header-section-number">9.3</span> Análisis de robustez</h2>
+<p>Para paliar la imposibilidad de testear formalmente tendencias paralelas con una sola ola pretratamiento, se implementaron análisis complementarios de balance en ola 2, propensity score matching (PSM), ponderación inversa de la probabilidad (IPW) con diagnóstico de pesos extremos, un placebo pretratamiento (olas 1–2), modelos por ítem y una replicación con codificación ordinal de las variables dependientes. En todas las especificaciones el coeficiente de interés es la triple interacción <strong>Ola 4 × identidad indígena × zona de excepción</strong> (<span class="math inline">\(\tau_4\)</span>).</p>
+<p><a href="#fig-apendice-robustez" class="quarto-xref">Figura&nbsp;8</a> resume la estabilidad de <span class="math inline">\(\tau_4\)</span> entre el modelo principal, IPW, PSM y placebo. <a href="#tbl-apendice-robustez-resumen" class="quarto-xref">Tabla&nbsp;12</a> condensa los mismos resultados en formato tabular.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-apendice-robustez" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-apendice-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../output/figuras/fig_robustez_comparativa.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-apendice-robustez-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;8: Estabilidad del efecto DiD (Ola 4 × Indígena × Zona) a través de especificaciones. IC 95%.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-apendice-robustez-resumen" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-robustez-resumen-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabla&nbsp;12: Resumen de análisis de robustez. Coeficiente de interés: Ola 4 × Indígena × Zona [DiD] (β).
+</figcaption>
+<div aria-describedby="tbl-apendice-robustez-resumen-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="slwlozueqk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#slwlozueqk table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#slwlozueqk thead, #slwlozueqk tbody, #slwlozueqk tfoot, #slwlozueqk tr, #slwlozueqk td, #slwlozueqk th {
+  border-style: none;
+}
+
+#slwlozueqk p {
+  margin: 0;
+  padding: 0;
+}
+
+#slwlozueqk .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 11px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #004D80;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #004D80;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#slwlozueqk .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#slwlozueqk .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#slwlozueqk .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#slwlozueqk .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#slwlozueqk .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+}
+
+#slwlozueqk .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#slwlozueqk .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#slwlozueqk .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#slwlozueqk .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#slwlozueqk .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#slwlozueqk .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#slwlozueqk .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#slwlozueqk .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#slwlozueqk .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  vertical-align: middle;
+}
+
+#slwlozueqk .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#slwlozueqk .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#slwlozueqk .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #89D3FE;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #89D3FE;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #89D3FE;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#slwlozueqk .gt_stub {
+  color: #FFFFFF;
+  background-color: #0076BA;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #0076BA;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#slwlozueqk .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#slwlozueqk .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#slwlozueqk .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#slwlozueqk .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#slwlozueqk .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #0076BA;
+}
+
+#slwlozueqk .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#slwlozueqk .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+}
+
+#slwlozueqk .gt_grand_summary_row {
+  color: #333333;
+  background-color: #89D3FE;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#slwlozueqk .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #0076BA;
+}
+
+#slwlozueqk .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #0076BA;
+}
+
+#slwlozueqk .gt_striped {
+  background-color: #F4F4F4;
+}
+
+#slwlozueqk .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+}
+
+#slwlozueqk .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#slwlozueqk .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#slwlozueqk .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#slwlozueqk .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#slwlozueqk .gt_left {
+  text-align: left;
+}
+
+#slwlozueqk .gt_center {
+  text-align: center;
+}
+
+#slwlozueqk .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#slwlozueqk .gt_font_normal {
+  font-weight: normal;
+}
+
+#slwlozueqk .gt_font_bold {
+  font-weight: bold;
+}
+
+#slwlozueqk .gt_font_italic {
+  font-style: italic;
+}
+
+#slwlozueqk .gt_super {
+  font-size: 65%;
+}
+
+#slwlozueqk .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#slwlozueqk .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#slwlozueqk .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#slwlozueqk .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#slwlozueqk .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#slwlozueqk .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#slwlozueqk .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#slwlozueqk .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#slwlozueqk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="Especificación" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Especificación</th>
+<th id="Control-social" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Control social</th>
+<th id="Cambio-social" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Cambio social</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Especificación" style="font-weight: bold">Modelo principal M2</td>
+<td class="gt_row gt_right" headers="Control social" style="font-weight: bold">0,762 **</td>
+<td class="gt_row gt_right" headers="Cambio social" style="font-weight: bold">0,837 **</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Especificación">IPW original</td>
+<td class="gt_row gt_right gt_striped" headers="Control social">1,299 ***</td>
+<td class="gt_row gt_right gt_striped" headers="Cambio social">0,693 *</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Especificación">IPW trim 1–99 %</td>
+<td class="gt_row gt_right" headers="Control social">1,149 ***</td>
+<td class="gt_row gt_right" headers="Cambio social">0,812 **</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Especificación">IPW trim 5–95 %</td>
+<td class="gt_row gt_right gt_striped" headers="Control social">1,169 ***</td>
+<td class="gt_row gt_right gt_striped" headers="Cambio social">1,035 ***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Especificación">PSM (nearest neighbor)</td>
+<td class="gt_row gt_right" headers="Control social">0,558</td>
+<td class="gt_row gt_right" headers="Cambio social">0,691</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Especificación">Placebo ola 1–2</td>
+<td class="gt_row gt_right gt_striped" headers="Control social">-0,173</td>
+<td class="gt_row gt_right gt_striped" headers="Cambio social">0,128</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>En el modelo principal (Modelo C), la interacción triple es positiva y significativa para violencia de control social (β = 0,762, <em>p</em> = ,006) y cambio social (β = 0,837, <em>p</em> = ,004). El placebo pretratamiento (olas 1–2) no alcanza significancia en ninguna variable dependiente, lo que es compatible con la ausencia de una divergencia equivalente antes del período analizado. En el PSM, los coeficientes mantienen dirección positiva (control: β = 0,558, <em>p</em> = ,296; cambio: β = 0,691, <em>p</em> = ,138) pero pierden significancia estadística. La explicación más probable no es solo la reducción muestral (<em>n</em> = 240 folios emparejados), sino el <strong>soporte común estrecho</strong> entre tratados y controles: la zona de excepción concentra características sociodemográficas y territoriales que dificultan encontrar contrapartes válidas fuera de ella, lo que limita la estrategia de matching pero no invalida el diseño DiD condicional.</p>
+<section id="ponderación-inversa-ipw-y-trimming-de-pesos" class="level3" data-number="9.3.1">
+<h3 data-number="9.3.1" class="anchored" data-anchor-id="ponderación-inversa-ipw-y-trimming-de-pesos"><span class="header-section-number">9.3.1</span> Ponderación inversa (IPW) y trimming de pesos</h3>
+<p>El IPW estimado en ola 2 ajusta por diferencias observables en la probabilidad de residir en zona de excepción. La distribución de pesos presenta asimetría y valores extremos (<a href="#fig-apendice-pesos-ipw" class="quarto-xref">Figura&nbsp;9</a>). En la especificación original, los pesos oscilan entre 1,00 y 46,7 (mediana = 1,13; media = 1,94; p95 = 6,02; p99 = 13,3). Tras truncar al percentil 5–95 %, el rango se reduce a [1,01; 6,02], con media = 1,63 y mediana = 1,13.</p>
+<p>Para violencia de control social, el IPW original (β = 1,299, <em>p</em> = &lt; .001) amplifica la magnitud respecto al modelo principal, pero el efecto permanece positivo y altamente significativo tras el trimming (1–99 %: 1,149 <strong><em>; 5–95 %: 1,169 </em></strong>), lo que sugiere que el aumento ponderado no parece explicarse exclusivamente por observaciones con pesos extremos. Para violencia de cambio social, la dirección positiva se mantiene en todas las especificaciones IPW, pero la magnitud es sensible al tratamiento de pesos: el coeficiente pasa de β = 0,693, <em>p</em> = ,012 en el IPW original a β = 0,812, <em>p</em> = ,004 con trimming 1–99 % y β = 1,035, <em>p</em> = &lt; .001 con trimming 5–95 %. En conjunto, la evidencia es más sólida para la <strong>dirección</strong> del cambio diferencial que para el tamaño puntual del coeficiente.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-apendice-pesos-ipw" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-apendice-pesos-ipw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="../output/figuras/fig_hist_pesos_ipw.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-apendice-pesos-ipw-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;9: Distribución de pesos IPW en ola 2 (baseline). Líneas verticales: percentiles 1 y 99.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="tabla-completa-de-coeficientes-de-robustez" class="level3" data-number="9.3.2">
+<h3 data-number="9.3.2" class="anchored" data-anchor-id="tabla-completa-de-coeficientes-de-robustez"><span class="header-section-number">9.3.2</span> Tabla completa de coeficientes de robustez</h3>
 <div class="cell">
 <div id="tbl-apendice-robustez" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -7762,508 +7752,13 @@ Tabla&nbsp;13: Resumen completo de robustez (todos los modelos estimados en 04_r
 </div>
 </div>
 </section>
-<section id="tbl-apendice-alpha" class="level2" data-number="9.4">
-<h2 data-number="9.4" class="anchored" data-anchor-id="tbl-apendice-alpha"><span class="header-section-number">9.4</span> Tabla A4 — Consistencia interna</h2>
-<div class="cell">
-<div id="tbl-apendice-alpha" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla&nbsp;14: Consistencia interna de índices compuestos (alfa de Cronbach e intercorrelación ítem).
-</figcaption>
-<div aria-describedby="tbl-apendice-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<div id="ahtucpjwtx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ahtucpjwtx table {
-  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#ahtucpjwtx thead, #ahtucpjwtx tbody, #ahtucpjwtx tfoot, #ahtucpjwtx tr, #ahtucpjwtx td, #ahtucpjwtx th {
-  border-style: none;
-}
-
-#ahtucpjwtx p {
-  margin: 0;
-  padding: 0;
-}
-
-#ahtucpjwtx .gt_table {
-  display: table;
-  border-collapse: collapse;
-  line-height: normal;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #004D80;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #004D80;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-
-#ahtucpjwtx .gt_caption {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-#ahtucpjwtx .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-
-#ahtucpjwtx .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-
-#ahtucpjwtx .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#ahtucpjwtx .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#ahtucpjwtx .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#ahtucpjwtx .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-
-#ahtucpjwtx .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-#ahtucpjwtx .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-
-#ahtucpjwtx .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-
-#ahtucpjwtx .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-#ahtucpjwtx .gt_spanner_row {
-  border-bottom-style: hidden;
-}
-
-#ahtucpjwtx .gt_group_heading {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  text-align: left;
-}
-
-#ahtucpjwtx .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-  vertical-align: middle;
-}
-
-#ahtucpjwtx .gt_from_md > :first-child {
-  margin-top: 0;
-}
-
-#ahtucpjwtx .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-
-#ahtucpjwtx .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: none;
-  border-top-width: 1px;
-  border-top-color: #89D3FE;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #89D3FE;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #89D3FE;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-
-#ahtucpjwtx .gt_stub {
-  color: #FFFFFF;
-  background-color: #0076BA;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #0076BA;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#ahtucpjwtx .gt_stub_row_group {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-  vertical-align: top;
-}
-
-#ahtucpjwtx .gt_row_group_first td {
-  border-top-width: 2px;
-}
-
-#ahtucpjwtx .gt_row_group_first th {
-  border-top-width: 2px;
-}
-
-#ahtucpjwtx .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#ahtucpjwtx .gt_first_summary_row {
-  border-top-style: solid;
-  border-top-color: #0076BA;
-}
-
-#ahtucpjwtx .gt_first_summary_row.thick {
-  border-top-width: 2px;
-}
-
-#ahtucpjwtx .gt_last_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#ahtucpjwtx .gt_grand_summary_row {
-  color: #333333;
-  background-color: #89D3FE;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#ahtucpjwtx .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #0076BA;
-}
-
-#ahtucpjwtx .gt_last_grand_summary_row_top {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: double;
-  border-bottom-width: 6px;
-  border-bottom-color: #0076BA;
-}
-
-#ahtucpjwtx .gt_striped {
-  background-color: #F4F4F4;
-}
-
-#ahtucpjwtx .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #0076BA;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #0076BA;
-}
-
-#ahtucpjwtx .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#ahtucpjwtx .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#ahtucpjwtx .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#ahtucpjwtx .gt_sourcenote {
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#ahtucpjwtx .gt_left {
-  text-align: left;
-}
-
-#ahtucpjwtx .gt_center {
-  text-align: center;
-}
-
-#ahtucpjwtx .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#ahtucpjwtx .gt_font_normal {
-  font-weight: normal;
-}
-
-#ahtucpjwtx .gt_font_bold {
-  font-weight: bold;
-}
-
-#ahtucpjwtx .gt_font_italic {
-  font-style: italic;
-}
-
-#ahtucpjwtx .gt_super {
-  font-size: 65%;
-}
-
-#ahtucpjwtx .gt_footnote_marks {
-  font-size: 75%;
-  vertical-align: 0.4em;
-  position: initial;
-}
-
-#ahtucpjwtx .gt_asterisk {
-  font-size: 100%;
-  vertical-align: 0;
-}
-
-#ahtucpjwtx .gt_indent_1 {
-  text-indent: 5px;
-}
-
-#ahtucpjwtx .gt_indent_2 {
-  text-indent: 10px;
-}
-
-#ahtucpjwtx .gt_indent_3 {
-  text-indent: 15px;
-}
-
-#ahtucpjwtx .gt_indent_4 {
-  text-indent: 20px;
-}
-
-#ahtucpjwtx .gt_indent_5 {
-  text-indent: 25px;
-}
-
-#ahtucpjwtx .katex-display {
-  display: inline-flex !important;
-  margin-bottom: 0.75em !important;
-}
-
-#ahtucpjwtx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
-  height: 0px !important;
-}
-</style>
-
-<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="header gt_heading">
-<th colspan="3" class="gt_heading gt_title gt_font_normal">Consistencia interna de índices compuestos</th>
-</tr>
-<tr class="odd gt_heading">
-<th colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Alfa de Cronbach y correlación inter-ítem</th>
-</tr>
-<tr class="header gt_col_headings">
-<th id="Indice" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Indice</th>
-<th id="Alpha" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Alpha</th>
-<th id="Correlacion-inter-item" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Correlacion inter-item</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="odd">
-<td class="gt_row gt_left" headers="Indice">Control social (status quo)</td>
-<td class="gt_row gt_right" headers="Alpha">0.773</td>
-<td class="gt_row gt_right" headers="Correlacion inter-item">0.633</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left gt_striped" headers="Indice">Cambio social</td>
-<td class="gt_row gt_right gt_striped" headers="Alpha">0.746</td>
-<td class="gt_row gt_right gt_striped" headers="Correlacion inter-item">0.602</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
-</figure>
-</div>
-</div>
-</section>
-<section id="tbl-apendice-items" class="level2" data-number="9.5">
-<h2 data-number="9.5" class="anchored" data-anchor-id="tbl-apendice-items"><span class="header-section-number">9.5</span> Tabla A5 — Modelos por ítem</h2>
+<section id="tbl-apendice-items" class="level3" data-number="9.3.3">
+<h3 data-number="9.3.3" class="anchored" data-anchor-id="tbl-apendice-items"><span class="header-section-number">9.3.3</span> Modelos DiD por ítem</h3>
 <div class="cell">
 <div id="tbl-apendice-items" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-items-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla&nbsp;15: Modelos DiD por ítem (coeficiente de interés: DiD decreto, ola 4).
+Tabla&nbsp;14: Modelos DiD por ítem (coeficiente de interés: DiD decreto, ola 4).
 </figcaption>
 <div aria-describedby="tbl-apendice-items-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -8792,13 +8287,1077 @@ Tabla&nbsp;15: Modelos DiD por ítem (coeficiente de interés: DiD decreto, ola 
 </div>
 </div>
 </section>
-<section id="tbl-apendice-mecanismo" class="level2" data-number="9.6">
-<h2 data-number="9.6" class="anchored" data-anchor-id="tbl-apendice-mecanismo"><span class="header-section-number">9.6</span> Tabla A6 — Análisis de mecanismo ingroup/outgroup</h2>
+<section id="tbl-apendice-likert" class="level3" data-number="9.3.4">
+<h3 data-number="9.3.4" class="anchored" data-anchor-id="tbl-apendice-likert"><span class="header-section-number">9.3.4</span> Codificación ordinal (sensibilidad)</h3>
+<p>Se replicaron los modelos DiD con una codificación ordinal de las variables dependientes (Rechaza [1–2] / Neutral [3] / Justifica [4–5], esquema A simétrico). Los resultados son consistentes en dirección y significancia con la especificación continua, siendo más sensibles al efecto DiD en cambio social (β = 1,87**, <em>p</em> &lt; ,01) que en control social (β = 1,14+, <em>p</em> = ,08).</p>
+<div class="cell">
+<div id="tbl-apendice-likert" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-likert-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabla&nbsp;15: Comparación DiD: escala continua 1–5 vs.&nbsp;ordinal A vs.&nbsp;ordinal B (CLMM).
+</figcaption>
+<div aria-describedby="tbl-apendice-likert-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="zgtbfskaja" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zgtbfskaja table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#zgtbfskaja thead, #zgtbfskaja tbody, #zgtbfskaja tfoot, #zgtbfskaja tr, #zgtbfskaja td, #zgtbfskaja th {
+  border-style: none;
+}
+
+#zgtbfskaja p {
+  margin: 0;
+  padding: 0;
+}
+
+#zgtbfskaja .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#zgtbfskaja .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#zgtbfskaja .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#zgtbfskaja .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#zgtbfskaja .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#zgtbfskaja .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#zgtbfskaja .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#zgtbfskaja .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#zgtbfskaja .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#zgtbfskaja .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#zgtbfskaja .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#zgtbfskaja .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#zgtbfskaja .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#zgtbfskaja .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#zgtbfskaja .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgtbfskaja .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#zgtbfskaja .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#zgtbfskaja .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#zgtbfskaja .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgtbfskaja .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#zgtbfskaja .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgtbfskaja .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#zgtbfskaja .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgtbfskaja .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zgtbfskaja .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgtbfskaja .gt_left {
+  text-align: left;
+}
+
+#zgtbfskaja .gt_center {
+  text-align: center;
+}
+
+#zgtbfskaja .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#zgtbfskaja .gt_font_normal {
+  font-weight: normal;
+}
+
+#zgtbfskaja .gt_font_bold {
+  font-weight: bold;
+}
+
+#zgtbfskaja .gt_font_italic {
+  font-style: italic;
+}
+
+#zgtbfskaja .gt_super {
+  font-size: 65%;
+}
+
+#zgtbfskaja .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#zgtbfskaja .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#zgtbfskaja .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#zgtbfskaja .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#zgtbfskaja .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#zgtbfskaja .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#zgtbfskaja .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#zgtbfskaja .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#zgtbfskaja div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="spec" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Especificación</th>
+<th id="vd" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">VD</th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">β DiD</th>
+<th id="std.error" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">SE</th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p</th>
+<th id="sig" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col"></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="spec">Continuo 1–5</td>
+<td class="gt_row gt_left" headers="vd">Control social</td>
+<td class="gt_row gt_right" headers="estimate">0.762</td>
+<td class="gt_row gt_right" headers="std.error">0.277</td>
+<td class="gt_row gt_right" headers="p.value">0.006</td>
+<td class="gt_row gt_right" headers="sig">**</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="spec">Continuo 1–5</td>
+<td class="gt_row gt_left" headers="vd">Cambio social</td>
+<td class="gt_row gt_right" headers="estimate">0.837</td>
+<td class="gt_row gt_right" headers="std.error">0.293</td>
+<td class="gt_row gt_right" headers="p.value">0.004</td>
+<td class="gt_row gt_right" headers="sig">**</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="spec">Ordinal A (simétrico)</td>
+<td class="gt_row gt_left" headers="vd">Control social</td>
+<td class="gt_row gt_right" headers="estimate">1.136</td>
+<td class="gt_row gt_right" headers="std.error">0.592</td>
+<td class="gt_row gt_right" headers="p.value">0.055</td>
+<td class="gt_row gt_right" headers="sig">+</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="spec">Ordinal A (simétrico)</td>
+<td class="gt_row gt_left" headers="vd">Cambio social</td>
+<td class="gt_row gt_right" headers="estimate">1.869</td>
+<td class="gt_row gt_right" headers="std.error">0.720</td>
+<td class="gt_row gt_right" headers="p.value">0.009</td>
+<td class="gt_row gt_right" headers="sig">**</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="spec">Ordinal B (intensidad)</td>
+<td class="gt_row gt_left" headers="vd">Control social</td>
+<td class="gt_row gt_right" headers="estimate">0.668</td>
+<td class="gt_row gt_right" headers="std.error">0.416</td>
+<td class="gt_row gt_right" headers="p.value">0.108</td>
+<td class="gt_row gt_right" headers="sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="spec">Ordinal B (intensidad)</td>
+<td class="gt_row gt_left" headers="vd">Cambio social</td>
+<td class="gt_row gt_right" headers="estimate">1.426</td>
+<td class="gt_row gt_right" headers="std.error">0.722</td>
+<td class="gt_row gt_right" headers="p.value">0.048</td>
+<td class="gt_row gt_right" headers="sig">*</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="spec">Lineal cód. A</td>
+<td class="gt_row gt_left" headers="vd">Control social</td>
+<td class="gt_row gt_right" headers="estimate">0.354</td>
+<td class="gt_row gt_right" headers="std.error">0.159</td>
+<td class="gt_row gt_right" headers="p.value">0.026</td>
+<td class="gt_row gt_right" headers="sig">*</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="spec">Lineal cód. A</td>
+<td class="gt_row gt_left" headers="vd">Cambio social</td>
+<td class="gt_row gt_right" headers="estimate">0.520</td>
+<td class="gt_row gt_right" headers="std.error">0.162</td>
+<td class="gt_row gt_right" headers="p.value">0.001</td>
+<td class="gt_row gt_right" headers="sig">**</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="spec">Lineal cód. B</td>
+<td class="gt_row gt_left" headers="vd">Control social</td>
+<td class="gt_row gt_right" headers="estimate">0.171</td>
+<td class="gt_row gt_right" headers="std.error">0.142</td>
+<td class="gt_row gt_right" headers="p.value">0.231</td>
+<td class="gt_row gt_right" headers="sig"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="spec">Lineal cód. B</td>
+<td class="gt_row gt_left" headers="vd">Cambio social</td>
+<td class="gt_row gt_right" headers="estimate">0.362</td>
+<td class="gt_row gt_right" headers="std.error">0.144</td>
+<td class="gt_row gt_right" headers="p.value">0.012</td>
+<td class="gt_row gt_right" headers="sig">*</td>
+</tr>
+</tbody><tfoot class="gt_footnotes">
+<tr class="odd">
+<td colspan="6" class="gt_footnote">Coeficiente de interés: triple interacción DiD decreto (ola 4 × indígena × zona).</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+<section id="tbl-apendice-alpha" class="level2" data-number="9.4">
+<h2 data-number="9.4" class="anchored" data-anchor-id="tbl-apendice-alpha"><span class="header-section-number">9.4</span> Tabla A4 — Consistencia interna</h2>
+<div class="cell">
+<div id="tbl-apendice-alpha" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabla&nbsp;16: Consistencia interna de índices compuestos (alfa de Cronbach e intercorrelación ítem).
+</figcaption>
+<div aria-describedby="tbl-apendice-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="ahtucpjwtx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ahtucpjwtx table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ahtucpjwtx thead, #ahtucpjwtx tbody, #ahtucpjwtx tfoot, #ahtucpjwtx tr, #ahtucpjwtx td, #ahtucpjwtx th {
+  border-style: none;
+}
+
+#ahtucpjwtx p {
+  margin: 0;
+  padding: 0;
+}
+
+#ahtucpjwtx .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #004D80;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #004D80;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ahtucpjwtx .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ahtucpjwtx .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ahtucpjwtx .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ahtucpjwtx .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ahtucpjwtx .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+}
+
+#ahtucpjwtx .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ahtucpjwtx .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ahtucpjwtx .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ahtucpjwtx .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ahtucpjwtx .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ahtucpjwtx .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ahtucpjwtx .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ahtucpjwtx .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ahtucpjwtx .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  vertical-align: middle;
+}
+
+#ahtucpjwtx .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ahtucpjwtx .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ahtucpjwtx .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #89D3FE;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #89D3FE;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #89D3FE;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ahtucpjwtx .gt_stub {
+  color: #FFFFFF;
+  background-color: #0076BA;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #0076BA;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ahtucpjwtx .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ahtucpjwtx .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ahtucpjwtx .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ahtucpjwtx .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ahtucpjwtx .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #0076BA;
+}
+
+#ahtucpjwtx .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ahtucpjwtx .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+}
+
+#ahtucpjwtx .gt_grand_summary_row {
+  color: #333333;
+  background-color: #89D3FE;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ahtucpjwtx .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #0076BA;
+}
+
+#ahtucpjwtx .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #0076BA;
+}
+
+#ahtucpjwtx .gt_striped {
+  background-color: #F4F4F4;
+}
+
+#ahtucpjwtx .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+}
+
+#ahtucpjwtx .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ahtucpjwtx .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ahtucpjwtx .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ahtucpjwtx .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ahtucpjwtx .gt_left {
+  text-align: left;
+}
+
+#ahtucpjwtx .gt_center {
+  text-align: center;
+}
+
+#ahtucpjwtx .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ahtucpjwtx .gt_font_normal {
+  font-weight: normal;
+}
+
+#ahtucpjwtx .gt_font_bold {
+  font-weight: bold;
+}
+
+#ahtucpjwtx .gt_font_italic {
+  font-style: italic;
+}
+
+#ahtucpjwtx .gt_super {
+  font-size: 65%;
+}
+
+#ahtucpjwtx .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ahtucpjwtx .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ahtucpjwtx .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ahtucpjwtx .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ahtucpjwtx .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ahtucpjwtx .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ahtucpjwtx .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ahtucpjwtx .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ahtucpjwtx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_heading">
+<th colspan="3" class="gt_heading gt_title gt_font_normal">Consistencia interna de índices compuestos</th>
+</tr>
+<tr class="odd gt_heading">
+<th colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Alfa de Cronbach y correlación inter-ítem</th>
+</tr>
+<tr class="header gt_col_headings">
+<th id="Indice" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Indice</th>
+<th id="Alpha" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Alpha</th>
+<th id="Correlacion-inter-item" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Correlacion inter-item</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Indice">Control social (status quo)</td>
+<td class="gt_row gt_right" headers="Alpha">0.773</td>
+<td class="gt_row gt_right" headers="Correlacion inter-item">0.633</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Indice">Cambio social</td>
+<td class="gt_row gt_right gt_striped" headers="Alpha">0.746</td>
+<td class="gt_row gt_right gt_striped" headers="Correlacion inter-item">0.602</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="tbl-apendice-mecanismo" class="level2" data-number="9.5">
+<h2 data-number="9.5" class="anchored" data-anchor-id="tbl-apendice-mecanismo"><span class="header-section-number">9.5</span> Tabla A5 — Análisis de mecanismo ingroup/outgroup</h2>
 <div class="cell">
 <div id="tbl-apendice-mecanismo" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-mecanismo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla&nbsp;16: Análisis de mecanismo: ingroup/outgroup/brecha (9 especificaciones).
+Tabla&nbsp;17: Análisis de mecanismo: ingroup/outgroup/brecha (9 especificaciones).
 </figcaption>
 <div aria-describedby="tbl-apendice-mecanismo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -9671,13 +10230,13 @@ Tabla&nbsp;16: Análisis de mecanismo: ingroup/outgroup/brecha (9 especificacion
 </div>
 </div>
 </section>
-<section id="tbl-apendice-hetero" class="level2" data-number="9.7">
-<h2 data-number="9.7" class="anchored" data-anchor-id="tbl-apendice-hetero"><span class="header-section-number">9.7</span> Tabla A8 — Heterogeneidad por terciles</h2>
+<section id="tbl-apendice-hetero" class="level2" data-number="9.6">
+<h2 data-number="9.6" class="anchored" data-anchor-id="tbl-apendice-hetero"><span class="header-section-number">9.6</span> Tabla A6 — Heterogeneidad por terciles</h2>
 <div class="cell">
 <div id="tbl-apendice-hetero" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-apendice-hetero-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Tabla&nbsp;17: Efecto DiD por tercil de predominancia identitaria (baseline ola 2).
+Tabla&nbsp;18: Efecto DiD por tercil de predominancia identitaria (baseline ola 2).
 </figcaption>
 <div aria-describedby="tbl-apendice-hetero-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -10201,8 +10760,8 @@ Tabla&nbsp;17: Efecto DiD por tercil de predominancia identitaria (baseline ola 
 </div>
 </div>
 </section>
-<section id="fig-apendice-coef" class="level2" data-number="9.8">
-<h2 data-number="9.8" class="anchored" data-anchor-id="fig-apendice-coef"><span class="header-section-number">9.8</span> Figura A1 — Coeficientes completos M2</h2>
+<section id="fig-apendice-coef" class="level2" data-number="9.7">
+<h2 data-number="9.7" class="anchored" data-anchor-id="fig-apendice-coef"><span class="header-section-number">9.7</span> Figura A1 — Coeficientes completos M2</h2>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-apendice-coef" class="quarto-float quarto-figure quarto-figure-center anchored">
