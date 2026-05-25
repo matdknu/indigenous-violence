@@ -1,319 +1,597 @@
 # =============================================================================
-# 05_mecanismo.R — Análisis de mecanismo: justicia procedimental como mediadora
+# 05_mecanismo.R — Mecanismo de mediación: justicia procedimental
+#                  ingroup/outgroup como canal del efecto DiD
 #
-# Propósito: explorar si idx_just_proc media parcialmente el efecto del
-#            estado de excepción sobre la justificación de violencia.
-#            Tres pasos (Baron & Kenny adaptado a panel):
-#              Paso 1: tratamiento → just_proc (M_just)
-#              Paso 2: just_proc_lag → VD (modelos con mediador)
-#              Paso 3: comparar coef. DiD con/sin just_proc (atenuación)
+# Hipótesis:
+#   H4a: just_proc_ingroup media el efecto sobre justificación de violencia
+#        — deterioro del trato percibido al propio grupo
+#   H4b: brecha_just_proc (outgroup − ingroup) como indicador de
+#        discriminación relativa percibida
+#   H4c: el mecanismo opera asimétricamente por tipo de violencia
 #
-# Limitación explícita: just_proc se mide en la misma ola que la VD en
-# algunos períodos. La aproximación más limpia usa just_proc de ola t-1
-# como predictor de VD en ola t (rezago de un período).
+# Análisis en 4 pasos:
+#   Paso 0: descriptivos de trayectorias ingroup/outgroup/brecha
+#   Paso 1: tratamiento → mediadores (just_proc_ingroup, brecha)
+#   Paso 2: mediadores → VDs (controlando tratamiento)
+#   Paso 3: atenuación del DiD al incluir mediadores
 #
-# Input:  data/subset_data.rds, data/modelos.rds
-# Output: output/figuras/fig_trayectorias_justproc.png
-#         output/figuras/fig_mediacion_coefs.png
-#         output/tablas/tabla_mecanismo.html
+# Input:  data/subset_data.rds, data/analysis_metadata.rds
+# Output: output/figuras/fig_trayectorias_justproc_inout.png
+#         output/figuras/fig_brecha_justproc.png
+#         output/figuras/fig_mediacion_ingroup.png
+#         output/tablas/tabla_mecanismo_ingroup.html
 #         data/mecanismo.rds
 # =============================================================================
 
 set.seed(2024)
-
-if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
 pacman::p_load(
   dplyr, tidyverse, lme4, lmerTest, performance,
-  broom.mixed, modelsummary, ggplot2, stringr
+  broom.mixed, modelsummary, ggplot2, patchwork
 )
 
 if (!dir.exists("output/tablas"))  dir.create("output/tablas",  recursive = TRUE)
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
 
 subset_data <- readRDS("data/subset_data.rds")
-modelos     <- readRDS("data/modelos.rds")
-controles_base       <- modelos$controles_base
-incluir_urbano_rural <- modelos$incluir_urbano_rural
+metadata    <- readRDS("data/analysis_metadata.rds")
+controles_base       <- metadata$controles_base
+incluir_urbano_rural <- metadata$incluir_urbano_rural
 
-if (!"idx_just_proc" %in% names(subset_data)) {
-  stop("idx_just_proc no está en subset_data. Ejecutar 01_limpieza.R primero.")
-}
+# ══════════════════════════════════════════════════════════════════════════════
+# PASO 0: Descriptivos — trayectorias ingroup/outgroup/brecha por grupo
+# ══════════════════════════════════════════════════════════════════════════════
 
-# ── Justicia procedimental rezagada (ola t-1 → ola t) ─────────────────────────
+cat("\n", paste(rep("=", 70), collapse=""), "\n")
+cat("PASO 0: Trayectorias descriptivas justicia procedimental\n")
+cat(paste(rep("=", 70), collapse=""), "\n")
 
-just_lag <- subset_data |>
-  select(folio, ola, idx_just_proc) |>
-  mutate(ola_next = ola + 1L) |>
-  rename(just_proc_lag = idx_just_proc) |>
-  select(folio, ola = ola_next, just_proc_lag)
-
-subset_med <- subset_data |>
-  left_join(just_lag, by = c("folio", "ola"))
-
-cat("--- Correlaciones just_proc_lag con VDs ---\n")
-cat("just_proc_lag × idx_vio_control:",
-    round(cor(subset_med$just_proc_lag, subset_med$idx_vio_control,
-              use = "pairwise.complete.obs"), 3), "\n")
-cat("just_proc_lag × idx_vio_resguardo:",
-    round(cor(subset_med$just_proc_lag, subset_med$idx_vio_resguardo,
-              use = "pairwise.complete.obs"), 3), "\n")
-cat("N válidos just_proc_lag:", sum(!is.na(subset_med$just_proc_lag)), "\n\n")
-
-# ── Figura 3 — Trayectorias idx_just_proc ─────────────────────────────────────
-
-tray_just <- subset_med |>
+# Tabla de medias
+desc_just <- subset_data |>
   filter(!is.na(indigeneous)) |>
-  group_by(indigeneous, cerca_conflicto, periodo) |>
+  group_by(periodo, indigeneous, zona_decreto) |>
   summarise(
-    media = mean(idx_just_proc, na.rm = TRUE),
-    se    = sd(idx_just_proc, na.rm = TRUE) / sqrt(sum(!is.na(idx_just_proc))),
+    ingroup_media   = mean(just_proc_ingroup, na.rm = TRUE),
+    ingroup_se      = sd(just_proc_ingroup, na.rm = TRUE) /
+                      sqrt(sum(!is.na(just_proc_ingroup))),
+    outgroup_media  = mean(just_proc_outgroup, na.rm = TRUE),
+    outgroup_se     = sd(just_proc_outgroup, na.rm = TRUE) /
+                      sqrt(sum(!is.na(just_proc_outgroup))),
+    brecha_media    = mean(brecha_just_proc, na.rm = TRUE),
+    brecha_se       = sd(brecha_just_proc, na.rm = TRUE) /
+                      sqrt(sum(!is.na(brecha_just_proc))),
+    n = n(),
+    .groups = "drop"
+  )
+
+cat("\nMedias por grupo y período:\n")
+print(desc_just, n = 30)
+
+# ── Figura: Trayectorias ingroup vs outgroup ──────────────────────────────────
+
+tray_long <- subset_data |>
+  filter(!is.na(indigeneous)) |>
+  pivot_longer(
+    cols = c(just_proc_ingroup, just_proc_outgroup),
+    names_to  = "tipo_just",
+    values_to = "valor_just"
+  ) |>
+  mutate(
+    tipo_just = factor(
+      tipo_just,
+      levels = c("just_proc_ingroup", "just_proc_outgroup"),
+      labels = c("Trato a MI grupo (ingroup)", "Trato al OTRO grupo (outgroup)")
+    )
+  ) |>
+  group_by(periodo, indigeneous, zona_decreto, tipo_just) |>
+  summarise(
+    media = mean(valor_just, na.rm = TRUE),
+    se    = sd(valor_just, na.rm = TRUE) / sqrt(sum(!is.na(valor_just))),
     ci_lo = media - 1.96 * se,
     ci_hi = media + 1.96 * se,
     .groups = "drop"
   ) |>
   mutate(
     grupo = factor(
-      paste0(indigeneous, " — ", cerca_conflicto),
-      levels = c("no_indi — lejos", "no_indi — cerca",
-                 "indi — lejos",    "indi — cerca"),
-      labels = c("No indígena / lejos", "No indígena / zona excepción",
-                 "Indígena / lejos",    "Indígena / zona excepción")
+      paste0(indigeneous, " — ", zona_decreto),
+      levels = c("no_indi — fuera", "no_indi — decreto",
+                 "indi — fuera",    "indi — decreto"),
+      labels = c("No indígena / fuera", "No indígena / zona decreto",
+                 "Indígena / fuera",    "Indígena / zona decreto")
     )
   )
 
-p_just <- ggplot(tray_just,
-                 aes(x = periodo, y = media,
-                     color = grupo, linetype = grupo, group = grupo)) +
+p_inout <- ggplot(tray_long,
+    aes(x = periodo, y = media,
+        color = grupo, linetype = grupo, group = grupo)) +
+  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi, fill = grupo),
+              alpha = 0.06, color = NA) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2.5) +
+  facet_wrap(~ tipo_just, ncol = 2) +
+  scale_color_manual(
+    values = c(
+      "No indígena / fuera"        = "#4575B4",
+      "No indígena / zona decreto" = "#74ADD1",
+      "Indígena / fuera"           = "#D73027",
+      "Indígena / zona decreto"    = "#F46D43"
+    ), name = NULL
+  ) +
+  scale_fill_manual(
+    values = c(
+      "No indígena / fuera"        = "#4575B4",
+      "No indígena / zona decreto" = "#74ADD1",
+      "Indígena / fuera"           = "#D73027",
+      "Indígena / zona decreto"    = "#F46D43"
+    ), guide = "none"
+  ) +
+  scale_linetype_manual(
+    values = c("dashed", "solid", "dashed", "solid"), name = NULL
+  ) +
+  scale_x_discrete(labels = c(
+    "pre" = "Ola 2\n(2018)",
+    "estallido" = "Ola 3\n(2021)",
+    "decreto" = "Ola 4\n(2023)"
+  )) +
+  labs(
+    title = "Justicia procedimental: percepción ingroup vs. outgroup",
+    subtitle = paste0(
+      "Ingroup = trato percibido a MI grupo étnico · ",
+      "Outgroup = trato percibido al OTRO grupo\n",
+      "IC 95% sombreado · Escala 1 (no respeta) – 5 (respeta mucho)"
+    ),
+    x = NULL, y = "Media percepción de respeto",
+    caption = "Línea sólida = zona decreto · punteada = fuera"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    strip.text      = element_text(face = "bold", size = 11),
+    legend.position = "bottom",
+    plot.title      = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  ) +
+  guides(color = guide_legend(nrow = 2))
+
+ggsave("output/figuras/fig_trayectorias_justproc_inout.png", p_inout,
+       width = 12, height = 6, dpi = 300)
+cat("✓ Figura trayectorias ingroup/outgroup guardada\n")
+
+# ── Figura: Brecha percibida por grupo ────────────────────────────────────────
+
+tray_brecha <- subset_data |>
+  filter(!is.na(indigeneous)) |>
+  group_by(periodo, indigeneous, zona_decreto) |>
+  summarise(
+    media = mean(brecha_just_proc, na.rm = TRUE),
+    se    = sd(brecha_just_proc, na.rm = TRUE) /
+            sqrt(sum(!is.na(brecha_just_proc))),
+    ci_lo = media - 1.96 * se,
+    ci_hi = media + 1.96 * se,
+    .groups = "drop"
+  ) |>
+  mutate(
+    grupo = factor(
+      paste0(indigeneous, " — ", zona_decreto),
+      levels = c("no_indi — fuera", "no_indi — decreto",
+                 "indi — fuera",    "indi — decreto"),
+      labels = c("No indígena / fuera", "No indígena / zona decreto",
+                 "Indígena / fuera",    "Indígena / zona decreto")
+    )
+  )
+
+p_brecha <- ggplot(tray_brecha,
+    aes(x = periodo, y = media,
+        color = grupo, linetype = grupo, group = grupo)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50",
+             linewidth = 0.5) +
+  annotate("text", x = 0.6, y = 0.15,
+           label = "Tratan mejor\nal outgroup →",
+           size = 2.5, color = "grey40", hjust = 0, fontface = "italic") +
+  annotate("text", x = 0.6, y = -0.15,
+           label = "← Tratan mejor\na mi grupo",
+           size = 2.5, color = "grey40", hjust = 0, fontface = "italic") +
   geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi, fill = grupo),
               alpha = 0.08, color = NA) +
   geom_line(linewidth = 0.9) +
   geom_point(size = 2.8) +
   scale_color_manual(
     values = c(
-      "No indígena / lejos"          = "#4575B4",
-      "No indígena / zona excepción" = "#74ADD1",
-      "Indígena / lejos"             = "#D73027",
-      "Indígena / zona excepción"    = "#F46D43"
-    ),
-    name = NULL
+      "No indígena / fuera"        = "#4575B4",
+      "No indígena / zona decreto" = "#74ADD1",
+      "Indígena / fuera"           = "#D73027",
+      "Indígena / zona decreto"    = "#F46D43"
+    ), name = NULL
   ) +
   scale_fill_manual(
     values = c(
-      "No indígena / lejos"          = "#4575B4",
-      "No indígena / zona excepción" = "#74ADD1",
-      "Indígena / lejos"             = "#D73027",
-      "Indígena / zona excepción"    = "#F46D43"
-    ),
-    guide = "none"
+      "No indígena / fuera"        = "#4575B4",
+      "No indígena / zona decreto" = "#74ADD1",
+      "Indígena / fuera"           = "#D73027",
+      "Indígena / zona decreto"    = "#F46D43"
+    ), guide = "none"
   ) +
   scale_linetype_manual(
     values = c("dashed", "solid", "dashed", "solid"), name = NULL
   ) +
   scale_x_discrete(labels = c(
-    "pre"         = "Ola 2\n(Pre)",
-    "tratamiento" = "Ola 3\n(Tratamiento)",
-    "post"        = "Ola 4\n(Post)"
+    "pre" = "Ola 2\n(2018)",
+    "estallido" = "Ola 3\n(2021)",
+    "decreto" = "Ola 4\n(2023)"
   )) +
   labs(
-    title    = "Trayectorias de justicia procedimental por grupo",
-    subtitle = "ELRI — índice d5_1 + d5_2 · IC 95% sombreado",
-    x = NULL, y = "Media (escala 1–5)",
-    caption  = "Línea sólida = zona de excepción · punteada = lejos"
+    title = "Brecha percibida de justicia procedimental (outgroup − ingroup)",
+    subtitle = paste0(
+      "Valores positivos = perciben mejor trato al OTRO grupo (agravio)\n",
+      "Valores negativos = perciben mejor trato a MI grupo (privilegio percibido)"
+    ),
+    x = NULL, y = "Brecha (outgroup − ingroup)",
+    caption = "Línea sólida = zona decreto · punteada = fuera"
   ) +
-  theme_minimal(base_size = 12) +
+  theme_minimal(base_size = 11) +
   theme(
-    legend.position  = "bottom",
-    plot.title       = element_text(face = "bold"),
+    legend.position = "bottom",
+    plot.title      = element_text(face = "bold"),
     panel.grid.minor = element_blank()
   ) +
   guides(color = guide_legend(nrow = 2))
 
-ggsave("output/figuras/fig_trayectorias_justproc.png", p_just,
-       width = 8, height = 5, dpi = 300)
-cat("✓ Figura 3 guardada: output/figuras/fig_trayectorias_justproc.png\n")
+ggsave("output/figuras/fig_brecha_justproc.png", p_brecha,
+       width = 10, height = 6, dpi = 300)
+cat("✓ Figura brecha justicia procedimental guardada\n")
 
-# ── Paso 1: Tratamiento → just_proc ───────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# PASO 1: Tratamiento → Mediadores
+# ══════════════════════════════════════════════════════════════════════════════
 
-m_just <- lmer(
+cat("\n", paste(rep("=", 70), collapse=""), "\n")
+cat("PASO 1: ¿El tratamiento afecta los mediadores?\n")
+cat(paste(rep("=", 70), collapse=""), "\n")
+
+# Modelo 1a: Tratamiento → just_proc_ingroup
+m1_ingroup <- lmer(
   as.formula(paste(
-    "idx_just_proc ~ periodo * indigeneous * cerca_conflicto +",
+    "just_proc_ingroup ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ (1 | folio)"
   )),
-  data = subset_med, REML = FALSE
+  data = subset_data, REML = FALSE
 )
 
-m0_just <- lmer(idx_just_proc ~ 1 + (1 | folio), data = subset_med, REML = TRUE)
-cat("\n--- Paso 1: Tratamiento → Justicia procedimental ---\n")
-cat("ICC just_proc:", round(as.numeric(performance::icc(m0_just)$ICC_adjusted), 3), "\n\n")
-print(summary(m_just))
-
-# ── Pasos 2 y 3: DiD con y sin just_proc_lag ──────────────────────────────────
-
-m2_ctrl_sin <- lmer(
+# Modelo 1b: Tratamiento → just_proc_outgroup
+m1_outgroup <- lmer(
   as.formula(paste(
-    "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +",
+    "just_proc_outgroup ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ (1 | folio)"
   )),
-  data = subset_med, REML = FALSE
+  data = subset_data, REML = FALSE
 )
 
-m2_resg_sin <- lmer(
+# Modelo 1c: Tratamiento → brecha_just_proc
+m1_brecha <- lmer(
   as.formula(paste(
-    "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +",
+    "brecha_just_proc ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ (1 | folio)"
   )),
-  data = subset_med, REML = FALSE
+  data = subset_data, REML = FALSE
 )
 
-m2_ctrl_med <- lmer(
-  as.formula(paste(
-    "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +",
-    controles_base, "+ just_proc_lag + (1 | folio)"
-  )),
-  data = subset_med, REML = FALSE
-)
+# Extraer coeficientes DiD para mediadores
+TERM_DID_EST <- "periodoestallido:indigeneousindi:zona_decretodecreto"
+TERM_DID_DEC <- "periododecreto:indigeneousindi:zona_decretodecreto"
 
-m2_resg_med <- lmer(
-  as.formula(paste(
-    "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +",
-    controles_base, "+ just_proc_lag + (1 | folio)"
-  )),
-  data = subset_med, REML = FALSE
-)
-
-TERM_DID <- "periodopost:indigeneousindi:cerca_conflictocerca"
-
-extraer_did <- function(m, nombre) {
-  td <- broom.mixed::tidy(m, effects = "fixed")
-  row <- td |> filter(.data$term == .env$TERM_DID)
+extraer_did <- function(modelo, term, nombre) {
+  td <- broom.mixed::tidy(modelo, effects = "fixed")
+  row <- td |> filter(term == !!term)
   if (nrow(row) == 0) {
-    cat(nombre, "— coeficiente DiD no encontrado\n")
-    return(tibble(
-      term = TERM_DID, estimate = NA_real_, std.error = NA_real_,
-      p.value = NA_real_, modelo = nombre
-    ))
+    cat("  ", nombre, "— término no encontrado:", term, "\n")
+    return(tibble(term=term, estimate=NA, std.error=NA, p.value=NA, modelo=nombre))
   }
-  cat(nombre, "— β DiD (ola 4):", round(row$estimate, 3),
-      " SE:", round(row$std.error, 3),
-      " p:", format.pval(row$p.value, digits = 3), "\n")
+  cat("  ", nombre, "— β =", round(row$estimate, 3),
+      " SE =", round(row$std.error, 3),
+      " p =", format.pval(row$p.value, digits = 3), "\n")
   row |> mutate(modelo = nombre)
 }
 
-cat("\n--- Paso 3: Comparación coef. DiD con y sin mediador ---\n\n")
+cat("\nEfecto DiD ESTALLIDO (ola 3 × indi × zona) sobre mediadores:\n")
+extraer_did(m1_ingroup,  TERM_DID_EST, "Just. proc. ingroup")
+extraer_did(m1_outgroup, TERM_DID_EST, "Just. proc. outgroup")
+extraer_did(m1_brecha,   TERM_DID_EST, "Brecha just. proc.")
 
-r_ctrl_sin <- extraer_did(m2_ctrl_sin, "Vio. control  SIN just_proc")
-r_ctrl_med <- extraer_did(m2_ctrl_med, "Vio. control  CON just_proc_lag")
-r_resg_sin <- extraer_did(m2_resg_sin, "Vio. resguardo SIN just_proc")
-r_resg_med <- extraer_did(m2_resg_med, "Vio. resguardo CON just_proc_lag")
+cat("\nEfecto DiD DECRETO (ola 4 × indi × zona) sobre mediadores:\n")
+extraer_did(m1_ingroup,  TERM_DID_DEC, "Just. proc. ingroup")
+extraer_did(m1_outgroup, TERM_DID_DEC, "Just. proc. outgroup")
+extraer_did(m1_brecha,   TERM_DID_DEC, "Brecha just. proc.")
 
-ate_ctrl <- if (!is.na(r_ctrl_sin$estimate) && r_ctrl_sin$estimate != 0) {
-  (r_ctrl_sin$estimate - r_ctrl_med$estimate) / abs(r_ctrl_sin$estimate) * 100
-} else NA_real_
+# ══════════════════════════════════════════════════════════════════════════════
+# PASO 2: Crear mediadores rezagados (just_proc de ola t−1)
+# ══════════════════════════════════════════════════════════════════════════════
 
-ate_resg <- if (!is.na(r_resg_sin$estimate) && r_resg_sin$estimate != 0) {
-  (r_resg_sin$estimate - r_resg_med$estimate) / abs(r_resg_sin$estimate) * 100
-} else NA_real_
+cat("\n", paste(rep("=", 70), collapse=""), "\n")
+cat("PASO 2: Variables rezagadas + efecto mediador → VD\n")
+cat(paste(rep("=", 70), collapse=""), "\n")
 
-cat("\nAtenuación del DiD al incluir just_proc_lag:\n")
-cat("  Vio. control:", round(ate_ctrl, 1), "%\n")
-cat("  Vio. resguardo:", round(ate_resg, 1), "%\n")
-cat("\nNota: atenuación >10% y <100% → evidencia de mediación parcial\n")
-cat("      atenuación ~0%           → just_proc no media el efecto\n")
-cat("      atenuación >100%         → posible supresión; revisar\n")
+# Crear rezagos: valor en ola anterior como predictor
+just_lag <- subset_data |>
+  select(folio, ola, just_proc_ingroup, just_proc_outgroup, brecha_just_proc) |>
+  mutate(ola_next = ola + 1) |>
+  rename(
+    ingroup_lag  = just_proc_ingroup,
+    outgroup_lag = just_proc_outgroup,
+    brecha_lag   = brecha_just_proc
+  ) |>
+  select(folio, ola = ola_next, ingroup_lag, outgroup_lag, brecha_lag)
 
-# ── Figura comparativa — coefs DiD ────────────────────────────────────────────
+subset_med <- subset_data |>
+  left_join(just_lag, by = c("folio", "ola"))
 
-comp_coefs <- bind_rows(r_ctrl_sin, r_ctrl_med, r_resg_sin, r_resg_med) |>
-  filter(!is.na(estimate)) |>
+cat("Obs con ingroup_lag disponible:",
+    sum(!is.na(subset_med$ingroup_lag)), "/", nrow(subset_med), "\n")
+cat("(Ola 2 no tiene lag → NA esperado para ola 2)\n")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PASO 3: Comparar DiD con y sin mediadores — atenuación
+# ══════════════════════════════════════════════════════════════════════════════
+
+cat("\n", paste(rep("=", 70), collapse=""), "\n")
+cat("PASO 3: ¿Se atenúa el DiD al incluir mediadores?\n")
+cat(paste(rep("=", 70), collapse=""), "\n")
+
+# ── Modelos SIN mediador (baseline) ──────────────────────────────────────────
+
+m_ctrl_sin <- lmer(
+  as.formula(paste(
+    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+m_resg_sin <- lmer(
+  as.formula(paste(
+    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+# ── Modelos CON ingroup_lag ──────────────────────────────────────────────────
+
+m_ctrl_ingroup <- lmer(
+  as.formula(paste(
+    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ ingroup_lag + (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+m_resg_ingroup <- lmer(
+  as.formula(paste(
+    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ ingroup_lag + (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+# ── Modelos CON brecha_lag ───────────────────────────────────────────────────
+
+m_ctrl_brecha <- lmer(
+  as.formula(paste(
+    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ brecha_lag + (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+m_resg_brecha <- lmer(
+  as.formula(paste(
+    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ brecha_lag + (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+# ── Modelos CON ambos (ingroup_lag + brecha_lag) ─────────────────────────────
+
+m_ctrl_ambos <- lmer(
+  as.formula(paste(
+    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ ingroup_lag + brecha_lag + (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+m_resg_ambos <- lmer(
+  as.formula(paste(
+    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    controles_base, "+ ingroup_lag + brecha_lag + (1 | folio)"
+  )),
+  data = subset_med, REML = FALSE
+)
+
+# ── Extraer y comparar coeficientes DiD ──────────────────────────────────────
+
+extraer_comparar <- function(m_sin, m_con, vd_label, med_label, term) {
+  td_sin <- broom.mixed::tidy(m_sin, effects="fixed") |> filter(term == !!term)
+  td_con <- broom.mixed::tidy(m_con, effects="fixed") |> filter(term == !!term)
+
+  if (nrow(td_sin) == 0 | nrow(td_con) == 0) return(NULL)
+
+  ate <- (td_sin$estimate - td_con$estimate) / abs(td_sin$estimate) * 100
+
+  tibble(
+    vd          = vd_label,
+    mediador    = med_label,
+    b_sin       = td_sin$estimate,
+    se_sin      = td_sin$std.error,
+    p_sin       = td_sin$p.value,
+    b_con       = td_con$estimate,
+    se_con      = td_con$std.error,
+    p_con       = td_con$p.value,
+    atenuacion  = ate
+  )
+}
+
+cat("\n--- Comparación DiD DECRETO (τ₄): con y sin mediadores ---\n\n")
+
+comp <- bind_rows(
+  extraer_comparar(m_ctrl_sin, m_ctrl_ingroup,
+    "Vio. control", "Ingroup lag", TERM_DID_DEC),
+  extraer_comparar(m_ctrl_sin, m_ctrl_brecha,
+    "Vio. control", "Brecha lag",  TERM_DID_DEC),
+  extraer_comparar(m_ctrl_sin, m_ctrl_ambos,
+    "Vio. control", "Ambos",       TERM_DID_DEC),
+  extraer_comparar(m_resg_sin, m_resg_ingroup,
+    "Vio. resguardo", "Ingroup lag", TERM_DID_DEC),
+  extraer_comparar(m_resg_sin, m_resg_brecha,
+    "Vio. resguardo", "Brecha lag",  TERM_DID_DEC),
+  extraer_comparar(m_resg_sin, m_resg_ambos,
+    "Vio. resguardo", "Ambos",       TERM_DID_DEC)
+)
+
+print(comp |>
+  mutate(across(where(is.numeric), ~ round(., 3))) |>
+  as.data.frame()
+)
+
+cat("\nInterpretación:\n")
+cat("  Atenuación 10–30% → mediación parcial (canal contribuye)\n")
+cat("  Atenuación 30–60% → mediación sustancial\n")
+cat("  Atenuación > 60%  → mediación fuerte (canal principal)\n")
+cat("  Atenuación ≈ 0%   → canal no opera\n")
+cat("  Atenuación < 0%   → supresión (mediador tiene efecto contrario)\n")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FIGURAS Y TABLAS FINALES
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Figura: Coeficientes DiD con y sin mediadores ─────────────────────────────
+
+comp_fig <- comp |>
+  pivot_longer(
+    cols = c(b_sin, b_con),
+    names_to = "especificacion",
+    values_to = "estimate"
+  ) |>
   mutate(
-    vd  = if_else(
-      str_detect(modelo, "control"),
-      "Control social (status quo)",
-      "Cambio social"
+    se = if_else(especificacion == "b_sin", se_sin, se_con),
+    ci_lo = estimate - 1.96 * se,
+    ci_hi = estimate + 1.96 * se,
+    especificacion = factor(
+      especificacion,
+      levels = c("b_sin", "b_con"),
+      labels = c("Sin mediador", "Con mediador")
     ),
-    med = if_else(str_detect(modelo, "CON"), "Con just_proc_lag", "Sin just_proc_lag"),
-    ci_lo = estimate - 1.96 * std.error,
-    ci_hi = estimate + 1.96 * std.error
+    label = paste0(vd, "\n(", mediador, ")")
   )
 
-p_med <- ggplot(comp_coefs,
-                aes(x = estimate, y = med,
-                    xmin = ci_lo, xmax = ci_hi,
-                    color = vd)) +
+p_mediacion <- ggplot(comp_fig,
+    aes(x = estimate, y = label,
+        xmin = ci_lo, xmax = ci_hi,
+        color = especificacion)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey60") +
-  geom_pointrange(position = position_dodge(width = 0.4),
-                  linewidth = 0.8, size = 0.6) +
-  facet_wrap(~ vd, ncol = 2) +
+  geom_pointrange(
+    position = position_dodge(width = 0.5),
+    linewidth = 0.7, size = 0.5
+  ) +
+  facet_wrap(~ vd, scales = "free_y", ncol = 1) +
   scale_color_manual(
-    values = c(
-      "Control social (status quo)" = "#4575B4",
-      "Cambio social"               = "#D73027"
-    ),
-    guide = "none"
+    values = c("Sin mediador" = "#D73027", "Con mediador" = "#4575B4"),
+    name = NULL
   ) +
   labs(
-    title    = "Mediación parcial: efecto DiD con y sin justicia procedimental",
-    subtitle = "Coeficiente: Ola 4 × Indígena × Zona excepción · IC 95%",
-    x = "Coeficiente estimado", y = NULL,
-    caption  = "just_proc_lag = valor de justicia procedimental en ola anterior"
+    title = "Mediación: atenuación del DiD al incluir justicia procedimental",
+    subtitle = paste0(
+      "Coeficiente τ₄ (Decreto × Indígena × Zona) · IC 95%\n",
+      "Mediadores rezagados (valor en ola anterior)"
+    ),
+    x = "Coeficiente DiD estimado", y = NULL,
+    caption = paste0(
+      "Rojo = sin mediador · Azul = con mediador\n",
+      "Si azul se acerca a 0 respecto a rojo → mediación parcial"
+    )
   ) +
   theme_minimal(base_size = 11) +
   theme(
-    plot.title = element_text(face = "bold"),
+    strip.text      = element_text(face = "bold"),
+    legend.position = "bottom",
+    plot.title      = element_text(face = "bold"),
     panel.grid.minor = element_blank()
   )
 
-ggsave("output/figuras/fig_mediacion_coefs.png", p_med,
-       width = 9, height = 4, dpi = 300)
-cat("✓ Figura mediación guardada: output/figuras/fig_mediacion_coefs.png\n")
+ggsave("output/figuras/fig_mediacion_ingroup.png", p_mediacion,
+       width = 10, height = 8, dpi = 300)
+cat("\n✓ Figura mediación guardada\n")
 
-# ── Tabla A6 — Modelos mecanismo ──────────────────────────────────────────────
+# ── Tabla completa de modelos de mecanismo ────────────────────────────────────
 
-coef_rename_med <- c(
-  "periodotratamiento"   = "Ola 3 (tratamiento)",
-  "periodopost"          = "Ola 4 (post)",
-  "indigeneousindi"      = "Indígena",
-  "cerca_conflictocerca" = "Zona excepción",
-  "just_proc_lag"        = "Just. proc. (rezagada)",
-  "id_chile"             = "Id. con Chile",
-  "id_causa"             = "Id. causa indígena",
-  "perc_desigualdad"     = "Perc. desigualdad",
-  "perc_injusticia"      = "Perc. injusticia",
-  "periodotratamiento:indigeneousindi:cerca_conflictocerca" = "Ola 3 × Indígena × Zona [DiD]",
-  "periodopost:indigeneousindi:cerca_conflictocerca"        = "Ola 4 × Indígena × Zona [DiD]"
+coef_rename_mec <- c(
+  "periodoestallido"   = "Ola 3 — Resabio estallido",
+  "periododecreto"     = "Ola 4 — Decreto + Apruebo",
+  "indigeneousindi"    = "Indígena",
+  "zona_decretodecreto"= "Zona excepción",
+  "ingroup_lag"        = "Just. proc. ingroup (lag)",
+  "outgroup_lag"       = "Just. proc. outgroup (lag)",
+  "brecha_lag"         = "Brecha just. proc. (lag)",
+  "just_proc_ingroup"  = "Just. proc. ingroup",
+  "just_proc_outgroup" = "Just. proc. outgroup",
+  "brecha_just_proc"   = "Brecha just. proc.",
+  "periodoestallido:indigeneousindi:zona_decretodecreto" =
+    "Ola 3 × Indígena × Zona [DiD estallido]",
+  "periododecreto:indigeneousindi:zona_decretodecreto" =
+    "Ola 4 × Indígena × Zona [DiD decreto]"
 )
 
 modelsummary(
   list(
-    "Paso 1: Just. proc."   = m_just,
-    "Vio. ctrl. (sin med.)" = m2_ctrl_sin,
-    "Vio. ctrl. (con med.)" = m2_ctrl_med,
-    "Vio. resg. (sin med.)" = m2_resg_sin,
-    "Vio. resg. (con med.)" = m2_resg_med
+    "Paso 1:\nIngroup"  = m1_ingroup,
+    "Paso 1:\nOutgroup" = m1_outgroup,
+    "Paso 1:\nBrecha"   = m1_brecha,
+    "Ctrl\nsin med."    = m_ctrl_sin,
+    "Ctrl +\ningroup"   = m_ctrl_ingroup,
+    "Ctrl +\nbrecha"    = m_ctrl_brecha,
+    "Resg\nsin med."    = m_resg_sin,
+    "Resg +\ningroup"   = m_resg_ingroup,
+    "Resg +\nbrecha"    = m_resg_brecha
   ),
-  statistic  = "({std.error})",
+  statistic = "({std.error})",
   stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
   fmt = 3,
-  coef_rename = coef_rename_med,
-  coef_omit   = "edad|mujer|urbano",
+  coef_rename = coef_rename_mec,
+  coef_omit = "edad|mujer|urbano|malestar|apoyo",
   gof_map = c("nobs", "icc", "rmse"),
-  notes = "Coeficientes de edad, sexo y urbano_rural omitidos por espacio. Ver Tabla A1.",
-  output = "output/tablas/tabla_mecanismo.html"
+  notes = paste0(
+    "Paso 1: efecto del tratamiento sobre mediadores. ",
+    "Columnas 4–9: modelos DiD con y sin mediadores rezagados. ",
+    "Controles sociodem. y sustantivos omitidos. ",
+    "Mediadores rezagados = valor en ola anterior. ",
+    "+ p<.1, * p<.05, ** p<.01, *** p<.001."
+  ),
+  output = "output/tablas/tabla_mecanismo_ingroup.html"
 )
-cat("✓ Tabla A6 guardada: output/tablas/tabla_mecanismo.html\n")
+cat("✓ Tabla mecanismo guardada\n")
+
+# ── Guardar todos los objetos ─────────────────────────────────────────────────
 
 saveRDS(
   list(
-    m_just      = m_just,
-    m2_ctrl_sin = m2_ctrl_sin,
-    m2_ctrl_med = m2_ctrl_med,
-    m2_resg_sin = m2_resg_sin,
-    m2_resg_med = m2_resg_med,
-    ate_ctrl    = ate_ctrl,
-    ate_resg    = ate_resg,
-    comp_coefs  = comp_coefs
+    # Paso 1: tratamiento → mediadores
+    m1_ingroup  = m1_ingroup,
+    m1_outgroup = m1_outgroup,
+    m1_brecha   = m1_brecha,
+    # Paso 3: modelos con y sin mediadores
+    m_ctrl_sin     = m_ctrl_sin,
+    m_ctrl_ingroup = m_ctrl_ingroup,
+    m_ctrl_brecha  = m_ctrl_brecha,
+    m_ctrl_ambos   = m_ctrl_ambos,
+    m_resg_sin     = m_resg_sin,
+    m_resg_ingroup = m_resg_ingroup,
+    m_resg_brecha  = m_resg_brecha,
+    m_resg_ambos   = m_resg_ambos,
+    # Tabla comparativa
+    comparacion_atenuacion = comp,
+    # Descriptivos
+    desc_just = desc_just
   ),
   "data/mecanismo.rds"
 )
 cat("✓ Objetos guardados: data/mecanismo.rds\n")
+
 cat("\n✓ 05_mecanismo.R ejecutado correctamente.\n")

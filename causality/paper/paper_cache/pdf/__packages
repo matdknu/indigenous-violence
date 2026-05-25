@@ -20,3 +20,5 @@ marginaleffects
 knitr
 kableExtra
 cardx
+MatchIt
+scales

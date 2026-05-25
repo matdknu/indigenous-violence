@@ -7,6 +7,7 @@
 #            output/tablas/tabla_descriptivos.html
 #            output/tablas/tabla_consistencia_interna.html
 #            output/tablas/tabla_operacionalizacion.html
+#            output/figuras/fig_timeline.png
 #            output/figuras/fig_trayectorias.png
 # =============================================================================
 
@@ -18,6 +19,57 @@ if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
 
 subset_data <- readRDS("data/subset_data.rds")
+source("R/plot_helpers.R")
+
+PERIODO_LABELS <- c(
+  "pre"       = "Ola 2\n(2018)",
+  "estallido" = "Ola 3\n(2021)",
+  "decreto"   = "Ola 4\n(2023)"
+)
+
+# ── Figura 0 — Timeline histórico ─────────────────────────────────────────────
+
+eventos <- tibble::tribble(
+  ~fecha,  ~evento,                           ~tipo,
+  2018,    "Ola 2\n(baseline)",               "ola",
+  2019.75, "Estallido social\n(oct 2019)",    "shock",
+  2020.5,  "Pandemia\n(2020)",                "shock",
+  2020.92, "Ola 3\n(dic 2020 –\nmay 2021)",   "ola",
+  2021.79, "Estado de excepción\n(oct 2021)", "decreto",
+  2022.67, "Plebiscito Rechazo\n(sep 2022)", "shock",
+  2023,    "Ola 4\n(2023)",                   "ola"
+)
+
+p_timeline <- ggplot(eventos, aes(x = fecha, y = 0)) +
+  geom_hline(yintercept = 0, color = "grey70", linewidth = 0.5) +
+  geom_point(aes(color = tipo, shape = tipo, size = tipo)) +
+  geom_text(aes(label = evento, color = tipo), vjust = -1.2,
+            size = 3, lineheight = 0.85, fontface = "bold") +
+  scale_color_manual(values = c(
+    "ola" = "#2166AC", "shock" = "#D73027", "decreto" = "#B22222"
+  ), guide = "none") +
+  scale_shape_manual(values = c("ola" = 16, "shock" = 17, "decreto" = 18), guide = "none") +
+  scale_size_manual(values = c("ola" = 4, "shock" = 3.5, "decreto" = 5), guide = "none") +
+  scale_x_continuous(
+    breaks = c(2018, 2019.75, 2021.79, 2022.67, 2023),
+    labels = c("2018", "Oct\n2019", "Oct\n2021", "Sep\n2022", "2023")
+  ) +
+  ylim(-0.5, 0.5) +
+  labs(
+    title    = "Timeline del diseño cuasi-experimental",
+    subtitle = "Shocks históricos y olas de medición ELRI",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.text.y = element_blank(),
+    panel.grid  = element_blank(),
+    plot.title  = element_text(face = "bold"),
+    axis.text.x = element_text(size = 9)
+  )
+
+ggsave("output/figuras/fig_timeline.png", p_timeline, width = 10, height = 3.5, dpi = 300)
+cat("✓ Timeline guardado: output/figuras/fig_timeline.png\n")
 
 # ── Descriptivos por grupo y período (consola) ────────────────────────────────
 
@@ -123,9 +175,9 @@ tabla_descriptivos <- tabla_descriptivos |>
       ifelse(indigeneous == "indi", "Indígena", "No indígena"),
       " — ",
       case_when(
-        periodo == "pre"         ~ "Ola 2 (pre)",
-        periodo == "tratamiento" ~ "Ola 3 (tratamiento)",
-        periodo == "post"        ~ "Ola 4 (post)",
+        periodo == "pre"       ~ "Ola 2 (2018)",
+        periodo == "estallido" ~ "Ola 3 (2021)",
+        periodo == "decreto"   ~ "Ola 4 (2023)",
         TRUE                     ~ as.character(periodo)
       )
     )
@@ -178,6 +230,7 @@ tray_long <- subset_data |>
   ) |>
   select(-vio_control_lo, -vio_control_hi, -vio_resguardo_lo, -vio_resguardo_hi) |>
   mutate(
+    periodo_num = match(periodo, c("pre", "estallido", "decreto")),
     indice = factor(
       indice,
       levels = c("vio_control", "vio_resguardo"),
@@ -200,53 +253,26 @@ tray_long <- subset_data |>
   )
 
 p_tray <- ggplot(tray_long,
-                 aes(x = periodo, y = media,
-                     color = grupo, linetype = grupo, group = grupo,
-                     fill = grupo)) +
-  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.15, color = NA) +
-  geom_line(linewidth = 0.9) +
-  geom_point(size = 2.8) +
-  facet_wrap(~ indice, scales = "free_y", ncol = 2) +
-  scale_color_manual(
-    values = c(
-      "No indígena / lejos"          = "#4575B4",
-      "No indígena / zona excepción" = "#74ADD1",
-      "Indígena / lejos"             = "#D73027",
-      "Indígena / zona excepción"    = "#F46D43"
-    ),
-    name = NULL
-  ) +
-  scale_linetype_manual(
-    values = c(
-      "No indígena / lejos"          = "dashed",
-      "No indígena / zona excepción" = "solid",
-      "Indígena / lejos"             = "dashed",
-      "Indígena / zona excepción"    = "solid"
-    ),
-    name = NULL
-  ) +
-  scale_x_discrete(
-    labels = c(
-      "pre"         = "Ola 2\n(Pre)",
-      "tratamiento" = "Ola 3\n(Tratamiento)",
-      "post"        = "Ola 4\n(Post)"
-    )
-  ) +
+                 aes(x = periodo_num, y = media,
+                     color = grupo, linetype = grupo, group = grupo)) +
+  annotate("rect", xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf,
+           fill = "#FFE0E0", alpha = 0.35) +
+  geom_ribbon(aes(ymin = lo, ymax = hi, fill = grupo),
+              alpha = 0.15, color = NA, show.legend = FALSE) +
+  geom_line(linewidth = 0.9, show.legend = TRUE) +
+  geom_point(size = 2.8, show.legend = FALSE) +
+  facet_wrap(~ indice, scales = "fixed", ncol = 2) +
+  scale_x_continuous(breaks = 1:3, labels = unname(PERIODO_LABELS)) +
+  scale_y_likert_shared() +
   labs(
     title    = "Trayectorias longitudinales por grupo identitario y zona",
-    subtitle = "ELRI — Olas 2 (pre), 3 (estado de excepción), 4 (post)",
+    subtitle = "ELRI — Ola 2 (2018) · Ola 3 resabio estallido (2021) · Ola 4 decreto + Apruebo (2023)",
     x = NULL, y = "Media (escala 1–5)",
     caption  = "Línea sólida = zona de excepción · Línea punteada = lejos del conflicto"
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    strip.text       = element_text(face = "bold", size = 11),
-    legend.position  = "bottom",
-    legend.text      = element_text(size = 10),
-    panel.grid.minor = element_blank(),
-    plot.title       = element_text(face = "bold")
-  ) +
-  guides(color = guide_legend(nrow = 2))
+  )
+
+p_tray <- add_scale_grupo_trajectory(p_tray) +
+  theme_trajectory()
 
 ggsave("output/figuras/fig_trayectorias.png", p_tray,
        width = 11, height = 5, dpi = 300)

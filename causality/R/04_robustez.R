@@ -34,8 +34,13 @@ if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE
 
 # ── Utilidades ────────────────────────────────────────────────────────────────
 
-TERM_DID <- "periodopost:indigeneousindi:cerca_conflictocerca"
-TERM_PLACEBO <- "periodo_placebopost_placebo:indigeneousindi:cerca_conflictocerca"
+TERM_DID <- "periododecreto:indigeneousindi:cerca_conflictocerca"
+TERM_DID_ESTALLIDO <- "periodoestallido:indigeneousindi:cerca_conflictocerca"
+TERM_DID_DECRETO   <- "periododecreto:indigeneousindi:cerca_conflictocerca"
+TERM_DID_A         <- "T1_estallido:indigeneousindi:cerca_conflictocerca"
+TERM_DID_B         <- "T2_decreto:indigeneousindi:cerca_conflictocerca"
+TERM_PLACEBO_REAL  <- "T_placebo:indigeneousindi:cerca_conflictocerca"
+TERM_NUCLEO_DID    <- "post_decreto:indigeneousindi:nucleo_conflictonucleo"
 
 signif_stars <- function(p) {
   case_when(
@@ -108,9 +113,16 @@ formula_did <- function(y, controles) {
   ))
 }
 
-formula_placebo <- function(y, controles) {
+formula_placebo_real <- function(y, controles) {
   as.formula(paste0(
-    y, " ~ periodo_placebo * indigeneous * cerca_conflicto + ",
+    y, " ~ T_placebo * indigeneous * cerca_conflicto + ",
+    controles, " + (1 | folio)"
+  ))
+}
+
+formula_nucleo <- function(y, controles) {
+  as.formula(paste0(
+    y, " ~ post_decreto * indigeneous * nucleo_conflicto + ",
     controles, " + (1 | folio)"
   ))
 }
@@ -147,9 +159,15 @@ ps_covars <- c(
 # Modelos principales (cargar o re-estimar)
 if (file.exists("data/modelos.rds")) {
   modelos <- readRDS("data/modelos.rds")
-  m2_ctrl <- modelos$m2_ctrl
-  m2_resg <- modelos$m2_resg
-  cat("✓ Modelos principales cargados desde data/modelos.rds\n")
+  mC_ctrl <- modelos$mC_ctrl
+  mC_resg <- modelos$mC_resg
+  mA_ctrl <- modelos$mA_ctrl
+  mA_resg <- modelos$mA_resg
+  mB_ctrl <- modelos$mB_ctrl
+  mB_resg <- modelos$mB_resg
+  m2_ctrl <- mC_ctrl
+  m2_resg <- mC_resg
+  cat("✓ Modelos A/B/C cargados desde data/modelos.rds\n")
 } else {
   cat("⚠ data/modelos.rds no encontrado; re-estimando modelos principales...\n")
   m2_ctrl <- lmer(
@@ -538,108 +556,74 @@ if (min(table(baseline_cc$tratado_zona)) < 5) {
   }
 }
 
-# ── 15.4 Placebo pretratamiento ola 1–ola 2 ───────────────────────────────────
+# ── 15.4 Placebo real: ola 1 → ola 2 (2016–2018, sin shocks) ─────────────────
 
-cat("--- 15.4 Placebo pretratamiento (olas 1–2) ---\n\n")
+cat("--- 15.4 Placebo real: ola 1 → ola 2 (sin shocks) ---\n\n")
+cat("Ningún shock en 2016–2018 → τ esperado ≈ 0\n\n")
 
-preparar_placebo <- function() {
-  path <- "data/panel_completo.rds"
-  if (!file.exists(path)) {
-    cat("⚠ No se encuentra", path, "; placebo omitido.\n")
-    return(NULL)
-  }
+m_placebo_ctrl_real <- NULL
+m_placebo_resg_real <- NULL
 
-  data_full <- readRDS(path)
+if (file.exists("data/subset_placebo_pre.rds")) {
+  subset_placebo_pre <- readRDS("data/subset_placebo_pre.rds")
+  cat("Placebo pre: N obs =", nrow(subset_placebo_pre),
+      "| folios =", n_distinct(subset_placebo_pre$folio), "\n\n")
 
-  vars_placebo_check <- c(
-    "vio_ctrl_carb", "vio_ctrl_agric",
-    "vio_camb_tierras", "vio_camb_cortes"
-  )
-  missing_items <- setdiff(vars_placebo_check, names(data_full))
-  if (length(missing_items) > 0) {
-    cat("⚠ Placebo omitido: faltan variables", paste(missing_items, collapse = ", "), "\n")
-    return(NULL)
-  }
-
-  ola1_check <- data_full |> filter(ola == 1)
-  cat("NAs en ola 1 para vars de índices:\n")
-  print(colSums(is.na(ola1_check[, vars_placebo_check])))
-
-  placebo <- data_full |>
-    filter(ola %in% c(1, 2)) |>
-    mutate(
-      periodo_placebo = factor(
-        case_when(
-          ola == 1 ~ "pre_placebo",
-          ola == 2 ~ "post_placebo"
-        ),
-        levels = c("pre_placebo", "post_placebo")
-      )
-    )
-
-  pct_na_vd <- mean(is.na(placebo$idx_vio_control))
-  if (pct_na_vd > 0.5) {
-    cat("⚠ Placebo omitido: idx_vio_control con >50% NA (", round(100 * pct_na_vd, 1), "%)\n", sep = "")
-    return(NULL)
-  }
-
-  cat("Placebo: N obs =", nrow(placebo), "| folios =", n_distinct(placebo$folio), "\n")
-  cat("NA idx_vio_control:", sum(is.na(placebo$idx_vio_control)),
-      "| NA idx_vio_resguardo:", sum(is.na(placebo$idx_vio_resguardo)), "\n")
-
-  placebo
-}
-
-placebo_data <- tryCatch(preparar_placebo(), error = function(e) {
-  cat("⚠ Placebo omitido:", conditionMessage(e), "\n")
-  NULL
-})
-
-m_placebo_ctrl <- NULL
-m_placebo_resg <- NULL
-
-if (!is.null(placebo_data)) {
-  m_placebo_ctrl <- tryCatch(
+  m_placebo_ctrl_real <- tryCatch(
     lmer(
-      formula_placebo("idx_vio_control", controles_base),
-      data = placebo_data,
+      formula_placebo_real("idx_vio_control", controles_base),
+      data = subset_placebo_pre,
       REML = FALSE
     ),
     error = function(e) {
-      cat("⚠ Error modelo placebo control:", conditionMessage(e), "\n")
+      cat("⚠ Error placebo control:", conditionMessage(e), "\n")
       NULL
     }
   )
-  m_placebo_resg <- tryCatch(
+  m_placebo_resg_real <- tryCatch(
     lmer(
-      formula_placebo("idx_vio_resguardo", controles_base),
-      data = placebo_data,
+      formula_placebo_real("idx_vio_resguardo", controles_base),
+      data = subset_placebo_pre,
       REML = FALSE
     ),
     error = function(e) {
-      cat("⚠ Error modelo placebo resguardo:", conditionMessage(e), "\n")
+      cat("⚠ Error placebo cambio social:", conditionMessage(e), "\n")
       NULL
     }
   )
 
-  if (!is.null(m_placebo_ctrl) && !is.null(m_placebo_resg)) {
-    coef_plcb_ctrl <- extract_coef(
-      m_placebo_ctrl, TERM_PLACEBO, "Placebo ola 1–2", "idx_vio_control"
+  if (!is.null(m_placebo_ctrl_real) && !is.null(m_placebo_resg_real)) {
+    cat("Placebo ctrl — τ (T_placebo × indi × zona):\n")
+    print(
+      broom.mixed::tidy(m_placebo_ctrl_real, effects = "fixed") |>
+        filter(term == TERM_PLACEBO_REAL) |>
+        select(term, estimate, std.error, p.value)
     )
-    coef_plcb_resg <- extract_coef(
-      m_placebo_resg, TERM_PLACEBO, "Placebo ola 1–2", "idx_vio_resguardo"
+    cat("\nPlacebo cambio social — τ:\n")
+    print(
+      broom.mixed::tidy(m_placebo_resg_real, effects = "fixed") |>
+        filter(term == TERM_PLACEBO_REAL) |>
+        select(term, estimate, std.error, p.value)
     )
-
-    cat("\nCoeficiente placebo — control social:\n")
-    print(coef_plcb_ctrl)
-    cat("\nCoeficiente placebo — resguardo territorial:\n")
-    print(coef_plcb_resg)
     cat("\n")
+
+    p_ctrl <- broom.mixed::tidy(m_placebo_ctrl_real) |>
+      filter(term == TERM_PLACEBO_REAL) |> pull(p.value)
+    p_resg <- broom.mixed::tidy(m_placebo_resg_real) |>
+      filter(term == TERM_PLACEBO_REAL) |> pull(p.value)
+
+    if (all(c(p_ctrl, p_resg) >= 0.1, na.rm = TRUE)) {
+      cat("✓ Ambos placebos n.s. (p ≥ .10) → tendencias paralelas plausibles.\n\n")
+    } else if (any(c(p_ctrl, p_resg) < 0.05, na.rm = TRUE)) {
+      cat("⚠ Al menos un placebo significativo (p < .05). Interpretar DiD con cautela.\n\n")
+    } else {
+      cat("~ Resultado mixto en placebo → revisar coeficientes.\n\n")
+    }
 
     modelsummary(
       list(
-        "Control (placebo)"   = m_placebo_ctrl,
-        "Resguardo (placebo)" = m_placebo_resg
+        "Control (placebo real)" = m_placebo_ctrl_real,
+        "Cambio social (placebo)" = m_placebo_resg_real
       ),
       statistic = "({std.error})",
       stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
@@ -650,8 +634,38 @@ if (!is.null(placebo_data)) {
     cat("✓ Tabla placebo guardada: output/tablas/tabla_placebo_pretratamiento.html\n\n")
   }
 } else {
-  cat("Placebo no estimado.\n\n")
+  cat("⚠ No se encuentra data/subset_placebo_pre.rds; ejecutar 01_limpieza.R\n\n")
 }
+
+# ── 15.4b Robustez: núcleo histórico vs. decreto completo ─────────────────────
+
+cat("--- 15.4b Núcleo histórico del conflicto (olas 3–4) ---\n\n")
+
+datos_nucleo <- subset_data |> filter(ola %in% c(3, 4))
+
+m_nucleo_ctrl <- tryCatch(
+  lmer(
+    formula_nucleo("idx_vio_control", controles_base),
+    data = datos_nucleo,
+    REML = FALSE
+  ),
+  error = function(e) {
+    cat("⚠ Error modelo núcleo control:", conditionMessage(e), "\n")
+    NULL
+  }
+)
+
+m_nucleo_resg <- tryCatch(
+  lmer(
+    formula_nucleo("idx_vio_resguardo", controles_base),
+    data = datos_nucleo,
+    REML = FALSE
+  ),
+  error = function(e) {
+    cat("⚠ Error modelo núcleo cambio social:", conditionMessage(e), "\n")
+    NULL
+  }
+)
 
 # ── 15.5 Modelos por ítem ─────────────────────────────────────────────────────
 
@@ -705,8 +719,8 @@ if (length(item_models) > 0) {
   cat("✓ Tabla por ítem guardada: output/tablas/tabla_modelos_por_item.html\n\n")
 
   for (nm in names(item_models)) {
-    cf <- extract_coef(item_models[[nm]], TERM_DID, paste("Ítem:", item_labels[[nm]]), nm)
-    cat(item_labels[[nm]], "— DiD ola 4:",
+    cf <- extract_coef(item_models[[nm]], TERM_DID_DECRETO, paste("Ítem:", item_labels[[nm]]), nm)
+    cat(item_labels[[nm]], "— DiD decreto (ola 4):",
         round(cf$estimate, 3), cf$signif, "(p =", format.pval(cf$p.value, digits = 3), ")\n")
   }
   cat("\n")
@@ -716,21 +730,39 @@ if (length(item_models) > 0) {
 
 cat("--- 15.6 Tabla resumen de robustez ---\n\n")
 
+if (!exists("mC_ctrl")) {
+  mC_ctrl <- m2_ctrl
+  mC_resg <- m2_resg
+}
+if (!exists("mA_ctrl")) {
+  mA_ctrl <- mA_resg <- mB_ctrl <- mB_resg <- NULL
+}
+
 resumen_robustez <- bind_rows(
-  extract_coef(m2_ctrl, TERM_DID, "Principal", "idx_vio_control"),
-  extract_coef(m2_resg, TERM_DID, "Principal", "idx_vio_resguardo"),
-  extract_coef(m2_ctrl_matched, TERM_DID, "PSM matched", "idx_vio_control"),
-  extract_coef(m2_resg_matched, TERM_DID, "PSM matched", "idx_vio_resguardo"),
-  extract_coef(m2_ctrl_ipw, TERM_DID, "IPW original", "idx_vio_control"),
-  extract_coef(m2_resg_ipw, TERM_DID, "IPW original", "idx_vio_resguardo"),
-  extract_coef(m2_ctrl_ipw_trim_1_99, TERM_DID, "IPW trim 1–99%", "idx_vio_control"),
-  extract_coef(m2_resg_ipw_trim_1_99, TERM_DID, "IPW trim 1–99%", "idx_vio_resguardo"),
-  extract_coef(m2_ctrl_ipw_trim_5_95, TERM_DID, "IPW trim 5–95%", "idx_vio_control"),
-  extract_coef(m2_resg_ipw_trim_5_95, TERM_DID, "IPW trim 5–95%", "idx_vio_resguardo"),
-  extract_coef(m_placebo_ctrl, TERM_PLACEBO, "Placebo ola 1–2", "idx_vio_control"),
-  extract_coef(m_placebo_resg, TERM_PLACEBO, "Placebo ola 1–2", "idx_vio_resguardo"),
+  extract_coef(mC_ctrl, TERM_DID_ESTALLIDO, "C — DiD estallido", "idx_vio_control"),
+  extract_coef(mC_ctrl, TERM_DID_DECRETO, "C — DiD decreto", "idx_vio_control"),
+  extract_coef(mC_resg, TERM_DID_ESTALLIDO, "C — DiD estallido", "idx_vio_resguardo"),
+  extract_coef(mC_resg, TERM_DID_DECRETO, "C — DiD decreto", "idx_vio_resguardo"),
+  extract_coef(mA_ctrl, TERM_DID_A, "A — Estallido (2→3)", "idx_vio_control"),
+  extract_coef(mA_resg, TERM_DID_A, "A — Estallido (2→3)", "idx_vio_resguardo"),
+  extract_coef(mB_ctrl, TERM_DID_B, "B — Decreto (3→4)", "idx_vio_control"),
+  extract_coef(mB_resg, TERM_DID_B, "B — Decreto (3→4)", "idx_vio_resguardo"),
+  extract_coef(m2_ctrl_matched, TERM_DID_DECRETO, "PSM", "idx_vio_control"),
+  extract_coef(m2_resg_matched, TERM_DID_DECRETO, "PSM", "idx_vio_resguardo"),
+  extract_coef(m2_ctrl_ipw, TERM_DID_DECRETO, "IPW original", "idx_vio_control"),
+  extract_coef(m2_resg_ipw, TERM_DID_DECRETO, "IPW original", "idx_vio_resguardo"),
+  extract_coef(m2_ctrl_ipw_trim_1_99, TERM_DID_DECRETO, "IPW trim 1–99%", "idx_vio_control"),
+  extract_coef(m2_resg_ipw_trim_1_99, TERM_DID_DECRETO, "IPW trim 1–99%", "idx_vio_resguardo"),
+  extract_coef(m2_ctrl_ipw_trim_5_95, TERM_DID_DECRETO, "IPW trim 5–95%", "idx_vio_control"),
+  extract_coef(m2_resg_ipw_trim_5_95, TERM_DID_DECRETO, "IPW trim 5–95%", "idx_vio_resguardo"),
+  extract_coef(m_placebo_ctrl_real, TERM_PLACEBO_REAL,
+               "Placebo real (ola1→2)", "idx_vio_control"),
+  extract_coef(m_placebo_resg_real, TERM_PLACEBO_REAL,
+               "Placebo real (ola1→2)", "idx_vio_resguardo"),
+  extract_coef(m_nucleo_ctrl, TERM_NUCLEO_DID, "Núcleo histórico", "idx_vio_control"),
+  extract_coef(m_nucleo_resg, TERM_NUCLEO_DID, "Núcleo histórico", "idx_vio_resguardo"),
   imap_dfr(item_models, ~ extract_coef(
-    .x, TERM_DID, paste("Ítem:", item_labels[[.y]]), .y
+    .x, TERM_DID_DECRETO, paste("Ítem:", item_labels[[.y]]), .y
   ))
 ) |>
   mutate(
@@ -777,14 +809,18 @@ p_robustez <- resumen_robustez |>
     !is.na(estimate),
     !str_starts(modelo, "Ítem:"),
     modelo %in% c(
-      "Principal", "PSM matched", "IPW original",
-      "IPW trim 1–99%", "IPW trim 5–95%", "Placebo ola 1–2"
+      "C — DiD estallido", "C — DiD decreto",
+      "A — Estallido (2→3)", "B — Decreto (3→4)",
+      "PSM", "IPW original", "IPW trim 1–99%", "IPW trim 5–95%",
+      "Placebo real (ola1→2)", "Núcleo histórico"
     )
   ) |>
   mutate(
     modelo = factor(modelo, levels = rev(c(
-      "Principal", "IPW original", "IPW trim 1–99%", "IPW trim 5–95%",
-      "PSM matched", "Placebo ola 1–2"
+      "C — DiD estallido", "C — DiD decreto",
+      "A — Estallido (2→3)", "B — Decreto (3→4)",
+      "IPW original", "IPW trim 1–99%", "IPW trim 5–95%",
+      "PSM", "Placebo real (ola1→2)", "Núcleo histórico"
     ))),
     sig = p.value < 0.05
   ) |>
@@ -829,12 +865,16 @@ cat(strrep("=", 60), "\n\n")
 
 interpretar_robustez <- function(resumen) {
   main_ctrl <- resumen |>
-    filter(modelo == "Principal", variable_dependiente == "idx_vio_control")
+    filter(modelo == "C — DiD decreto", variable_dependiente == "idx_vio_control")
   main_resg <- resumen |>
-    filter(modelo == "Principal", variable_dependiente == "idx_vio_resguardo")
+    filter(modelo == "C — DiD decreto", variable_dependiente == "idx_vio_resguardo")
+  est_ctrl <- resumen |>
+    filter(modelo == "C — DiD estallido", variable_dependiente == "idx_vio_control")
+  est_resg <- resumen |>
+    filter(modelo == "C — DiD estallido", variable_dependiente == "idx_vio_resguardo")
 
   psm_ok <- resumen |>
-    filter(modelo == "PSM matched", !is.na(estimate)) |>
+    filter(modelo == "PSM", !is.na(estimate)) |>
     mutate(pos_sig = estimate > 0 & p.value < 0.05)
   ipw_ok <- resumen |>
     filter(modelo == "IPW original", !is.na(estimate)) |>
@@ -857,13 +897,12 @@ interpretar_robustez <- function(resumen) {
   }
 
   plcb <- resumen |>
-    filter(modelo == "Placebo ola 1–2", !is.na(p.value))
+    filter(modelo == "Placebo real (ola1→2)", !is.na(p.value))
   if (nrow(plcb) == 0) {
-    cat("• Placebo: No estimado (datos o variables insuficientes en ola 1).\n")
+    cat("• Placebo real (ola 1→2): No estimado.\n")
   } else if (all(plcb$p.value >= 0.05, na.rm = TRUE)) {
-    cat("• Placebo: No se observa una divergencia pretratamiento equivalente entre",
-        "ola 1 y ola 2, lo que fortalece la plausibilidad de la interpretación",
-        "DiD exploratoria.\n")
+    cat("• Placebo real (ola 1→2): Sin divergencia diferencial en período sin shocks;",
+        "tendencias paralelas plausibles.\n")
   } else {
     cat("• Placebo: El placebo pretratamiento detecta diferencias previas",
         "(p < .05 en al menos una VD), por lo que la interpretación causal",
@@ -879,13 +918,21 @@ interpretar_robustez <- function(resumen) {
         top$modelo, "(β =", top$estimate, top$signif, ").\n")
   }
 
-  if (nrow(main_ctrl) == 1 && main_ctrl$p.value < 0.05 && main_ctrl$estimate > 0) {
-    cat("• Principal (control social): interacción triple ola 4 positiva y",
-        "significativa (β =", main_ctrl$estimate, ").\n")
+  if (nrow(est_ctrl) == 1) {
+    cat("• DiD estallido (control): β =", est_ctrl$estimate, est_ctrl$signif, "\n")
   }
-  if (nrow(main_resg) == 1 && main_resg$p.value < 0.05 && main_resg$estimate > 0) {
-    cat("• Principal (resguardo): interacción triple ola 4 positiva y",
-        "significativa (β =", main_resg$estimate, ").\n")
+  if (nrow(est_resg) == 1) {
+    cat("• DiD estallido (cambio social): β =", est_resg$estimate, est_resg$signif, "\n")
+  }
+  if (nrow(main_ctrl) == 1 && !is.na(main_ctrl$p.value) &&
+      main_ctrl$p.value < 0.05 && main_ctrl$estimate > 0) {
+    cat("• DiD decreto (control social): positivo y significativo (β =",
+        main_ctrl$estimate, ").\n")
+  }
+  if (nrow(main_resg) == 1 && !is.na(main_resg$p.value) &&
+      main_resg$p.value < 0.05 && main_resg$estimate > 0) {
+    cat("• DiD decreto (cambio social): positivo y significativo (β =",
+        main_resg$estimate, ").\n")
   }
 }
 
@@ -922,7 +969,7 @@ interpretar_ipw_trimming <- function(resumen_ipw, resumen_principal = NULL) {
 
     if (!is.null(resumen_principal)) {
       pr <- resumen_principal |>
-        filter(modelo == "Principal", variable_dependiente == vd)
+        filter(modelo == "C — DiD decreto", variable_dependiente == vd)
       if (nrow(pr) == 1) {
         cat("  (Modelo principal sin IPW: β =", pr$estimate, pr$signif, ")\n")
       }
@@ -971,8 +1018,10 @@ saveRDS(
     m2_resg_ipw_trim_5_95 = m2_resg_ipw_trim_5_95,
     resumen_ipw_trimming = resumen_ipw_trimming,
     diag_pesos = if (exists("diag_pesos")) diag_pesos else NULL,
-    m_placebo_ctrl = m_placebo_ctrl,
-    m_placebo_resg = m_placebo_resg,
+    m_placebo_ctrl_real = m_placebo_ctrl_real,
+    m_placebo_resg_real = m_placebo_resg_real,
+    m_nucleo_ctrl = m_nucleo_ctrl,
+    m_nucleo_resg = m_nucleo_resg,
     item_models = item_models,
     resumen_robustez = resumen_robustez,
     controles_base = controles_base

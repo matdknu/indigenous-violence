@@ -9,11 +9,11 @@
 #            output/figuras/fig_coeficientes.png
 #            output/figuras/fig_prob_rechazo.png
 #
-# Modelos DiD:
-#   M0 — nulo (ICC)
-#   M1 — efectos principales
-#   M2 — interacción triple (DiD)
-# VDs: idx_vio_control (control social) e idx_vio_resguardo (resguardo territorial)
+# Modelos DiD (dos shocks secuenciales):
+#   A — transición estallido (ola 2→3): T1_estallido
+#   B — transición decreto/Apruebo (ola 3→4): T2_decreto
+#   C — tres períodos (principal): periodo × indígena × zona
+# VDs: idx_vio_control (status quo) e idx_vio_resguardo (cambio social)
 # =============================================================================
 
 set.seed(2024)
@@ -25,6 +25,7 @@ pacman::p_load(
 )
 
 if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
+source("R/plot_helpers.R")
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
 
 subset_data <- readRDS("data/subset_data.rds")
@@ -63,76 +64,21 @@ controles_base <- if (incluir_urbano_rural) {
 }
 cat("Controles en modelos:", controles_base, "\n\n")
 
-# ── Modelos multinivel DiD — Violencia de control ─────────────────────────────
+# ── Coeficientes de interés (DiD triple) ────────────────────────────────────────
 
-cat("--- Modelo: Justificación de violencia de CONTROL ---\n\n")
-
-m0_ctrl <- lmer(
-  idx_vio_control ~ 1 + (1 | folio),
-  data = subset_data, REML = TRUE
-)
-cat("ICC violencia control:", round(as.numeric(performance::icc(m0_ctrl)$ICC_adjusted), 3), "\n\n")
-
-m1_ctrl <- lmer(
-  as.formula(paste(
-    "idx_vio_control ~ periodo * indigeneous + cerca_conflicto +",
-    controles_base, "+ (1 | folio)"
-  )),
-  data = subset_data, REML = FALSE
-)
-
-m2_ctrl <- lmer(
-  as.formula(paste(
-    "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +",
-    controles_base, "+ (1 | folio)"
-  )),
-  data = subset_data, REML = FALSE
-)
-
-cat("Comparación M1 vs M2 (LRT):\n")
-print(anova(m1_ctrl, m2_ctrl))
-cat("\nResumen M2 (DiD) — Violencia de control:\n")
-print(summary(m2_ctrl))
-
-# ── Modelos multinivel DiD — Violencia de resguardo territorial ────────────────
-
-cat("\n--- Modelo: Justificación de violencia de RESGUARDO territorial ---\n\n")
-
-m0_resg <- lmer(
-  idx_vio_resguardo ~ 1 + (1 | folio),
-  data = subset_data, REML = TRUE
-)
-cat("ICC resguardo territorial:", round(as.numeric(performance::icc(m0_resg)$ICC_adjusted), 3), "\n\n")
-
-m1_resg <- lmer(
-  as.formula(paste(
-    "idx_vio_resguardo ~ periodo * indigeneous + cerca_conflicto +",
-    controles_base, "+ (1 | folio)"
-  )),
-  data = subset_data, REML = FALSE
-)
-
-m2_resg <- lmer(
-  as.formula(paste(
-    "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +",
-    controles_base, "+ (1 | folio)"
-  )),
-  data = subset_data, REML = FALSE
-)
-
-cat("Comparación M1 vs M2 (LRT):\n")
-print(anova(m1_resg, m2_resg))
-cat("\nResumen M2 (DiD) — Resguardo territorial:\n")
-print(summary(m2_resg))
-
-# ── Tabla 3 — Modelos DiD principales ─────────────────────────────────────────
+TERM_DID_ESTALLIDO <- "periodoestallido:indigeneousindi:cerca_conflictocerca"
+TERM_DID_DECRETO   <- "periododecreto:indigeneousindi:cerca_conflictocerca"
+TERM_DID_A         <- "T1_estallido:indigeneousindi:cerca_conflictocerca"
+TERM_DID_B         <- "T2_decreto:indigeneousindi:cerca_conflictocerca"
 
 coef_rename_did <- c(
   "(Intercept)"          = "Intercepto",
-  "periodotratamiento"   = "Ola 3 (tratamiento)",
-  "periodopost"          = "Ola 4 (post)",
+  "periodoestallido"     = "Ola 3 — Resabio estallido",
+  "periododecreto"         = "Ola 4 — Decreto + Apruebo",
+  "T1_estallido"         = "Transición estallido (ola 2→3)",
+  "T2_decreto"           = "Transición decreto (ola 3→4)",
   "indigeneousindi"      = "Indígena",
-  "cerca_conflictocerca" = "Zona excepción",
+  "cerca_conflictocerca" = "Zona excepción (decreto)",
   "mujermujer"           = "Mujer",
   "urbano_rural2"        = "Rural",
   "urbano_rural"         = "Rural",
@@ -145,38 +91,150 @@ coef_rename_did <- c(
   "id_causa"             = "Id. causa indígena",
   "perc_desigualdad"     = "Perc. desigualdad",
   "perc_injusticia"      = "Perc. injusticia",
-  "periodotratamiento:indigeneousindi" = "Ola 3 × Indígena",
-  "periodopost:indigeneousindi"        = "Ola 4 × Indígena",
-  "periodotratamiento:cerca_conflictocerca" = "Ola 3 × Zona excepción",
-  "periodopost:cerca_conflictocerca"        = "Ola 4 × Zona excepción",
-  "indigeneousindi:cerca_conflictocerca"    = "Indígena × Zona excepción",
-  "periodotratamiento:indigeneousindi:cerca_conflictocerca" = "Ola 3 × Indígena × Zona [DiD]",
-  "periodopost:indigeneousindi:cerca_conflictocerca"        = "Ola 4 × Indígena × Zona [DiD]"
+  "periodoestallido:indigeneousindi"      = "Ola 3 × Indígena",
+  "periododecreto:indigeneousindi"          = "Ola 4 × Indígena",
+  "periodoestallido:cerca_conflictocerca" = "Ola 3 × Zona excepción",
+  "periododecreto:cerca_conflictocerca"     = "Ola 4 × Zona excepción",
+  "indigeneousindi:cerca_conflictocerca"  = "Indígena × Zona excepción",
+  "T1_estallido:indigeneousindi"          = "Estallido × Indígena",
+  "T2_decreto:indigeneousindi"            = "Decreto × Indígena",
+  "T1_estallido:cerca_conflictocerca"     = "Estallido × Zona excepción",
+  "T2_decreto:cerca_conflictocerca"       = "Decreto × Zona excepción",
+  "periodoestallido:indigeneousindi:cerca_conflictocerca" =
+    "Ola 3 × Indígena × Zona [DiD estallido]",
+  "periododecreto:indigeneousindi:cerca_conflictocerca" =
+    "Ola 4 × Indígena × Zona [DiD decreto]",
+  "T1_estallido:indigeneousindi:cerca_conflictocerca" =
+    "Estallido × Indígena × Zona [DiD]",
+  "T2_decreto:indigeneousindi:cerca_conflictocerca" =
+    "Decreto × Indígena × Zona [DiD]"
 )
+
+print_did <- function(model, label) {
+  cat(label, "— coeficientes DiD:\n")
+  print(
+    broom.mixed::tidy(model, effects = "fixed") |>
+      filter(str_detect(term, "indi.*zona|zona.*indi")) |>
+      filter(str_detect(term, "estallido|decreto|T1|T2|periodo"))
+  )
+  cat("\n")
+}
+
+# ── Modelo A: transición estallido (ola 2 → ola 3) ────────────────────────────
+
+cat("--- Modelo A: Transición estallido (ola 2 → ola 3) ---\n\n")
+
+datos_A <- subset_data |> filter(ola %in% c(2, 3))
+
+mA_ctrl <- lmer(
+  as.formula(paste(
+    "idx_vio_control ~ T1_estallido * indigeneous * cerca_conflicto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = datos_A, REML = FALSE
+)
+
+mA_resg <- lmer(
+  as.formula(paste(
+    "idx_vio_resguardo ~ T1_estallido * indigeneous * cerca_conflicto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = datos_A, REML = FALSE
+)
+
+icc_A <- performance::icc(
+  lmer(idx_vio_control ~ 1 + (1 | folio), data = datos_A, REML = TRUE)
+)$ICC_adjusted
+cat("ICC estallido (ctrl):", round(as.numeric(icc_A), 3), "\n\n")
+print_did(mA_ctrl, "Control social (status quo)")
+print_did(mA_resg, "Cambio social")
+
+# ── Modelo B: transición decreto/Apruebo (ola 3 → ola 4) ──────────────────────
+
+cat("--- Modelo B: Transición decreto/Apruebo (ola 3 → ola 4) ---\n\n")
+
+datos_B <- subset_data |> filter(ola %in% c(3, 4))
+
+mB_ctrl <- lmer(
+  as.formula(paste(
+    "idx_vio_control ~ T2_decreto * indigeneous * cerca_conflicto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = datos_B, REML = FALSE
+)
+
+mB_resg <- lmer(
+  as.formula(paste(
+    "idx_vio_resguardo ~ T2_decreto * indigeneous * cerca_conflicto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = datos_B, REML = FALSE
+)
+
+print_did(mB_ctrl, "Control social (status quo)")
+print_did(mB_resg, "Cambio social")
+
+# ── Modelo C: tres períodos (principal) ───────────────────────────────────────
+
+cat("--- Modelo C: Tres períodos (principal del paper) ---\n\n")
+
+mC_ctrl <- lmer(
+  as.formula(paste(
+    "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = subset_data, REML = FALSE
+)
+
+mC_resg <- lmer(
+  as.formula(paste(
+    "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +",
+    controles_base, "+ (1 | folio)"
+  )),
+  data = subset_data, REML = FALSE
+)
+
+cat("ICC control (Modelo C):",
+    round(as.numeric(performance::icc(
+      lmer(idx_vio_control ~ 1 + (1 | folio), data = subset_data, REML = TRUE)
+    )$ICC_adjusted), 3), "\n\n")
+print_did(mC_ctrl, "Control social (status quo)")
+print_did(mC_resg, "Cambio social")
+
+# Aliases para scripts que esperan m2_*
+m2_ctrl <- mC_ctrl
+m2_resg <- mC_resg
+
+# ── Tabla principal — Modelo C ────────────────────────────────────────────────
 
 modelsummary(
   list(
-    "Control social (M1)"         = m1_ctrl,
-    "Control social (DiD)"        = m2_ctrl,
-    "Cambio social (M1)"        = m1_resg,
-    "Cambio social (DiD)"        = m2_resg
+    "Control social (status quo)" = mC_ctrl,
+    "Cambio social"               = mC_resg
   ),
   statistic = "({std.error})",
   stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
   fmt = 3,
   coef_rename = coef_rename_did,
+  coef_omit = "edad|mujer|urbano|id_chile|id_causa|perc_",
   gof_map = c("nobs", "icc", "rmse"),
+  notes = paste0(
+    "Modelo C: tres períodos, ref. = ola 2 (2018). ",
+    "Coeficientes de interés: DiD estallido (ola 3) y DiD decreto (ola 4). ",
+    "Efectos aleatorios por individuo (folio)."
+  ),
   output = "output/tablas/tabla_modelos.html"
 )
-cat("✓ Tabla 3 guardada: output/tablas/tabla_modelos.html\n")
+cat("✓ Tabla principal guardada: output/tablas/tabla_modelos.html\n")
 
-# Tabla A1 (apéndice): mismos modelos, etiquetas para apéndice
 modelsummary(
   list(
-    "Control social (M1)" = m1_ctrl,
-    "Control social (M2)" = m2_ctrl,
-    "Cambio social (M1)"  = m1_resg,
-    "Cambio social (M2)"  = m2_resg
+    "Ctrl — Estallido (A)" = mA_ctrl,
+    "Cambio — Estallido (A)" = mA_resg,
+    "Ctrl — Decreto (B)"   = mB_ctrl,
+    "Cambio — Decreto (B)" = mB_resg,
+    "Ctrl — Tres períodos (C)" = mC_ctrl,
+    "Cambio — Tres períodos (C)" = mC_resg
   ),
   statistic = "({std.error})",
   stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
@@ -185,15 +243,37 @@ modelsummary(
   gof_map = c("nobs", "icc", "rmse"),
   output = "output/tablas/tabla_apendice_m1_m2.html"
 )
-cat("✓ Tabla A1 (apéndice) guardada: output/tablas/tabla_apendice_m1_m2.html\n")
+cat("✓ Tabla apéndice (A/B/C) guardada: output/tablas/tabla_apendice_m1_m2.html\n")
 
-# ── Figura 2 — Medias predichas por grupo (modelos M2) ────────────────────────
+modelsummary(
+  list(
+    "Ctrl — Estallido (A)" = mA_ctrl,
+    "Cambio — Estallido (A)" = mA_resg,
+    "Ctrl — Decreto (B)"   = mB_ctrl,
+    "Cambio — Decreto (B)" = mB_resg
+  ),
+  statistic = "({std.error})",
+  stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+  fmt = 3,
+  coef_rename = coef_rename_did,
+  gof_map = c("nobs", "icc", "rmse"),
+  output = "output/tablas/tabla_modelos_AB.html"
+)
+cat("✓ Tabla modelos A/B guardada: output/tablas/tabla_modelos_AB.html\n")
 
-pred_grid <- function(model, vd_label) {
+# ── Figura 2 — Medias predichas (Modelo C) ────────────────────────────────────
+
+PERIODO_LABELS <- c(
+  "pre"       = "Ola 2\n(2018)",
+  "estallido" = "Ola 3\n(2021)",
+  "decreto"   = "Ola 4\n(2023)"
+)
+
+pred_grupo <- function(model, vd_label, periodo_levels) {
   marginaleffects::predictions(
     model,
     newdata = datagrid(
-      periodo         = c("pre", "tratamiento", "post"),
+      periodo         = periodo_levels,
       indigeneous     = c("no_indi", "indi"),
       cerca_conflicto = c("lejos", "cerca")
     )
@@ -211,72 +291,64 @@ pred_grid <- function(model, vd_label) {
           "No indígena / lejos", "No indígena / zona excepción",
           "Indígena / lejos",    "Indígena / zona excepción"
         )
-      )
+      ),
+      periodo_num = match(periodo, periodo_levels),
+      periodo = factor(periodo, levels = periodo_levels, labels = PERIODO_LABELS[periodo_levels])
     )
 }
 
-pred_medias <- bind_rows(
-  pred_grid(m2_ctrl, "Control social (status quo)"),
-  pred_grid(m2_resg, "Cambio social")
+pred_C <- bind_rows(
+  pred_grupo(mC_ctrl, "Control social (status quo)", c("pre", "estallido", "decreto")),
+  pred_grupo(mC_resg, "Cambio social", c("pre", "estallido", "decreto"))
 ) |>
   mutate(
-    vd = factor(vd, levels = c("Control social (status quo)", "Cambio social")),
-    periodo = factor(
-      periodo,
-      levels = c("pre", "tratamiento", "post"),
-      labels = c("Ola 2\n(Pre)", "Ola 3\n(Tratamiento)", "Ola 4\n(Post)")
-    )
+    vd = factor(vd, levels = c("Control social (status quo)", "Cambio social"))
   )
 
-p_medias <- ggplot(pred_medias,
-                   aes(x = periodo, y = estimate,
-                       color = grupo, linetype = grupo, group = grupo)) +
-  geom_line(linewidth = 0.9) +
-  geom_point(size = 2.5) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.12, linewidth = 0.5) +
-  facet_wrap(~ vd, scales = "free_y", ncol = 2) +
-  scale_color_manual(
-    values = c(
-      "No indígena / lejos"          = "#4575B4",
-      "No indígena / zona excepción" = "#74ADD1",
-      "Indígena / lejos"             = "#D73027",
-      "Indígena / zona excepción"    = "#F46D43"
-    ),
-    name = NULL
+p_medias_C <- ggplot(pred_C,
+                     aes(x = periodo_num, y = estimate,
+                         color = grupo, linetype = grupo, group = grupo)) +
+  annotate("rect",
+           xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf,
+           fill = "#FFE0E0", alpha = 0.4) +
+  annotate("text", x = 3, y = Inf, label = "Decreto +\nApruebo",
+           vjust = 1.4, size = 3, color = "#B22222") +
+  geom_line(linewidth = 0.9, show.legend = TRUE) +
+  geom_point(size = 2.5, show.legend = FALSE) +
+  geom_errorbar(
+    aes(ymin = conf.low, ymax = conf.high),
+    width = 0.08, linewidth = 0.4, show.legend = FALSE
   ) +
-  scale_linetype_manual(
-    values = c(
-      "No indígena / lejos"          = "dashed",
-      "No indígena / zona excepción" = "solid",
-      "Indígena / lejos"             = "dashed",
-      "Indígena / zona excepción"    = "solid"
-    ),
-    name = NULL
+  facet_wrap(~ vd, scales = "fixed", ncol = 2) +
+  scale_x_continuous(
+    breaks = 1:3,
+    labels = unname(PERIODO_LABELS[c("pre", "estallido", "decreto")])
   ) +
+  scale_y_likert_shared() +
   labs(
-    title    = "Medias predichas por grupo (modelos DiD, M2)",
-    subtitle = "Controles en valores de referencia · IC 95%",
+    title    = "Medias predichas por grupo — Modelo C (tres períodos)",
+    subtitle = paste0(
+      "Ola 2 = baseline (2018) · Ola 3 = resabio estallido (2021) · ",
+      "Ola 4 = decreto + derrota Apruebo (2023)\n",
+      "Zona sombreada = post-decreto · IC 95%"
+    ),
     x = NULL, y = "Media predicha (escala 1–5)",
-    caption  = "Línea sólida = zona de excepción · Línea punteada = lejos del conflicto"
-  ) +
-  theme_minimal(base_size = 11) +
-  theme(
-    strip.text       = element_text(face = "bold"),
-    legend.position  = "bottom",
-    plot.title       = element_text(face = "bold")
-  ) +
-  guides(color = guide_legend(nrow = 2))
+    caption  = "Línea sólida = zona de excepción (53 comunas decreto) · punteada = lejos"
+  )
 
-ggsave("output/figuras/fig_medias_predichas.png", p_medias,
-       width = 11, height = 5.5, dpi = 300)
-cat("✓ Figura 2 guardada: output/figuras/fig_medias_predichas.png\n")
+p_medias_C <- add_scale_grupo_trajectory(p_medias_C) +
+  theme_trajectory(base_size = 11)
 
-# ── Figura 3 — Coeficientes con IC 95% ────────────────────────────────────────
+ggsave("output/figuras/fig_medias_predichas.png", p_medias_C,
+       width = 12, height = 6, dpi = 300)
+cat("✓ Figura medias predichas guardada: output/figuras/fig_medias_predichas.png\n")
+
+# ── Figura apéndice — Coeficientes Modelo C ───────────────────────────────────
 
 coefs_all <- bind_rows(
-  broom.mixed::tidy(m2_ctrl, effects = "fixed", conf.int = TRUE) |>
+  broom.mixed::tidy(mC_ctrl, effects = "fixed", conf.int = TRUE) |>
     mutate(modelo = "Control social (status quo)"),
-  broom.mixed::tidy(m2_resg, effects = "fixed", conf.int = TRUE) |>
+  broom.mixed::tidy(mC_resg, effects = "fixed", conf.int = TRUE) |>
     mutate(modelo = "Cambio social")
 ) |>
   filter(term != "(Intercept)") |>
@@ -302,8 +374,8 @@ p_coef <- ggplot(coefs_all,
   ) +
   scale_alpha_manual(values = c("FALSE" = 0.6, "TRUE" = 1.0), guide = "none") +
   labs(
-    title    = "Efectos fijos — Modelos DiD multinivel (ELRI)",
-    subtitle = "Rojo = interacciones DiD extendida; IC 95%",
+    title    = "Efectos fijos — Modelo C (tres períodos)",
+    subtitle = "Rojo = interacciones DiD; IC 95%",
     x = "Coeficiente estimado", y = NULL
   ) +
   theme_minimal(base_size = 11) +
@@ -316,7 +388,7 @@ p_coef <- ggplot(coefs_all,
 
 ggsave("output/figuras/fig_coeficientes.png", p_coef,
        width = 13, height = 9, dpi = 300)
-cat("✓ Figura 3 guardada: output/figuras/fig_coeficientes.png\n")
+cat("✓ Figura coeficientes guardada: output/figuras/fig_coeficientes.png\n")
 
 # ── Modelos plebiscito 2022 (ola 4) ───────────────────────────────────────────
 
@@ -492,14 +564,20 @@ cat("\n✓ 03_modelos.R ejecutado correctamente.\n")
 
 saveRDS(
   list(
-    m0_ctrl = m0_ctrl, m1_ctrl = m1_ctrl, m2_ctrl = m2_ctrl,
-    m0_resg = m0_resg, m1_resg = m1_resg, m2_resg = m2_resg,
+    mC_ctrl = mC_ctrl, mC_resg = mC_resg,
+    mA_ctrl = mA_ctrl, mA_resg = mA_resg,
+    mB_ctrl = mB_ctrl, mB_resg = mB_resg,
+    m2_ctrl = mC_ctrl, m2_resg = mC_resg,
     m_movil = m_movil, m_rechazo = m_rechazo,
     m_rechazo_strict = m_rechazo_strict,
     controles_base = controles_base,
     incluir_urbano_rural = incluir_urbano_rural,
     coef_rename_did = coef_rename_did,
-    coef_rename_pleb = coef_rename_pleb
+    coef_rename_pleb = coef_rename_pleb,
+    TERM_DID_ESTALLIDO = TERM_DID_ESTALLIDO,
+    TERM_DID_DECRETO = TERM_DID_DECRETO,
+    TERM_DID_A = TERM_DID_A,
+    TERM_DID_B = TERM_DID_B
   ),
   "data/modelos.rds"
 )
