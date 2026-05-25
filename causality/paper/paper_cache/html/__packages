@@ -22,3 +22,5 @@ kableExtra
 cardx
 MatchIt
 scales
+flextable
+psych
