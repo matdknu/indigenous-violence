@@ -30,7 +30,7 @@
   margin-left: auto;
   margin-right: auto;
   color: #333333;
-  font-size: 11px;
+  font-size: 16px;
   font-weight: normal;
   font-style: normal;
   background-color: #FFFFFF;
@@ -459,121 +459,102 @@
   <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
     <tr class="gt_heading">
-      <td colspan="7" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Balance pretratamiento — ola 2 (SMD)</td>
+      <td colspan="10" class="gt_heading gt_title gt_font_normal" style>Heterogeneidad del efecto DiD por predominancia identitaria baseline</td>
     </tr>
-    
+    <tr class="gt_heading">
+      <td colspan="10" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Modelos mixtos DiD (Modelo C) estratificados por tercil de predominancia</td>
+    </tr>
     <tr class="gt_col_headings">
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Covariate">Covariate</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Type">Type</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Diff.Un">Diff.Un</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="M.Threshold.Un">M.Threshold.Un</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="V.Ratio.Un">V.Ratio.Un</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Diff.Adj">Diff.Adj</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="V.Ratio.Adj">V.Ratio.Adj</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="tercil">Tercil predominancia</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="estimate">β</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="std.error">SE</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="conf.low">IC 95% inf.</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="conf.high">IC 95% sup.</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="statistic">t</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="p.value">p</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="sig"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="n_individuos">N indiv.</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="n_obs">N obs.</th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
-    <tr><td headers="Covariate" class="gt_row gt_left">indigeneous_indi</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.007</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">mujer_mujer</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.037</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">edad_18_24</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.022</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">edad_25_34</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.029</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">edad_35_44</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.016</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">edad_45_54</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.010</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">edad_55_64</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.018</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">edad_65+</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.038</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">urbano_rural_2</td>
-<td headers="Type" class="gt_row gt_left">Binary</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.356</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Not Balanced, &gt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">NA</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">id_chile</td>
-<td headers="Type" class="gt_row gt_left">Contin.</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.162</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Not Balanced, &gt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">1.196</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">id_causa</td>
-<td headers="Type" class="gt_row gt_left">Contin.</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.495</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Not Balanced, &gt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">1.554</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">perc_desigualdad</td>
-<td headers="Type" class="gt_row gt_left">Contin.</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.265</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Not Balanced, &gt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">1.676</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">idx_vio_control</td>
-<td headers="Type" class="gt_row gt_left">Contin.</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.006</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Balanced, &lt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">1.052</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
-    <tr><td headers="Covariate" class="gt_row gt_left">idx_vio_resguardo</td>
-<td headers="Type" class="gt_row gt_left">Contin.</td>
-<td headers="Diff.Un" class="gt_row gt_right">0.689</td>
-<td headers="M.Threshold.Un" class="gt_row gt_left">Not Balanced, &gt;0.1</td>
-<td headers="V.Ratio.Un" class="gt_row gt_right">2.031</td>
-<td headers="Diff.Adj" class="gt_row gt_right">NA</td>
-<td headers="V.Ratio.Adj" class="gt_row gt_right">NA</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="10" class="gt_group_heading" scope="colgroup" id="Justifica violencia de control">Justifica violencia de control</th>
+    </tr>
+    <tr class="gt_row_group_first"><td headers="Justifica violencia de control  tercil" class="gt_row gt_left">Nacional</td>
+<td headers="Justifica violencia de control  estimate" class="gt_row gt_right" style="font-weight: bold;">2.352</td>
+<td headers="Justifica violencia de control  std.error" class="gt_row gt_right">0.691</td>
+<td headers="Justifica violencia de control  conf.low" class="gt_row gt_right">0.993</td>
+<td headers="Justifica violencia de control  conf.high" class="gt_row gt_right">3.710</td>
+<td headers="Justifica violencia de control  statistic" class="gt_row gt_right">3.401</td>
+<td headers="Justifica violencia de control  p.value" class="gt_row gt_right">0.0007</td>
+<td headers="Justifica violencia de control  sig" class="gt_row gt_right">***</td>
+<td headers="Justifica violencia de control  n_individuos" class="gt_row gt_right">538</td>
+<td headers="Justifica violencia de control  n_obs" class="gt_row gt_right">1572</td></tr>
+    <tr><td headers="Justifica violencia de control  tercil" class="gt_row gt_left" style="background-color: #F0F0F0;">Equilibrio</td>
+<td headers="Justifica violencia de control  estimate" class="gt_row gt_right" style="font-weight: bold; background-color: #F0F0F0;">−2.041</td>
+<td headers="Justifica violencia de control  std.error" class="gt_row gt_right" style="background-color: #F0F0F0;">0.787</td>
+<td headers="Justifica violencia de control  conf.low" class="gt_row gt_right" style="background-color: #F0F0F0;">−3.587</td>
+<td headers="Justifica violencia de control  conf.high" class="gt_row gt_right" style="background-color: #F0F0F0;">−0.494</td>
+<td headers="Justifica violencia de control  statistic" class="gt_row gt_right" style="background-color: #F0F0F0;">−2.592</td>
+<td headers="Justifica violencia de control  p.value" class="gt_row gt_right" style="background-color: #F0F0F0;">0.0098</td>
+<td headers="Justifica violencia de control  sig" class="gt_row gt_right" style="background-color: #F0F0F0;">**</td>
+<td headers="Justifica violencia de control  n_individuos" class="gt_row gt_right" style="background-color: #F0F0F0;">698</td>
+<td headers="Justifica violencia de control  n_obs" class="gt_row gt_right" style="background-color: #F0F0F0;">1572</td></tr>
+    <tr><td headers="Justifica violencia de control  tercil" class="gt_row gt_left">Étnica</td>
+<td headers="Justifica violencia de control  estimate" class="gt_row gt_right" style="font-weight: bold;">1.555</td>
+<td headers="Justifica violencia de control  std.error" class="gt_row gt_right">0.578</td>
+<td headers="Justifica violencia de control  conf.low" class="gt_row gt_right">0.420</td>
+<td headers="Justifica violencia de control  conf.high" class="gt_row gt_right">2.691</td>
+<td headers="Justifica violencia de control  statistic" class="gt_row gt_right">2.690</td>
+<td headers="Justifica violencia de control  p.value" class="gt_row gt_right">0.0073</td>
+<td headers="Justifica violencia de control  sig" class="gt_row gt_right">**</td>
+<td headers="Justifica violencia de control  n_individuos" class="gt_row gt_right">744</td>
+<td headers="Justifica violencia de control  n_obs" class="gt_row gt_right">1572</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="10" class="gt_group_heading" scope="colgroup" id="Justifica violencia de cambio">Justifica violencia de cambio</th>
+    </tr>
+    <tr class="gt_row_group_first"><td headers="Justifica violencia de cambio  tercil" class="gt_row gt_left">Nacional</td>
+<td headers="Justifica violencia de cambio  estimate" class="gt_row gt_right" style="font-weight: bold;">1.954</td>
+<td headers="Justifica violencia de cambio  std.error" class="gt_row gt_right">0.698</td>
+<td headers="Justifica violencia de cambio  conf.low" class="gt_row gt_right">0.584</td>
+<td headers="Justifica violencia de cambio  conf.high" class="gt_row gt_right">3.325</td>
+<td headers="Justifica violencia de cambio  statistic" class="gt_row gt_right">2.801</td>
+<td headers="Justifica violencia de cambio  p.value" class="gt_row gt_right">0.0053</td>
+<td headers="Justifica violencia de cambio  sig" class="gt_row gt_right">**</td>
+<td headers="Justifica violencia de cambio  n_individuos" class="gt_row gt_right">538</td>
+<td headers="Justifica violencia de cambio  n_obs" class="gt_row gt_right">1572</td></tr>
+    <tr><td headers="Justifica violencia de cambio  tercil" class="gt_row gt_left" style="background-color: #F0F0F0;">Equilibrio</td>
+<td headers="Justifica violencia de cambio  estimate" class="gt_row gt_right" style="background-color: #F0F0F0;">0.724</td>
+<td headers="Justifica violencia de cambio  std.error" class="gt_row gt_right" style="background-color: #F0F0F0;">0.826</td>
+<td headers="Justifica violencia de cambio  conf.low" class="gt_row gt_right" style="background-color: #F0F0F0;">−0.899</td>
+<td headers="Justifica violencia de cambio  conf.high" class="gt_row gt_right" style="background-color: #F0F0F0;">2.347</td>
+<td headers="Justifica violencia de cambio  statistic" class="gt_row gt_right" style="background-color: #F0F0F0;">0.876</td>
+<td headers="Justifica violencia de cambio  p.value" class="gt_row gt_right" style="background-color: #F0F0F0;">0.3813</td>
+<td headers="Justifica violencia de cambio  sig" class="gt_row gt_right" style="background-color: #F0F0F0;"></td>
+<td headers="Justifica violencia de cambio  n_individuos" class="gt_row gt_right" style="background-color: #F0F0F0;">698</td>
+<td headers="Justifica violencia de cambio  n_obs" class="gt_row gt_right" style="background-color: #F0F0F0;">1572</td></tr>
+    <tr><td headers="Justifica violencia de cambio  tercil" class="gt_row gt_left">Étnica</td>
+<td headers="Justifica violencia de cambio  estimate" class="gt_row gt_right">0.384</td>
+<td headers="Justifica violencia de cambio  std.error" class="gt_row gt_right">0.672</td>
+<td headers="Justifica violencia de cambio  conf.low" class="gt_row gt_right">−0.936</td>
+<td headers="Justifica violencia de cambio  conf.high" class="gt_row gt_right">1.705</td>
+<td headers="Justifica violencia de cambio  statistic" class="gt_row gt_right">0.571</td>
+<td headers="Justifica violencia de cambio  p.value" class="gt_row gt_right">0.5680</td>
+<td headers="Justifica violencia de cambio  sig" class="gt_row gt_right"></td>
+<td headers="Justifica violencia de cambio  n_individuos" class="gt_row gt_right">744</td>
+<td headers="Justifica violencia de cambio  n_obs" class="gt_row gt_right">1572</td></tr>
   </tbody>
-  
-  
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="10">Fuente: ELRI panel balanceado (olas 2-4). Término DiD: periodo×indigeneous×zona_decreto</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="10"> Predominancia = (id_étnica − id_nacional) fijada en baseline (ola 2). Tercil 1 (Nacional) = predomina identidad nacional; Tercil 2 (Equilibrio) = identidad mixta; Tercil 3 (Étnica) = predomina identidad étnica. Controles: mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + perc_injusticia + malestar_diferen + apoyo_movil. *** p&lt;0.001, ** p&lt;0.01, * p&lt;0.05</td>
+    </tr>
+  </tfoot>
 </table>
 </div>
 </body>
