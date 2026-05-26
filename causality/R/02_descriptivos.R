@@ -18,8 +18,10 @@ library(cardx)
 if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
 
+getwd()
+
 subset_data <- readRDS("data/subset_data.rds")
-source("R/plot_helpers.R")
+source("causality/R/plot_helpers.R")
 
 PERIODO_LABELS <- c(
   "pre"       = "Ola 2\n(2018)",
@@ -280,43 +282,49 @@ cat("✓ Figura 1 guardada: output/figuras/fig_trayectorias.png\n")
 
 # ── Figura 2 (apéndice) — Consistencia interna ────────────────────────────────
 
-alpha_ctrl <- psych::alpha(
-  subset_data[, c("vio_ctrl_carb", "vio_ctrl_agric")], check.keys = TRUE
-)
 alpha_resg <- psych::alpha(
   subset_data[, c("vio_camb_tierras", "vio_camb_cortes")], check.keys = TRUE
 )
-
-r_ctrl <- cor(subset_data$vio_ctrl_carb, subset_data$vio_ctrl_agric,
-              use = "complete.obs")
 r_resg <- cor(subset_data$vio_camb_tierras, subset_data$vio_camb_cortes,
               use = "complete.obs")
+r_id <- NA_real_
+if (file.exists("data/BBDD_ELRI_LONG.RData")) {
+  load("data/BBDD_ELRI_LONG.RData")
+  r_id <- cor(BBDD_ELRI_LONG$a4, BBDD_ELRI_LONG$a5, use = "pairwise.complete.obs")
+}
 
 cat("\n--- Consistencia interna ---\n")
-cat("  Vio. control: α =", round(alpha_ctrl$total$raw_alpha, 3),
-    "| r =", round(r_ctrl, 3), "\n")
+cat("  Represión estatal (d3_1): ítem único — α no aplica\n")
 cat("  Vio. resguardo: α =", round(alpha_resg$total$raw_alpha, 3),
     "| r =", round(r_resg, 3), "\n")
 
 tabla_consistencia <- tibble(
   Indice = c(
-    "Control social (status quo)",
-    "Cambio social"
+    "Represión estatal (status quo)",
+    "Cambio social",
+    "Justicia proc. ingroup",
+    "Justicia proc. outgroup",
+    "Identidad étnica (a4+a5)"
   ),
-  Alpha  = c(
-    round(alpha_ctrl$total$raw_alpha, 3),
-    round(alpha_resg$total$raw_alpha, 3)
-  ),
-  `Correlacion inter-item` = c(round(r_ctrl, 3), round(r_resg, 3))
+  Items = c("1 (d3_1)", "2 (d4_2+d4_3)", "1", "1", "2 (a4+a5)"),
+  Alpha = c("—", as.character(round(alpha_resg$total$raw_alpha, 3)), "—", "—", "—"),
+  `Correlacion inter-item` = c("—", round(r_resg, 3), "—", "—",
+                               if (!is.na(r_id)) round(r_id, 3) else "—"),
+  Nota = c(
+    "Ítem único",
+    "Adecuado",
+    "Ítem único",
+    "Ítem único",
+    "Alta correlación"
+  )
 )
 
 gt_consist <- tabla_consistencia |>
   gt() |>
   tab_header(
-    title = "Consistencia interna de índices compuestos",
-    subtitle = "Alfa de Cronbach y correlación inter-ítem (apéndice)"
+    title = "Consistencia interna de índices",
+    subtitle = "Alfa de Cronbach e intercorrelación ítem (apéndice)"
   ) |>
-  fmt_number(columns = c(Alpha, `Correlacion inter-item`), decimals = 3) |>
   opt_stylize(style = 1)
 
 gt_consist |> gtsave("output/tablas/tabla_consistencia_interna.html")
@@ -331,13 +339,12 @@ alpha_just <- psych::alpha(
 
 tabla_variables <- tibble::tribble(
   ~Variable,              ~Items,                                        ~Escala,       ~Fuente,
-  "Control social (status quo)", "d3_1 + d3_2 (Carabineros/agricultores)", "1–5 (α=.77)", "ELRI D",
+  "Justif. represión estatal", "d3_1 (Carabineros repriman)", "1–5 (ítem único)", "ELRI D",
   "Cambio social",               "d4_2 + d4_3 (tierras/carreteras)",       "1–5 (α=.75)", "ELRI D",
   "Justicia proc.",       "d5_1 + d5_2 (trato Carabineros)",            "1–5 (α=.83)", "ELRI D",
   "Id. causa indígena",  "d6_1",                                        "1–5",         "ELRI D",
   "Id. con Chile",        "a6",                                          "1–5",         "ELRI A",
   "Perc. desigualdad",    "c22 (invertida)",                             "1–5",         "ELRI C",
-  "Perc. injusticia",     "c23 (invertida)",                             "1–5",         "ELRI C",
   "Apoyo movilizaciones", "c25",                                         "1–5",         "ELRI C"
 ) |>
   mutate(

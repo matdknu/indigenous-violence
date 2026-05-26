@@ -237,8 +237,12 @@ panel_completo <- panel |>
     id_causa         = as.numeric(d6_1),
 
     # Índices continuos 1–5
-    idx_vio_control   = rowMeans(pick(d3_1, d3_2), na.rm = TRUE),
-    idx_vio_resguardo = rowMeans(pick(d4_2, d4_3), na.rm = TRUE),
+    # Represión estatal: ítem único d3_1 (Carabineros repriman); d3_2 excluido (vigilantismo)
+    idx_represion_estatal = as.numeric(d3_1),
+    idx_vio_control       = as.numeric(d3_1),  # alias para scripts/paper
+    idx_vio_resguardo     = rowMeans(pick(d4_2, d4_3), na.rm = TRUE),
+    # Solo apéndice A7 — índice dual d3_1 + d3_2 (sensibilidad)
+    idx_vio_control_dual  = rowMeans(pick(d3_1, d3_2), na.rm = TRUE),
 
     # ── Justicia procedimental: estructura ingroup/outgroup ────────────
     #
@@ -278,8 +282,8 @@ panel_completo <- panel |>
     d4_2_ord = likert_sym_item(d4_2),
     d4_3_ord = likert_sym_item(d4_3),
 
-    # Índices ordinales (media de ítems colapsados, 1–3)
-    idx_vio_control_ord   = rowMeans(pick(d3_1_ord, d3_2_ord), na.rm = TRUE),
+    # Índices ordinales (1–3); control = ítem único d3_1
+    idx_vio_control_ord   = as.numeric(d3_1_ord),
     idx_vio_resguardo_ord = rowMeans(pick(d4_2_ord, d4_3_ord), na.rm = TRUE),
 
     # Categorías ordenadas (redondeo post-ítem)
@@ -340,7 +344,8 @@ panel_completo <- panel |>
     id_causa = d6_1,
     voto_participa = d13, voto_opcion = d14,
     perc_desigualdad, perc_injusticia, malestar_diferen, apoyo_movil,
-    idx_vio_control, idx_vio_resguardo, idx_just_proc,
+    idx_represion_estatal, idx_vio_control, idx_vio_control_dual,
+    idx_vio_resguardo, idx_just_proc,
     idx_vio_control_ord, idx_vio_resguardo_ord,
     justifica_control_cat, justifica_resguardo_cat,
     justifica_control_cont, justifica_resguardo_cont
@@ -374,9 +379,9 @@ cor_ur_zd <- cor(
 incluir_urbano_rural <- abs(cor_ur_zd) <= 0.5
 
 controles_base <- if (incluir_urbano_rural) {
-  "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + perc_injusticia + malestar_diferen + apoyo_movil"
+  "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
 } else {
-  "mujer + edad + id_chile + id_causa + perc_desigualdad + perc_injusticia + malestar_diferen + apoyo_movil"
+  "mujer + edad + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
 }
 
 cat("\nCorrelación urbano_rural × zona_decreto:", round(cor_ur_zd, 3), "\n")
@@ -408,7 +413,7 @@ subset_placebo_pre <- panel_completo |>
     justifica_control_cat, justifica_resguardo_cat,
     just_proc_ingroup, just_proc_outgroup, brecha_just_proc,
     id_chile, id_causa,
-    perc_desigualdad, perc_injusticia, apoyo_movil
+    perc_desigualdad, perc_injusticia, malestar_diferen, apoyo_movil
   )
 
 saveRDS(subset_placebo_pre, "data/subset_placebo_pre.rds")

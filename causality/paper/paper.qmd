@@ -2,8 +2,16 @@
 title: "Apertura normativa y contención fallida: estallido social, estado de excepción y justificación de la violencia en el conflicto mapuche (2018–2023)"
 author:
   - name: Matías Deneken
-    affiliation: Pontificia Universidad Católica de Chile
+    affiliation:
+      - Pontificia Universidad Católica de Chile
+      - Observatorio de Violencia y Legitimidad Social (OLES)
   - name: Federico Díaz
+    affiliation: Pontificia Universidad Católica de Chile
+  - name: Mónica Gerber (invitada, por confirmar)
+    affiliation:
+      - Pontificia Universidad Católica de Chile
+      - Observatorio de Violencia y Legitimidad Social (OLES)
+  - name: Roberto González (invitado, por confirmar)
     affiliation: Pontificia Universidad Católica de Chile
 date: today
 lang: es
@@ -34,11 +42,29 @@ format:
         \usepackage{amsmath}
         \allowdisplaybreaks
         \hyphenation{cualitativa post-tratamiento establecer demostrado}
+        \newenvironment{hipotesis}{%
+          \begingroup\leftskip=2.75em\parindent=0pt\parskip=0.45em\relax
+        }{%
+          \par\endgroup\vspace{0.35em}
+        }
   html:
     theme: cosmo
     toc: true
     toc-depth: 3
     number-sections: true
+    include-in-header:
+      - text: |
+          <style>
+          .hipotesis {
+            margin: 0.85em 0 1.35em 2.75em;
+            line-height: 1.55;
+            text-align: justify;
+          }
+          .hipotesis > p { margin: 0.45em 0 0; }
+          .hipotesis > p:not(:first-child) {
+            margin-left: 1.25em;
+          }
+          </style>
 bibliography: references.bib
 csl: apa.csl
 execute:
@@ -146,7 +172,7 @@ coef_rename_pleb <- c(
   "indigeneousindi"      = "Indígena",
   "cerca_conflictocerca" = "Zona excepción",
   "mujermujer"           = "Mujer",
-  "idx_vio_control"      = "Justif. vio. control social",
+  "idx_vio_control"      = "Justif. represión estatal",
   "idx_vio_resguardo"    = "Justif. vio. cambio social",
   "idx_just_proc"        = "Justicia procedimental",
   "apoyo_movil"          = "Apoyo movilizaciones",
@@ -208,25 +234,27 @@ item_labels_paper <- c(
 
 ## Resumen {.unnumbered}
 
-Este artículo examina cómo dos shocks políticos secuenciales — el estallido social de 2019 y el estado de excepción constitucional de 2021 en la Macrozona Sur — se asocian con cambios diferenciales en la justificación de la violencia entre personas indígenas y no indígenas según su cercanía territorial al conflicto mapuche. Utilizando el panel ELRI (*N* = `r scales::label_number(big.mark = ".", decimal.mark = ",")(paper$n_panel)`; olas 2–4, 2018–2023), se implementa una estrategia cuasi-experimental exploratoria de diferencias-en-diferencias con triple interacción (período × identidad étnica × zona de excepción).
+Este artículo analiza, con el panel longitudinal ELRI (2018–2023), cómo el estallido social y el estado de excepción en la Macrozona Sur se asociaron con cambios en la justificación de la violencia entre personas indígenas y no indígenas. El estallido elevó la justificación de la violencia de cambio social a escala nacional, sin efecto diferencial por territorio ni etnia. El período de coerción institucionalizada (ola 4), en cambio, produjo una reconfiguración normativa dual entre quienes viven en la zona de excepción: la justificación de la resistencia aumentó de forma diferencial, mientras que la aceptación de la represión estatal creció en parte por vía indirecta, mediante la regularización de la justicia procedimental ingroup percibida. El decreto no generó una reacción contraria unidireccional hacia la resistencia: simultaneizó efectos actitudinales asimétricos sobre ambos polos de la escala de violencia, por mecanismos distintos. La evidencia de mediación por diferencia de coeficientes —no un modelo de ecuaciones estructurales— y el voto Rechazo en el plebiscito de 2022 apoyan esta lectura de contención fallida bajo tensión prolongada.
 
-Los resultados muestran que el estallido social normalizó la justificación de la violencia de cambio social para toda la muestra (`r fmt_beta_p(paper$period_estallido_resg$estimate, paper$period_estallido_resg$p.value)`), sin diferencias por identidad ni territorio. El estado de excepción, en cambio, produjo un efecto diferencial: mientras la muestra en conjunto redujo la justificación de cambio social entre las olas 3 y 4 (`r fmt_beta_p(paper$t2_resg$estimate, paper$t2_resg$p.value)`), compatible con el agotamiento del ciclo de protesta y la derrota del Apruebo, las personas indígenas en zona de excepción aumentaron simultáneamente la justificación de violencia de control social (`r paper$tau4_ctrl$beta_p`) y de cambio social (`r paper$tau4_resg$beta_p`), configurando una demanda dual paradójica.
+# Introducción 
 
-El análisis de mecanismo revela un hallazgo contraintuitivo: el estado de excepción se asoció con una mejora en la percepción de justicia procedimental ingroup entre indígenas en zona de excepción (`r paper$med_ingroup_did$beta_p`), lo que sugiere que la institucionalización de la coerción regularizó las interacciones con las fuerzas del Estado. Esta mejora medió parcialmente el aumento de justificación de control social (atenuación del `r fmt_es(abs(paper$ate_ctrl), 0)` %), pero suprimió parte del efecto sobre cambio social (`r fmt_es(paper$ate_resg, 0)` %), indicando que el mecanismo opera asimétricamente. La predominancia identitaria en baseline moderó la respuesta al estallido pero no al decreto, sugiriendo que la coerción institucionalizada opera por proximidad territorial más que por intensidad identitaria.
+El conflicto entre el Estado chileno y el pueblo mapuche tiene raíces históricas profundas que se remontan a la ocupación militar de la Araucanía a fines del siglo XIX y a un proceso sostenido de usurpación territorial [@bengoa2002]. Desde mediados de los 2000, este conflicto se ha intensificado: la militarización de la Macrozona Sur, los enfrentamientos entre comunidades indígenas y fuerzas policiales, y las diversas formas de resistencia territorial mapuche conforman un escenario de tensión crónica. Las desigualdades estructurales que subyacen a esta tensión — en acceso a tierra, reconocimiento político y condiciones socioeconómicas — han sido ampliamente documentadas [@richards2013], pero la relación entre las intervenciones coercitivas del Estado y las actitudes de la población civil hacia la violencia permanece como un vacío analítico relevante. ¿Cómo responden las personas — indígenas y no indígenas, cercanas y lejanas al conflicto — cuando el Estado institucionaliza la coerción en su territorio?
 
-**Palabras clave:** conflicto mapuche, estallido social, estado de excepción, justificación de la violencia, justicia procedimental, identidad social, panel longitudinal, diferencias en diferencias
+Esta pregunta adquirió una urgencia nueva entre 2018 y 2023, período en el que la población chilena experimentó una secuencia de shocks políticos con el potencial de alterar las actitudes hacia la violencia de formas contradictorias. El 18 de octubre de 2019 se iniciaron las protestas masivas conocidas como el estallido social (social outbreak), un ciclo de movilización que desbordó las demandas socioeconómicas iniciales para incorporar reivindicaciones históricas de los pueblos indígenas, el rechazo a la represión policial y un cuestionamiento generalizado a la legitimidad del orden institucional. En este proceso, la violencia se politizó como recurso de transformación social: actos que antes se consideraban inaceptables — barricadas, enfrentamientos con la policía, destrucción de infraestructura — adquirieron un grado de legitimidad discursiva sin precedentes en la historia reciente del país. Esta apertura normativa no fue exclusiva del conflicto mapuche ni de un territorio particular; fue un fenómeno nacional que reconfiguró los límites de lo que amplios segmentos de la población consideraban justificable.
 
-# Introducción
+La respuesta institucional al estallido abrió, inicialmente, un canal de transformación política. En octubre de 2020, el plebiscito por una nueva constitución resultó ganador con un 78% de apoyo. En 2021, la elección de la Convención Constitucional incluyó, por primera vez, escaños reservados para pueblos indígenas, otorgando representación institucional a demandas históricamente excluidas del debate constitucional. Sin embargo, la violencia en las zonas con mayor concentración de población indígena no cesó. Los ataques incendiarios, las tomas de terreno y los enfrentamientos con fuerzas policiales continuaron y, en algunos casos, se intensificaron durante 2021, generando una presión política que derivó en una respuesta coercitiva directa: el 12 de octubre de 2021, el gobierno decretó el estado de excepción constitucional de emergencia para la Macrozona Sur, institucionalizando la presencia militar en las 53 comunas de las provincias de Cautín y Malleco (La Araucanía) y Arauco y Biobío (región del Biobío). A diferencia de la represión puntual y reactiva del estallido social, este decreto constituyó un dispositivo de coerción institucionalizada: presencia militar permanente, con protocolos de operación formales y una duración que, con sucesivas prórrogas, se extiende hasta el presente.
 
-El conflicto entre el Estado chileno y el pueblo mapuche se ha intensificado desde mediados de los 2000. La militarización de la Macrozona Sur, los enfrentamientos entre comunidades y fuerzas policiales, y la resistencia territorial conforman un ciclo de violencia cuyos efectos sobre las actitudes de la población civil han sido poco explorados con datos longitudinales. Los estudios existentes documentan la colonización y usurpación territorial [@bengoa2002] y las desigualdades estructurales persistentes [@richards2013], pero la relación entre intervenciones coercitivas del Estado y las actitudes hacia distintos tipos de violencia permanece como un vacío analítico relevante.
+El cierre del ciclo político completó la secuencia. En septiembre de 2022, el plebiscito de salida rechazó la propuesta de nueva constitución con un 62% de los votos, cerrando el canal institucional de cambio que el estallido había abierto. La población de la zona de conflicto quedó, así, en una doble clausura: la coerción sostenida del estado de excepción por un lado, y la falta de alternativas institucionales de transformación por otro. Esta configuración — coerción institucionalizada más clausura del canal institucional — define el contexto en el que se levantó la ola 4 de ELRI en 2023 y constituye el escenario natural del presente estudio.
 
-Entre 2018 y 2023, la población de la zona de conflicto experimentó dos coyunturas críticas que alteraron el panorama actitudinal de formas potencialmente contradictorias. El estallido social de octubre de 2019 politizó la violencia como recurso de transformación, generando una apertura normativa en la que la justificación de la violencia se volvió discursivamente aceptable en amplios segmentos de la población. Posteriormente, el decreto del estado de excepción constitucional en octubre de 2021 institucionalizó la presencia militar en 53 comunas de La Araucanía y el Biobío, constituyendo un intento de contención estatal que se prolongó por más de un año. La derrota del Apruebo en el plebiscito constitucional de septiembre de 2022 cerró el canal institucional de cambio abierto por el estallido, dejando a la población de la zona entre la coerción sostenida y la clausura de alternativas políticas formales.
+Estudios previos han comenzado a explorar los efectos actitudinales de la represión policial en Chile. En el contexto específico del conflicto mapuche, @gerber2018 establecieron mediante un diseño transversal con población indígena mapuche que la percepción de justicia procedimental hacia Carabineros predice la legitimidad institucional atribuida a la policía y, a través de ella, tanto la aceptación de la violencia policial de orden como la justificación de la violencia colectiva de resistencia. En población general durante el estallido, @disipavlic2024 mostraron, utilizando el panel ELSOC y un diseño de diferencias en diferencias doblemente robusto, que la exposición directa a protestas con represión policial activa aumentó la justificación de violencia contra la policía. Sin embargo, el estado actual del conocimiento presenta tres limitaciones críticas que este artículo busca resolver simultáneamente.
 
-Estudios previos han mostrado que la exposición directa a represión policial durante el estallido social aumentó la justificación de violencia contra la policía en población no indígena [@disipavlic2024]. Sin embargo, permanece inexplorado si estos efectos son homogéneos entre grupos étnicos, si persisten cuando la coerción se institucionaliza en un territorio específico, y por qué mecanismos operan. La pregunta de investigación es: ¿en qué medida el período del estado de excepción se asocia con cambios diferenciales en la justificación de la violencia entre personas indígenas y no indígenas, según su cercanía territorial al conflicto, y cómo media la percepción de justicia procedimental en ese proceso?
+Primero, permanece inexplorado si los efectos documentados por @gerber2018 y @disipavlic2024 son homogéneos entre grupos étnicos — particularmente entre indígenas y no indígenas, cuyas experiencias históricas y contemporáneas con la coerción estatal son estructuralmente distintas. Segundo, no se sabe si estos efectos persisten o se transforman cuando la represión se institucionaliza en un territorio específico mediante un decreto de estado de excepción por un período prolongado, ni cómo esa institucionalización cambia el cálculo de legitimidad. Tercero, aunque @gerber2018 identificaron justicia procedimental como mecanismo crucial, su enfoque transversal no permitió ordenar temporalmente el shock de represión, el cambio en la percepción de procedimiento y la actitud hacia la violencia — una limitación que un diseño longitudinal con mediadores rezagados puede resolver.
 
-Las contribuciones son cuatro. Primero, el primer análisis longitudinal con diseño espejo que captura dos shocks secuenciales — estallido social y estado de excepción — con sus efectos diferenciales por identidad étnica y territorio. Segundo, la distinción analítica entre justificación de la violencia por el control social (*status quo*) y por el cambio social, mostrando que el estallido abrió una ventana normativa que el decreto no logró cerrar para quienes viven la coerción directamente. Tercero, la descomposición de la justicia procedimental en percepción ingroup (trato a mi grupo) y outgroup (trato al otro grupo), revelando que el estado de excepción se asoció con una mejora en la percepción ingroup entre indígenas — hallazgo contraintuitivo que se interpreta como regularización, no benevolencia. Cuarto, la evidencia de mediación asimétrica: la justicia procedimental media la justificación de violencia de control (`r fmt_es(abs(paper$ate_ctrl), 0)` %) pero suprime la de cambio social (`r fmt_es(paper$ate_resg, 0)` %), indicando que el mismo mecanismo opera en direcciones opuestas según el tipo de violencia.
+La pregunta de investigación que guía este artículo es: ¿en qué medida el estallido social y el período del estado de excepción se asocian con cambios diferenciales en la justificación de la violencia entre personas indígenas y no indígenas, según su cercanía territorial al conflicto, y cómo media la percepción de justicia procedimental en este proceso?
 
-El artículo se organiza así: @sec-marco presenta el marco teórico con cinco hipótesis organizadas en torno a la secuencia apertura → contención; @sec-datos describe el diseño, los datos y las variables; @sec-modelo formaliza los modelos; @sec-resultados presenta los resultados (descriptivos, DiD, mecanismo, heterogeneidad identitaria y plebiscito); la robustez figura en el Apéndice (@sec-apendice-robustez); @sec-discusion discute los hallazgos; @sec-limitaciones y @sec-conclusiones cierran con limitaciones e implicaciones.
+El presente artículo aborda esta pregunta desde tres ejes conceptuales que se articulan en el diseño empírico: la identidad social como estructuradora de la evaluación de la violencia, la justicia procedimental como mecanismo de mediación entre coerción y actitudes, y la cercanía territorial al conflicto como condición de exposición diferencial al tratamiento. El argumento empírico se organiza en tres bloques secuenciales: (1) la replicación del estallido como apertura normativa nacional; (2) la reconfiguración actitudinal dual del estado de excepción prolongado entre indígenas en zona de excepción —contención fallida con efectos asimétricos sobre resistencia y represión—; y (3) el esquema de mediación que explica por qué la coerción institucionalizada puede legitimar parcialmente la represión estatal vía regularización procedimental sin contener la resistencia.
+
+El artículo se organiza así: @sec-marco presenta el marco teórico; @sec-datos y @sec-modelo describen el panel ELRI y la estrategia cuasi-experimental; @sec-resultados desarrolla los tres bloques empíricos (estallido, decreto, mecanismo) y un resumen de robustez; el detalle técnico (balance, PSM, IPW, sensibilidad, heterogeneidad, plebiscito) figura en el Apéndice (@sec-apendice); @sec-discusion, @sec-limitaciones y @sec-conclusiones cierran el manuscrito.
 
 # Marco teórico {#sec-marco}
 
@@ -234,51 +262,65 @@ El artículo se organiza así: @sec-marco presenta el marco teórico con cinco h
 
 La Teoría de Identidad Social (SIT) postula que los individuos derivan parte de su autoconcepto de su pertenencia a grupos sociales, generando favoritismo endogrupal y discriminación exogrupal [@tajfel1979; @tajfel1986; @brewer2001]. En contextos de conflicto activo, la saliencia identitaria aumenta y los juicios sobre la legitimidad de la violencia tienden a polarizarse según membresía grupal [@reicher2004].
 
-::: {.callout-note}
-## Hipótesis 1 (H1 — Simetría identitaria)
+::: {.hipotesis}
 
-Las personas indígenas justificarán más la violencia de cambio social y menos la de control social que las no indígenas, independientemente de la zona. id_causa e id_chile operarán como predictores espejo.
+**H1 (*Simetría identitaria*).** Las personas indígenas justificarán más la violencia de cambio social y menos la de control social que las no indígenas, independientemente de la zona. *id_causa* e *id_chile* operarán como predictores espejo.
+
 :::
 
 ## Apertura normativa: el estallido como expansión del repertorio {#sec-apertura}
 
 La literatura sobre ciclos de protesta describe fases de ascenso, pico y declive en la movilización colectiva [@tarrow1994]. El estallido social de octubre de 2019 constituye el pico del ciclo chileno reciente: una ruptura del consenso sobre los límites de la acción política que expandió los repertorios de contención y normalizó discursivamente la violencia como herramienta de transformación social. Esta apertura normativa no fue específica del conflicto mapuche ni de un territorio particular — fue un fenómeno nacional que afectó las actitudes de la población en general.
 
-La represión policial durante el estallido produjo, además, efectos documentados sobre la legitimidad institucional. Disi Pavlic et al. (2024) mostraron que la proximidad a protestas con represión policial activa aumentó la justificación de violencia contra la policía en población no indígena, a través del deterioro de la percepción de justicia procedimental. Su hallazgo indica que la represión puntual y reactiva genera un efecto de backlash actitudinal [@francisco2004].
+La represión policial durante el estallido produjo, además, efectos documentados sobre la legitimidad institucional en población general [@disipavlic2024], en contraste con el patrón identificado entre mapuche por @gerber2018, donde la justicia procedimental condiciona la legitimación de la violencia en ambos polos del conflicto. La represión puntual y reactiva del estallido se asocia con reacciones actitudinales contrarias a la coerción en la literatura clásica [@francisco2004]; la coerción institucionalizada prolongada es el escenario que este artículo abre empíricamente.
 
-::: {.callout-note}
-## Hipótesis 2 (H2 — Apertura normativa)
+::: {.hipotesis}
 
-La justificación de violencia de cambio social subirá entre la ola 2 (2018, pre-estallido) y la ola 3 (2021, resabio del estallido) para la muestra en conjunto, como efecto general de la apertura normativa. Este efecto no será diferencial por identidad étnica ni zona.
+**H2 (*Apertura normativa*).** La justificación de violencia de cambio social subirá entre la ola 2 (2018, pre-estallido) y la ola 3 (2021, resabio del estallido) para la muestra en conjunto, como efecto general de la apertura normativa. Este efecto no será diferencial por identidad étnica ni zona.
+
 :::
 
 ## Contención fallida: coerción institucionalizada y desgaste del ciclo {#sec-contencion}
 
 La respuesta estatal al ciclo de conflicto adoptó dos formas simultáneas: la coerción institucionalizada (decreto del estado de excepción en octubre de 2021, con presencia militar prolongada en 53 comunas) y la canalización institucional (proceso constituyente 2020–2022). La derrota del Apruebo en septiembre de 2022 cerró la segunda vía, dejando la primera como el vínculo dominante entre Estado y territorio.
 
-La literatura sobre represión y actitudes ofrece dos predicciones contrarias. La hipótesis de disuasión sostiene que la coerción sostenida normaliza el uso de la fuerza como recurso legítimo y reduce la disposición a justificar la resistencia [@davenport2007; @moore1998]. La hipótesis de backlash sostiene que la represión radicaliza a la población afectada, aumentando la justificación de la violencia contra el Estado [@francisco2004; @blattman2009]. Lo que distingue al estado de excepción de la represión puntual del estallido es su carácter **institucionalizado y prolongado**: no es una reacción policial a una protesta específica, sino un dispositivo legal que militariza un territorio de forma sostenida.
+La literatura sobre represión y actitudes ofrece dos predicciones contrarias. La hipótesis de disuasión sostiene que la coerción sostenida normaliza el uso de la fuerza como recurso legítimo y reduce la disposición a justificar la resistencia [@davenport2007; @moore1998]. La hipótesis de reacción contraria a la represión sostiene que la coerción radicaliza a la población afectada, aumentando la justificación de la violencia contra el Estado [@francisco2004; @blattman2009]. Lo que distingue al estado de excepción de la represión puntual del estallido es su carácter **institucionalizado y prolongado**: no es una reacción policial a una protesta específica, sino un dispositivo legal que militariza un territorio de forma sostenida.
 
-::: {.callout-note}
-## Hipótesis 3 (H3 — Contención fallida diferencial)
+::: {.hipotesis}
 
-(a) Para la muestra en conjunto, la justificación de violencia de cambio social bajará entre la ola 3 y la ola 4, compatible con el agotamiento del ciclo y la derrota del Apruebo.
-(b) Para las personas indígenas en zona de excepción, el efecto será inverso: la justificación de violencia de cambio social aumentará o se mantendrá, indicando que el decreto no logró contener la apertura normativa del estallido entre quienes viven la coerción directamente.
-(c) La justificación de violencia de control social aumentará en zona de excepción entre indígenas (sedimentación coercitiva).
+**H3 (*Contención fallida diferencial*).**
+
+*(a)* Para la muestra en conjunto, la justificación de violencia de cambio social bajará entre la ola 3 y la ola 4, compatible con el agotamiento del ciclo y la derrota del Apruebo.
+
+*(b)* Para las personas indígenas en zona de excepción, el efecto será inverso: la justificación de violencia de cambio social aumentará o se mantendrá, indicando que el decreto no logró contener la apertura normativa del estallido entre quienes viven la coerción directamente.
+
+*(c)* La justificación de violencia de control social aumentará en zona de excepción entre indígenas (sedimentación coercitiva).
+
 :::
 
-## Demanda dual bajo coerción prolongada {#sec-demanda-dual}
+## El mecanismo de demanda dual {#sec-mecanismo-dual}
 
-La coerción prolongada e institucionalizada puede producir una respuesta actitudinal que no se reduce a una sola dimensión. Bajo tensión territorial sostenida, las personas indígenas en zona de excepción pueden demandar simultáneamente orden (como seguridad frente a la represión) y transformación (como resistencia a la injusticia estructural). Esta lógica de demanda dual es distinta de la polarización simple y no está prevista por los marcos de ciclo de protesta ni de sedimentación coercitiva tomados por separado.
+La coerción prolongada e institucionalizada puede alterar actitudes por dos vías simultáneas: un efecto directo de la exposición a la represión y un efecto indirecto vía la percepción de justicia procedimental hacia el propio grupo (ingroup). La regularización del trato institucional — predecibilidad, no benevolencia — puede legitimar la represión estatal sin suprimir la resistencia territorial. @fig-modelo-conceptual resume este modelo conceptual (no es un modelo de ecuaciones estructurales; es el esquema teórico que guía el análisis de mediación por diferencia de coeficientes en el diseño DiD).
 
-::: {.callout-note}
-## Hipótesis 5 (H5 — Demanda dual)
+```{r}
+#| label: fig-modelo-conceptual
+#| fig-cap: "Modelo conceptual: rutas esperadas del efecto del decreto sobre la justificación de la violencia. Esquema teórico de mediación por diferencia de coeficientes (no ecuaciones estructurales). El efecto directo sobre cambio social y el indirecto sobre control social pueden coexistir (reconfiguración normativa dual)."
+#| fig-width: 10
+#| fig-height: 5
+#| out-width: "100%"
 
-En la ola 4, las personas indígenas en zona de excepción aumentarán simultáneamente la justificación de violencia de control social **y** de cambio social respecto a los demás grupos, configurando una demanda dual que resulta de la secuencia apertura normativa (estallido) → contención fallida (decreto) → regularización procedimental.
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_modelo_conceptual.png"))
+```
+
+::: {.hipotesis}
+
+**H5 (*Contención fallida y canal procedimental*).** En la ola 4, las personas indígenas en zona de excepción aumentarán la justificación de la violencia de cambio social respecto a los demás grupos (efecto directo de la coerción institucionalizada). El decreto mejorará la justicia procedimental ingroup y esa mejora mediará parcialmente el efecto sobre la represión estatal, pero suprimirá parte del efecto observado sobre la resistencia.
+
 :::
 
 ## Justicia procedimental como mecanismo: ingroup vs. outgroup {#sec-justproc}
 
-Tyler (1990) y Tyler y Huo (2002) sostienen que la percepción de trato justo por instituciones predice legitimidad y cumplimiento normativo. Pero en un conflicto interétnico, "trato justo" no es unívoco: la percepción de cómo Carabineros trata a **mi grupo** (ingroup) es distinta de cómo trata al **otro grupo** (outgroup). ELRI captura esta estructura:
+Tyler (1990) y Tyler y Huo (2002) sostienen que la percepción de trato justo por instituciones predice legitimidad y cumplimiento normativo. En el conflicto mapuche, @gerber2018 demostraron que ese canal opera en ambas direcciones de la violencia justificada (control social y resistencia), mediado por la legitimidad policial. Este artículo extiende esa lógica al diseño longitudinal y desagrega el trato percibido en dimensiones ingroup y outgroup. Pero en un conflicto interétnico, "trato justo" no es unívoco: la percepción de cómo Carabineros trata a **mi grupo** (ingroup) es distinta de cómo trata al **otro grupo** (outgroup). ELRI captura esta estructura:
 
 - **d5_1**: "Carabineros tratan a **indígenas** con respeto"
 - **d5_2**: "Carabineros tratan a **no indígenas** con respeto"
@@ -288,12 +330,16 @@ Para una persona no indígena, d5_1 = outgroup, d5_2 = ingroup.
 
 **Baseline (ola 2) confirma la estructura teórica:** indígenas perciben brecha = `r fmt_es(paper$brecha_baseline_indi, 2)` (agravio: tratan mejor al outgroup); no indígenas perciben brecha = `r fmt_es(paper$brecha_baseline_noindi, 2)` (privilegio: tratan mejor a mi grupo).
 
-::: {.callout-note}
-## Hipótesis 4 (H4 — Mecanismo de justicia procedimental)
+::: {.hipotesis}
 
-(a) El estado de excepción modificará la percepción de justicia procedimental ingroup entre indígenas en zona de excepción. La dirección del efecto no se predetermina teóricamente: puede ser deterioro (Davenport) o regularización (Tyler).
-(b) Si just_proc_ingroup cambia, mediará parcialmente el efecto del decreto sobre la justificación de violencia de control social (atenuación del coeficiente DiD al incluir el mediador rezagado).
-(c) El mecanismo operará asimétricamente: mediación para violencia de control (la legitimidad procedimental facilita la aquiescencia con la coerción) y supresión para violencia de cambio social (la resistencia responde al efecto directo de la coerción, no al canal procedimental).
+**H4 (*Mecanismo de justicia procedimental*).**
+
+*(a)* El estado de excepción modificará la percepción de justicia procedimental ingroup entre indígenas en zona de excepción. La dirección del efecto no se predetermina teóricamente: puede ser deterioro (Davenport) o regularización (Tyler).
+
+*(b)* Si *just_proc_ingroup* cambia, mediará parcialmente el efecto del decreto sobre la justificación de violencia de control social (atenuación del coeficiente DiD al incluir el mediador rezagado).
+
+*(c)* El mecanismo operará asimétricamente: mediación para violencia de control (la legitimidad procedimental facilita la aquiescencia con la coerción) y supresión para violencia de cambio social (la resistencia responde al efecto directo de la coerción, no al canal procedimental).
+
 :::
 
 # Diseño y datos {#sec-datos}
@@ -328,51 +374,13 @@ El estado de excepción fue declarado el 12 de octubre de 2021 en **53 comunas d
 
 El supuesto de tendencias paralelas no es testeable formalmente con una sola ola pre-tratamiento (ola 2). Por esta razón, los resultados se interpretan como cambios diferenciales compatibles con una lógica de diferencias-en-diferencias extendida, pero **no como estimaciones causales definitivas**. Este análisis se presenta como **evidencia cuasi-experimental exploratoria**: los hallazgos son compatibles con una interpretación de cambio diferencial posterior al estado de excepción, aunque no concluyente causalmente. En la ola 2, las diferencias por zona de excepción van en dirección opuesta a los patrones post-tratamiento observados (`r fmt_beta_p(paper$baseline_zona_resg$estimate, paper$baseline_zona_resg$p.value)` para cambio social), lo que es consistente —aunque no establece— con la plausibilidad del contrafactual.
 
+Nuestra estrategia se inspira en diseños que explotan la coincidencia entre un evento político y el trabajo de campo de una encuesta [@legewie2013]. A diferencia de ese diseño —donde el evento ocurre durante una misma ola—, nuestros shocks ocurren **entre** olas separadas temporalmente. El coeficiente DiD del decreto captura el efecto del **período** de coerción institucionalizada (decreto prolongado, derrota del Apruebo y evolución del conflicto entre 2021 y 2023), no del decreto aislado del 12 de octubre de 2021.
+
 ## Variables {#sec-variables}
 
-```{r}
-#| label: tbl-variables
-#| tbl-cap: "Operacionalización de variables principales"
+La operacionalización detallada de ítems, escalas y fuentes modulares figura en el Apéndice A1 (@tbl-apendice-operacionalizacion). En todo el manuscrito se emplean dos variables dependientes principales, en la línea de la escala de apoyo a la violencia en conflicto intergrupal (SVIC) de @gerber2018, adaptada localmente en ELRI. La **justificación de represión estatal** (`idx_vio_control`, alias de `idx_represion_estatal`) fue medida con un único ítem: «¿Cuán justificado le parece que Carabineros reprima con mayor fuerza las tomas de terreno y protestas?» (d3_1, escala 1–5). Se excluyó un segundo ítem sobre el uso de armas por parte de agricultores (d3_2) porque opera por un mecanismo distinto — defensa privada de propiedad versus legitimidad institucional — y no responde simétricamente al diseño espejo, ya que los «agricultores» constituyen el ingroup para no indígenas y el outgroup para indígenas. La **justificación de la violencia por el cambio social** (`idx_vio_resguardo`) captura la legitimación de acciones disruptivas orientadas a transformar el orden vigente (tomas de terrenos y cortes de caminos; d4_2 + d4_3, α = 0,746).
 
-tibble::tribble(
-  ~Variable,            ~Ítem,                                      ~Escala,        ~Fuente,
-  "Control social (status quo)", "Fuerza Carabineros (d3_1) + armas agricultores (d3_2)",
-                                                                  "1–5 (α=.77)",  "ELRI D",
-  "Cambio social",               "Tomas de terrenos (d4_2) + corte carreteras (d4_3)",
-                                                                  "1–5 (α=.75)",  "ELRI D",
-  "Just. proc. ingroup", "Trato Carabineros a MI grupo étnico (d5_1 o d5_2 según identidad)",
-                                                                  "1–5",          "ELRI D",
-  "Just. proc. outgroup", "Trato Carabineros al OTRO grupo étnico (d5_2 o d5_1 según identidad)",
-                                                                  "1–5",          "ELRI D",
-  "Brecha just. proc.",  "Diferencia percibida: outgroup − ingroup", "−4 a +4",      "Calculada",
-  "Just. proc. (promedio)", "Promedio d5_1 + d5_2 (comparabilidad)", "1–5 (α=.83)",  "ELRI D",
-  "Id. causa indígena", "Me identifico con la causa indígena (d6_1)", "1–5",          "ELRI D",
-  "Id. con Chile",      "Identificación con Chile (a6)",            "1–5",          "ELRI A",
-  "Id. pueblo originario", "Promedio a4 + a5",                      "1–5 (r=.82)",  "ELRI A",
-  "Predominancia identitaria", "Id. étnica − id. Chile",            "−4 a +4",      "Calculada",
-  "Perc. desigualdad",  "Condiciones de vida indígenas vs. no ind. (c22, invertida)",
-                                                                  "1–5",          "ELRI C",
-  "Perc. injusticia",   "Diferencia de condiciones justa/injusta (c23, invertida)",
-                                                                  "1–5",          "ELRI C",
-  "Apoyo moviliz.",     "Apoyo a movilizaciones indígenas (c25)",   "1–5",          "ELRI C"
-) |>
-  gt() |>
-  cols_label(
-    Variable = "Variable", Ítem = "Ítem(s)",
-    Escala = "Escala", Fuente = "Módulo"
-  ) |>
-  tab_options(
-    table.border.top.style = "solid",
-    table.border.bottom.style = "solid",
-    column_labels.border.bottom.style = "solid",
-    table_body.hlines.style = "none",
-    table.font.size = px(11)
-  ) |>
-  opt_stylize(style = 1) |>
-  publish_gt()
-```
-
-En todo el manuscrito se emplean dos variables dependientes principales. La **justificación de la violencia por el control social (status quo)** (`idx_vio_control`) captura la legitimación de acciones coercitivas de agentes estatales o civiles contra demandas indígenas (fuerza de Carabineros en protestas y uso de armas por agricultores). La **justificación de la violencia por el cambio social** (`idx_vio_resguardo`) captura la legitimación de acciones disruptivas orientadas a transformar el orden vigente (tomas de terrenos y cortes de caminos).
+Los índices compuestos de dos ítems (violencia de cambio social; identidad étnica, *r* ≈ 0,82) muestran consistencia interna adecuada. Los ítems únicos (represión estatal, justicia procedimental ingroup/outgroup) no requieren estimación de α (@tbl-apendice-alpha).
 
 La variable de **asignación espacial al tratamiento** (`cerca_conflicto` o `zona_excepcion`) identifica a los individuos residentes en las 53 comunas afectadas por el decreto D.S. N°418/2021. Sin embargo, dado que el estado de excepción fue decretado en octubre de 2021 —cinco meses después del término del campo de ola 3 (mayo 2021)—, el período de **exposición efectiva al tratamiento** corresponde a la ola 4 (2023), cuando el régimen de excepción ya llevaba dos años de implementación continua. En la especificación DiD, el efecto causal de interés se estima mediante la **triple interacción** ola 4 × identidad indígena × zona de excepción (τ₄):
 
@@ -380,113 +388,47 @@ $$
 \tau_4 = \beta(\text{Ola}_4 \times \text{Indígena} \times \text{Zona excepción})
 $$
 
-que captura el cambio diferencial en actitudes entre grupos expuestos y no expuestos al decreto prolongado, controlando por tendencias temporales generales (efectos de período) y diferencias preexistentes entre zonas. Los controles incluyen identificación con Chile (a6), identificación con la causa indígena (d6_1), percepciones de desigualdad e injusticia (c22 y c23 invertidas), apoyo a movilizaciones (c25), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según su correlación con `cerca_conflicto` (umbral |*r*| ≤ 0,5; en estos datos *r* = 0,35, por lo que se incluye).
+que captura el cambio diferencial en actitudes entre grupos expuestos y no expuestos al decreto prolongado, controlando por tendencias temporales generales (efectos de período) y diferencias preexistentes entre zonas. Los controles incluyen identificación con Chile (a6), identificación con la causa indígena (d6_1), percepción de desigualdad (c22 invertida), malestar por diferencias (c24), apoyo a movilizaciones (c25), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según su correlación con `cerca_conflicto` (umbral |*r*| ≤ 0,5; en estos datos *r* = 0,35, por lo que se incluye). La percepción de injusticia (c23) se excluye de los modelos principales por missingness elevado (~46 % por ola); un modelo de sensibilidad con este control figura en el Apéndice (@sec-apendice-a7).
 
 `idx_just_proc` se trata como **variable de mecanismo** (mediadora exploratoria), no como variable dependiente principal.
 
 ## Estrategia analítica {#sec-estrategia}
 
-Se estiman modelos multinivel con intercepto aleatorio por individuo (`folio`). El coeficiente de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción** ($\tau_4$). El análisis de mecanismo descompone la justicia procedimental en percepción ingroup y outgroup, estimando modelos con mediadores rezagados (valor en ola anterior) para aproximar precedencia temporal. Los análisis de robustez (PSM, IPW, placebo, modelos por ítem y codificación ordinal) se reportan en el Apéndice (@sec-apendice-robustez). Como extensión, se estiman modelos logísticos del plebiscito de 2022 (capturado retrospectivamente en ola 4, 2023).
+Se estiman modelos multinivel con intercepto aleatorio por individuo (`folio`). El coeficiente de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción** ($\tau_4$). El análisis de mecanismo descompone la justicia procedimental en percepción ingroup y outgroup, estimando modelos con mediadores rezagados (valor en ola anterior) para aproximar precedencia temporal. Los análisis de robustez (balance, PSM, IPW en @sec-apendice-a4; placebo en @sec-apendice-a5; sensibilidad en @sec-apendice-a7) y el análisis descriptivo del plebiscito de 2022 (@sec-apendice-a10) se reportan en el Apéndice.
 
 # Modelo estadístico {#sec-modelo}
 
-## Modelo multinivel de efectos fijos con DiD
+## Especificación principal: DiD en tres períodos {#sec-modelo-did}
 
-Las observaciones están anidadas en individuos (*N* = `r scales::label_number(big.mark = ".", decimal.mark = ",")(paper$n_panel)`) a través del tiempo. Se estiman modelos multinivel con intercepto aleatorio por `folio` (`(1 | folio)`). La categoría de referencia combina personas no indígenas, residentes lejos de la zona de excepción, en la ola 2 (período pre-tratamiento). El coeficiente principal de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción**, que estima el cambio diferencial post-tratamiento del grupo indígena residente en zona de excepción respecto a los grupos de comparación. En conjunto, el modelo opera como una triple interacción entre período, identidad indígena y cercanía territorial al conflicto.
+Las observaciones están anidadas en individuos (*N* = `r scales::label_number(big.mark = ".", decimal.mark = ",")(paper$n_panel)`) a través del tiempo. Estimamos un modelo lineal mixto multinivel con intercepto aleatorio por `folio` (`u_i`) y errores independientes entre individuos. La categoría de referencia combina personas no indígenas, residentes fuera de la zona de excepción, en la ola 2 (2018, pre-estallido). El vector $\mathbf{X}_{it}$ incluye sexo, edad, zona urbano/rural (condicional), identificación con Chile y con la causa indígena, percepción de desigualdad, malestar por diferencias y apoyo a movilizaciones.
 
-El modelo base (M1) se especifica en @eq-m1:
+El coeficiente de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción** ($\tau_{\text{dec}}$), que captura el cambio diferencial del período de coerción institucionalizada. La interacción análoga para la ola 3 ($\tau_{\text{est}}$) identifica el efecto diferencial del resabio del estallido. La especificación principal (Modelo C) es:
 
 $$
 \begin{aligned}
 Y_{it} = \beta_0
 &+ \beta_1 \text{Ola3}_{it} + \beta_2 \text{Ola4}_{it}
 + \beta_3 \text{Indi}_i + \beta_4 \text{Zona}_i \\
-&+ \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
-\end{aligned}
-$$ {#eq-m1}
-
-El modelo DiD completo (M2) incorpora interacciones de segundo y tercer orden (@eq-m2):
-
-$$
-\begin{aligned}
-Y_{it} = \beta_0
-&+ \sum_{t \in \{3,4\}} \beta_t \text{Ola}_t
-+ \beta_3 \text{Indi}_i + \beta_4 \text{Zona}_i \\
-&+ \sum_{t} \delta_t (\text{Ola}_t \times \text{Zona}_i)
-+ \sum_{t} \theta_t (\text{Ola}_t \times \text{Indi}_i) \\
-&+ \lambda (\text{Indi}_i \times \text{Zona}_i)
-+ \sum_{t} \tau_t (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) \\
+&+ \sum_{t \in \{3,4\}} \Big[ \delta_t (\text{Ola}_t \times \text{Zona}_i)
++ \theta_t (\text{Ola}_t \times \text{Indi}_i)
++ \tau_t (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) \Big] \\
 &+ \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
 \end{aligned}
 $$ {#eq-m2}
 
-Los coeficientes de interés son $\tau_t$, especialmente $\tau_4$ (ola 4 × indígena × zona excepción), que captura el efecto diferencial post-tratamiento para indígenas en zona de excepción respecto a todos los demás grupos (@eq-tau):
+donde $Y_{it}$ es la justificación de represión estatal o de cambio social, $\text{Indi}_i$ e $\text{Zona}_i$ codifican identidad mapuche y residencia en comunas del decreto, y $u_i \sim N(0,\sigma_u^2)$, $\varepsilon_{it} \sim N(0,\sigma^2)$. La estimación usa máxima verosimilitud restringida (REML) en `lme4`; reportamos coeficientes fijos e intervalos de confianza al 95 %. Las especificaciones alternativas (Modelos A y B, una transición cada uno) y las fórmulas completas figuran en el Apéndice (@tbl-apendice-m1m2, @sec-apendice-a11).
 
-$$
-\begin{aligned}
-\hat{\tau}_4 =\;&
-\underbrace{
-  (\bar{Y}^{\text{indi,cerca}}_{4} - \bar{Y}^{\text{indi,cerca}}_{2})
-  - (\bar{Y}^{\text{noindi,cerca}}_{4} - \bar{Y}^{\text{noindi,cerca}}_{2})
-}_{\text{DiD zona excepción}} \\
-&- \underbrace{
-  (\bar{Y}^{\text{indi,lejos}}_{4} - \bar{Y}^{\text{indi,lejos}}_{2})
-  - (\bar{Y}^{\text{noindi,lejos}}_{4} - \bar{Y}^{\text{noindi,lejos}}_{2})
-}_{\text{DiD zona control}}
-\end{aligned}
-$$ {#eq-tau}
+## Estrategia de identificación {#sec-modelo-id}
 
-## Coeficiente de correlación intraclase (ICC)
+El diseño asume tendencias paralelas condicionales en covariables observadas, ausencia de interferencia entre unidades (SUTVA) y ausencia de selección muestral endógena al panel balanceado. Con una sola ola estrictamente pre-tratamiento (ola 2), el supuesto de tendencias paralelas no es testeable de forma definitiva; los resultados se interpretan como evidencia cuasi-experimental exploratoria. El placebo en olas 1–2 (Apéndice A5) y el balance pretratamiento (A2) apoyan la plausibilidad del contrafactual.
 
-El ICC cuantifica la proporción de varianza atribuible a diferencias estables entre individuos (@eq-icc):
+## Análisis de mecanismo {#sec-mecanismo-eq}
 
-$$
-\text{ICC} = \frac{\sigma_u^2}{\sigma_u^2 + \sigma_\varepsilon^2}
-$$ {#eq-icc}
+El esquema de mediación compara el coeficiente $\tau_t$ del Modelo C con y sin el mediador rezagado $J_{i,t-1}$ (justicia procedimental ingroup en la ola anterior), siguiendo la lógica de diferencia de coeficientes [@imai2010]. El porcentaje mediado es $100 \times (\tau - \tau')/\tau$. No estimamos ecuaciones estructurales simultáneas; el detalle algebraico figura en el Apéndice A11.3.
 
-Los ICC observados oscilan entre 0,12 y 0,20 según la variable dependiente, indicando que una proporción relevante de la varianza es *within-person*, lo que justifica el diseño longitudinal.
+## Software y reproducibilidad
 
-## Comparación de modelos
-
-M1 vs. M2 se compara mediante likelihood ratio test (LRT) con 5 grados de libertad adicionales. En ambas variables dependientes, la especificación DiD mejora significativamente el ajuste ($\chi^2_{(5)} > 24$, *p* < .001).
-
-## Análisis complementario: voto Rechazo (ola 4)
-
-Como extensión electoral exploratoria, y sin estimar mediación causal formal, se examina si las actitudes hacia la violencia se asocian con el voto en el plebiscito de 2022. Para el plebiscito (ola 4) se estima (@eq-logit):
-
-$$
-\begin{aligned}
-\log \frac{P(\text{Rechazo}_i)}{1 - P(\text{Rechazo}_i)} = \alpha
-&+ \beta_1 \hat{Y}^{\text{ctrl}}_i + \beta_2 \hat{Y}^{\text{resguardo}}_i \\
-&+ \beta_3 \text{Apoyo}_i + \mathbf{Z}_i'\boldsymbol{\phi}
-\end{aligned}
-$$ {#eq-logit}
-
-Se estiman tres versiones: (a) participación electoral, (b) Rechazo vs. resto entre votantes, y (c) Rechazo vs. Apruebo estricto (excluye nulos/blancos).
-
-## Análisis de mecanismo (justicia procedimental) {#sec-mecanismo-eq}
-
-**Paso 1** — efecto del tratamiento sobre el mediador:
-
-$$
-\begin{aligned}
-J_{it} = \alpha_0
-&+ \sum_{t} \beta_t \text{Ola}_t + \cdots + \tau_t (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) \\
-&+ \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
-\end{aligned}
-$$ {#eq-mediacion-1}
-
-**Paso 2** — efecto del mediador rezagado sobre la VD:
-
-$$
-\begin{aligned}
-Y_{it} = \alpha_0
-&+ \delta J_{i,t-1} + \sum_{t} \beta_t \text{Ola}_t + \cdots + \tau_t (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) \\
-&+ \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
-\end{aligned}
-$$ {#eq-mediacion-2}
-
-**Paso 3** — si $\hat{\tau}_4$ se atenúa al incluir $J_{i,t-1}$ pero permanece significativo, hay evidencia de mediación parcial exploratoria.
+Los modelos se estiman en R 4.x (`lme4`, `lmerTest`, `marginaleffects`, `MatchIt`, `WeightIt`). Los scripts `01_limpieza.R`–`09_diagramas.R` regeneran `data/*.rds` y `output/`. El ICC oscila entre 0,12 y 0,20; el LRT M1 vs. M2 favorece la especificación DiD ($\chi^2_{(5)} > 24$, *p* < .001).
 
 # Resultados {#sec-resultados}
 
@@ -554,7 +496,7 @@ subset_data |>
   summarise(
     across(
       c(idx_vio_control, idx_vio_resguardo,
-        perc_desigualdad, perc_injusticia, apoyo_movil,
+        perc_desigualdad, apoyo_movil,
         id_chile, id_causa),
       list(M = ~round(mean(.x, na.rm = TRUE), 2),
            SD = ~round(sd(.x, na.rm = TRUE), 2)),
@@ -570,10 +512,9 @@ subset_data |>
   pivot_wider(names_from = stat, values_from = value) |>
   mutate(variable = recode(
     variable,
-    idx_vio_control = "Control social (status quo)",
+    idx_vio_control = "Represión estatal (status quo)",
     idx_vio_resguardo = "Cambio social",
     perc_desigualdad  = "Perc. desigualdad",
-    perc_injusticia   = "Perc. injusticia",
     apoyo_movil       = "Apoyo movilizaciones",
     id_chile          = "Id. con Chile",
     id_causa          = "Id. causa indígena"
@@ -590,6 +531,8 @@ subset_data |>
   opt_stylize(style = 1) |>
   publish_gt()
 ```
+
+*Nota.* La justificación de represión estatal (d3_1) fue medida como ítem único; el segundo ítem del módulo (uso de armas por agricultores, d3_2) se excluyó por razones conceptuales (véase @sec-variables).
 
 En baseline (ola 2), la estructura ingroup/outgroup de justicia procedimental muestra el patrón esperado teóricamente: los indígenas perciben mejor trato al outgroup que al ingroup (brecha = `r fmt_es(paper$brecha_baseline_indi, 2)`), indicando agravio percibido, mientras que los no indígenas perciben mejor trato a su propio grupo (brecha = `r fmt_es(paper$brecha_baseline_noindi, 2)`), indicando privilegio percibido. La estructura identitaria revela un hallazgo inesperado: los indígenas de la muestra presentan identidad dual con leve predominancia de identidad nacional sobre étnica (brecha identitaria = `r fmt_es(paper$predom_brecha_indi, 2)`), lo que es consistente con la presión asimilacionista histórica documentada por @bengoa2002 y contradice la asunción de identidades étnicas excluyentes.
 
@@ -609,17 +552,19 @@ La justificación de violencia de control social muestra un patrón inverso: rel
 knitr::include_graphics(file.path(root_dir, "output/figuras/fig_trayectorias.png"))
 ```
 
-## Modelos DiD principales {#sec-res-did}
+## Bloque 1 — Replicación del estallido {#sec-res-estallido}
 
-La comparación LRT (M1 vs. M2[^m2-nota]) indica que la especificación DiD (@eq-m2) mejora el ajuste en violencia de control ($\chi^2_{(5)} > 24$, *p* < .001) y resguardo territorial (*idem*). Los ICC oscilan entre 0,12 y 0,20. Los coeficientes completos de M1 y M2 figuran en la @tbl-apendice-m1m2 (Apéndice).
+Antes de analizar el efecto del estado de excepción, verificamos que los datos reproduzcan el patrón ya documentado para el estallido social. El período post-estallido (ola 3) se asocia con un aumento general de la justificación de la violencia de cambio social (`r fmt_beta_p(paper$period_estallido_resg$estimate, paper$period_estallido_resg$p.value)`), consistente con la literatura sobre expansión del repertorio de contención [@somma2021; @gonzalez2020]. Crucialmente, este aumento no es diferencial por territorio ni identidad: la triple interacción DiD del estallido no alcanza significancia para represión estatal (`r fmt_beta_p(paper$tau3_ctrl$estimate, paper$tau3_ctrl$p.value)`) ni para cambio social (`r fmt_beta_p(paper$tau3_resg$estimate, paper$tau3_resg$p.value)`). El estallido operó como fenómeno nacional, no territorializado — un punto de partida común contra el cual medimos el segundo shock.
 
-[^m2-nota]: Denominado Modelo C en los scripts de análisis; aquí M2 refiere a la especificación DiD completa con tres períodos.
+## Bloque 2 — Reconfiguración normativa dual bajo el decreto {#sec-res-decreto}
 
-Los modelos DiD revelan dos patrones temporalmente distintos que corresponden a los dos shocks secuenciales. En el Modelo A (transición estallido, olas 2–3), la triple interacción no es significativa para ninguna variable dependiente (control: `r fmt_beta_p(paper$tau3_ctrl$estimate, paper$tau3_ctrl$p.value)`; cambio: `r fmt_beta_p(paper$tau3_resg$estimate, paper$tau3_resg$p.value)`), lo que indica que el estallido tuvo un efecto general de período — la justificación de violencia de cambio social subió para toda la muestra (`r fmt_beta_p(paper$period_estallido_resg$estimate, paper$period_estallido_resg$p.value)`) — pero no diferencial por identidad y zona. Hay un efecto zona × ola 3 significativo para cambio social (`r fmt_beta_p(paper$zona_ola3_resg$estimate, paper$zona_ola3_resg$p.value)`), sugiriendo que las comunas que serían declaradas zona de excepción ya experimentaban mayor justificación de la resistencia, probablemente por la escalada del conflicto mapuche previa al decreto.
+El aporte central del paper es el efecto diferencial del período de coerción institucionalizada (ola 4). En el Modelo C (tres períodos, especificación principal), el decreto se asocia con un aumento significativo y diferencial de la justificación de la resistencia entre indígenas en zona de excepción (`r paper$tau4_resg$beta_p`). Para la justificación de la represión estatal (d3_1, ítem único), el coeficiente de la triple interacción es positivo pero no significativo en la especificación principal (`r paper$tau4_ctrl$beta_p`); sin embargo, como se muestra en @sec-res-mecanismo, el decreto sí afecta la represión estatal por una vía indirecta — la regularización procedimental — capturada en el análisis de mecanismo. Este patrón ocurre contra la tendencia agregada: la justificación de cambio social baja entre olas 3 y 4 en la muestra en conjunto (`r fmt_beta_p(paper$t2_resg$estimate, paper$t2_resg$p.value)`), pero no entre quienes viven la coerción directamente. La institucionalización de la coerción no contuvo la justificación de la resistencia; la profundizó entre quienes la experimentan de manera directa y sostenida — un patrón de contención fallida que, como se muestra en @sec-res-mecanismo, coexiste con una legitimación parcial de la institución policial por vía procedimental. El hallazgo no es una «demanda dual simétrica», sino un efecto directo fuerte sobre el cambio social más un canal indirecto hacia la represión estatal.
 
-En el Modelo C (tres períodos, principal del paper), el efecto del decreto ($\tau_4$) es significativo y positivo para ambas variables dependientes: violencia de control social (`r paper$tau4_ctrl$beta_p`) y violencia de cambio social (`r paper$tau4_resg$beta_p`). Las personas indígenas en zona de excepción aumentaron simultáneamente la justificación de ambos tipos de violencia entre la ola 3 y la ola 4, confirmando la hipótesis de demanda dual (H5). Este patrón es particularmente notable porque ocurre contra la tendencia general de la muestra: mientras la justificación de cambio social baja entre olas 3 y 4 (`r fmt_beta_p(paper$t2_resg$estimate, paper$t2_resg$p.value)`), sube para quienes viven la coerción directamente. El decreto no logró contener la apertura normativa del estallido entre los más afectados.
+El efecto del decreto opera principalmente por proximidad territorial y no por intensidad de la identidad étnica en baseline: los análisis de heterogeneidad por terciles de predominancia identitaria no muestran una modulación lineal del DiD (detalle en @sec-apendice-a8). Los controles sustantivos confirman la simetría identitaria predicha por H1: la identificación con la causa indígena predice positivamente el cambio social y negativamente la represión estatal; la identificación con Chile opera como espejo inverso.
 
-Los controles sustantivos confirman la simetría identitaria predicha por H1. La identificación con la causa indígena (id_causa) predice positivamente la justificación de cambio social y negativamente la de control; la identificación con Chile (id_chile) opera como espejo inverso. La percepción de desigualdad e injusticia reduce la justificación de control social, indicando que quienes perciben más injusticia estructural no apoyan más la represión estatal — el canal hacia la justificación de control no pasa por el agravio general sino por la regularización procedimental.
+La comparación LRT (M1 vs. M2[^m2-nota]) indica que la especificación DiD mejora el ajuste ($\chi^2_{(5)} > 24$, *p* < .001). Los coeficientes completos figuran en @tbl-did-principal y en la tabla complementaria de Modelos A, B y C (@tbl-apendice-m1m2).
+
+[^m2-nota]: Modelo C en los scripts de análisis; M2 = DiD de tres períodos con referencia en ola 2 (2018).
 
 @fig-medias muestra medias predichas del modelo M2 para los cuatro grupos en los tres períodos, destacando la divergencia ola 3 → ola 4.
 
@@ -656,9 +601,21 @@ modelsummary(
 ) |> style_ms()
 ```
 
-## Análisis de mecanismo: justicia procedimental ingroup/outgroup {#sec-res-mecanismo}
+## Bloque 3 — Esquema de mediación {#sec-res-mecanismo}
 
-@fig-justproc muestra las trayectorias de `just_proc_ingroup` vs. `just_proc_outgroup` por grupo étnico. El decreto se asoció con una mejora significativa en la percepción de justicia procedimental ingroup entre indígenas en zona de excepción (`r paper$med_ingroup_did$beta_p`). Esto sugiere que la institucionalización del estado de excepción — la transición de enfrentamientos caóticos a control territorial predecible — regularizó las interacciones y mejoró la percepción de justicia procedimental ingroup (no por benevolencia, sino por estabilidad de reglas — Tyler, 1990).
+El análisis de mediación sigue el enfoque de diferencia de coeficientes [@imai2010], comparando el coeficiente DiD con y sin el mediador rezagado. No estimamos un modelo de ecuaciones estructurales; el diseño longitudinal permite usar el valor del mediador en la ola anterior, reduciendo el riesgo de simultaneidad. @fig-esquema-mediacion resume el esquema estimado; @fig-justproc muestra las trayectorias de `just_proc_ingroup` vs. `just_proc_outgroup` por grupo étnico.
+
+```{r}
+#| label: fig-esquema-mediacion
+#| fig-cap: "Esquema de mediación: rutas estimadas del efecto del decreto sobre la justificación de la violencia (diferencia de coeficientes DiD, ola 4). El efecto directo sobre cambio social y el indirecto mediado sobre control social coexisten por mecanismos distintos (reconfiguración normativa dual); no es un modelo de ecuaciones estructurales."
+#| fig-width: 10
+#| fig-height: 5
+#| out-width: "100%"
+
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_esquema_mediacion.png"))
+```
+
+@fig-justproc muestra las trayectorias por grupo étnico. El decreto se asoció con una mejora significativa en la percepción de justicia procedimental ingroup entre indígenas en zona de excepción (`r paper$med_ingroup_did$beta_p`). Esto sugiere que la institucionalización del estado de excepción — la transición de enfrentamientos caóticos a control territorial predecible — regularizó las interacciones y mejoró la percepción de justicia procedimental ingroup (no por benevolencia, sino por estabilidad de reglas — Tyler, 1990).
 
 ```{r}
 #| label: fig-justproc
@@ -703,7 +660,7 @@ knitr::include_graphics(file.path(root_dir, "output/figuras/fig_brecha_justproc.
 
 : Mediación: atenuación del DiD al incluir mediadores {#tbl-mediacion-inout}
 
-**Interpretación:** Para violencia de **control social**, la justicia procedimental ingroup media ~42% del efecto DiD — la mejora en la percepción de trato legítimo produce aquiescencia con la coerción (Tyler, 1990). Para violencia de **cambio social**, el efecto se **amplifica** al controlar por justicia procedimental (supresión): la mejora percibida SUPRIME parte del efecto directo de la coerción sobre la resistencia. Sin esa mejora, la justificación de la resistencia sería aún mayor. El decreto tiene dos efectos simultáneos sobre `vio_resguardo`: coerción prolongada aumenta la resistencia (efecto directo), pero la regularización del trato la reduce parcialmente (efecto indirecto vía just_proc). Lo observado es el efecto neto.
+**Interpretación:** Para la **represión estatal**, la justicia procedimental ingroup media aproximadamente `r fmt_es(abs(paper$ate_ctrl), 0)`% del efecto DiD: la mejora en la percepción de trato legítimo produce aquiescencia con la coerción (Tyler, 1990). Para el **cambio social**, el patrón es de **supresión** (`r fmt_es(paper$ate_resg, 0)`%): al controlar el mediador, el coeficiente DiD sobre la resistencia se amplifica, de modo que la regularización procedimental amortigua parcialmente el efecto directo de la coerción sobre la resistencia. El hallazgo no es una «demanda dual simétrica», sino un efecto directo fuerte sobre la resistencia más un canal indirecto hacia la represión estatal que la especificación principal no captura por sí sola.
 
 @fig-mediacion compara visualmente los coeficientes $\tau_4$ con y sin mediadores.
 
@@ -719,200 +676,165 @@ knitr::include_graphics(file.path(root_dir, "output/figuras/fig_mediacion_ingrou
 
 La tabla completa de modelos de mecanismo (9 especificaciones) se presenta en @tbl-apendice-mecanismo.
 
-## Heterogeneidad identitaria {#sec-res-hetero}
+## Robustez (resumen) {#sec-res-robustez}
 
-Para explorar si el efecto del decreto está condicionado por la intensidad identitaria, se construyó un índice de predominancia identitaria (identidad étnica − identidad nacional) fijado en baseline (ola 2) para evitar sesgo de post-tratamiento. Los indígenas de la muestra presentan identidad dual con leve predominancia nacional (brecha = `r fmt_es(paper$predom_brecha_indi, 2)`), y las trayectorias de predominancia no varían significativamente por zona de excepción, lo que reduce el riesgo de contaminación temporal.
-
-Al dividir la muestra en terciles de predominancia, el efecto DiD sobre violencia de control social muestra un patrón no monótono: significativo y positivo entre quienes tienen predominancia clara — sea nacional o étnica — y significativo pero negativo entre quienes tienen identidad equilibrada. Este patrón sugiere que la ambivalencia identitaria opera como amortiguador contra la legitimación de la coerción institucionalizada: las personas capaces de mantener ambas identidades simultáneamente resisten la polarización actitudinal que la predominancia clara facilita.
-
-Para violencia de cambio social, el efecto DiD solo es significativo en el tercil de predominancia nacional. Quienes tienen predominancia étnica no aumentan significativamente la justificación de la resistencia — lo que sugiere que la identidad étnica fuerte no requiere refuerzo del decreto para justificar la resistencia, pues ya la justificaban desde antes.
-
-La interacción cuádruple continua (DiD × predominancia) no es significativa, indicando que la relación no es lineal. Notablemente, la predominancia identitaria sí condicionó la respuesta al estallido (ola 3) pero no al decreto (ola 4), lo que sugiere que el estallido fue un fenómeno identitariamente diferenciado mientras que el decreto operó primariamente por proximidad territorial.
-
-```{r}
-#| label: fig-identidad-inout
-#| fig-cap: "Identidad ingroup vs. outgroup por grupo y zona. IC 95%."
-#| fig-width: 12
-#| fig-height: 6
-#| out-width: "100%"
-
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_identidad_ingroup_outgroup.png"))
-```
-
-```{r}
-#| label: tbl-hetero-terciles
-#| tbl-cap: "Efecto DiD (Modelo C) por tercil de predominancia identitaria baseline (ola 2)."
-
-if (!is.null(paper$hetero_terciles)) {
-  paper$hetero_terciles |>
-    gt() |>
-    cols_label(
-      vd = "Variable dependiente",
-      tercil = "Tercil predominancia",
-      estimate = "β",
-      std.error = "SE",
-      p.value = "p",
-      beta_p = "Coeficiente"
-    ) |>
-    fmt_number(columns = c(estimate, std.error, p.value), decimals = 3) |>
-    tab_footnote(
-      footnote = paste0(
-        "Predominancia = (id_étnica − id_nacional) fijada en baseline. ",
-        "Terciles calculados por separado dentro de cada grupo étnico."
-      )
-    ) |>
-    publish_gt()
-}
-```
-
-## Plebiscito 2022 {#sec-res-pleb}
-
-@tbl-plebiscito resume los modelos logísticos (detalle en @tbl-apendice-pleb). Entre quienes votaron, la justificación de violencia de **control** se asocia positivamente con el voto Rechazo; la de **resguardo**, negativamente. La **zona de excepción** aumenta las odds de participar y de votar Rechazo; la identidad étnica no predice directamente el voto una vez incluidas actitudes y justicia procedimental. El patrón es compatible con un **canal actitudinal** (estado de excepción → actitudes → voto), no con un efecto directo de identidad o territorio sobre la preferencia electoral.
-
-```{r}
-#| label: tbl-plebiscito
-#| tbl-cap: "Modelos logísticos de participación y voto en el plebiscito constitucional de 2022 (ola 4). Odds ratios con errores estándar entre paréntesis."
-
-modelsummary(
-  list(
-    "Participó\n(votó)"           = m_movil,
-    "Voto Rechazo\n(vs. resto)"   = m_rechazo,
-    "Voto Rechazo\n(vs. Apruebo)" = m_rechazo_strict
-  ),
-  exponentiate = TRUE,
-  statistic = "({std.error})",
-  stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
-  fmt = 3,
-  coef_rename = coef_rename_pleb,
-  gof_map = list(
-    list(raw = "nobs", clean = "N observaciones", fmt = 0),
-    list(raw = "aic",  clean = "AIC",             fmt = 1)
-  ),
-  notes = "Odds ratios. + p<.1, * p<.05, ** p<.01, *** p<.001. Solo ola 4.",
-  output = ms_out()
-) |> style_ms()
-```
-
-@fig-rechazo muestra las probabilidades predichas de voto Rechazo por identidad y zona. Las diferencias entre grupos son modestes una vez controladas las actitudes, lo que es compatible con un posible canal actitudinal entre experiencia territorial del conflicto y comportamiento electoral.
-
-```{r}
-#| label: fig-rechazo
-#| fig-cap: "Probabilidades predichas de voto Rechazo por identidad étnica y zona de residencia (plebiscito septiembre 2022). Intervalos de confianza al 95 %; resto de variables en sus medias."
-#| fig-width: 7
-#| fig-height: 5
-#| out-width: "80%"
-#| fig-align: center
-
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_prob_rechazo.png"))
-```
-
-Los análisis de robustez (PSM, IPW, placebo pretratamiento, modelos por ítem y codificación ordinal) se reportan en el @sec-apendice-robustez.
+@fig-apendice-robustez resume la estabilidad de $\tau_4$ entre el modelo principal, IPW, PSM y placebo. El efecto sobre cambio social es positivo en la especificación principal y robusto a ponderación por probabilidad de tratamiento (Apéndice A4). El placebo pretratamiento (olas 1–2) `r if (paper$placebo_ns) "no alcanza significancia, compatible con tendencias paralelas plausibles" else "requiere interpretación cautelosa"`. Balance, PSM, modelos por ítem, codificación ordinal y sensibilidad de especificación figuran en el Apéndice (@sec-apendice).
 
 # Discusión {#sec-discusion}
 
 ## Apertura normativa y contención fallida {#sec-disc-apertura}
 
-Los resultados muestran que el estallido social de 2019 y el estado de excepción de 2021 constituyen dos momentos de un mismo proceso con efectos opuestos y complementarios. El estallido abrió una ventana normativa: la justificación de la violencia de cambio social subió para toda la muestra, sin diferencias por identidad ni territorio. El decreto del estado de excepción intentó cerrar esa ventana mediante coerción institucionalizada, y parcialmente lo logró: para la muestra en conjunto, la justificación de cambio social bajó entre olas 3 y 4. Pero entre los indígenas en zona de excepción — los más directamente expuestos a la coerción — el efecto fue inverso. El decreto no solo no cerró la puerta que el estallido abrió, sino que la profundizó: la triple interacción DiD es significativa y positiva para ambos tipos de violencia.
+Los resultados permiten caracterizar el efecto del decreto no como una reacción contraria unidireccional hacia la resistencia, sino como una reconfiguración normativa dual. La coerción institucionalizada produjo dos efectos simultáneos que operan por mecanismos distintos: por un lado, profundizó la justificación de la violencia colectiva de cambio social entre los directamente afectados (`r paper$tau4_resg$beta_p`); por otro, legitimó parcialmente el uso de la fuerza estatal a través de la regularización procedimental percibida (mediación ≈ `r fmt_es(abs(paper$ate_ctrl), 0)`%). Ambos coexisten porque responden a lógicas distintas — la experiencia de ocupación territorial sostenida y la predictibilidad de las interacciones con la institución policial [@tyler1990]. Una reacción de resistencia pura produciría mayor rechazo a la represión; lo observado es que ambas formas de violencia justificada pueden aumentar simultáneamente, aunque por rutas causales distintas.
 
-Este hallazgo no es reducible a ninguno de los marcos teóricos tomado aisladamente. El marco de ciclo de protesta [@tarrow1994] predice correctamente la caída general de cambio social en ola 4, pero no explica por qué sube entre los más afectados. El marco de sedimentación coercitiva [@davenport2007] predice el aumento de control social, pero no explica por qué también sube cambio social. La demanda dual — más orden y más resistencia simultáneamente — solo emerge como resultado lógico de la secuencia apertura → contención fallida, donde la coerción produce aquiescencia procedimental por una vía y radicalización por otra.
+Conviene precisar por qué este patrón no es reducible al concepto de backlash frecuente en la literatura sobre represión y actitudes. El backlash implica una reacción contraria y unidireccional: la coerción estatal produce radicalización en sentido opuesto, con mayor apoyo a la resistencia y menor aceptación de la autoridad. Nuestros datos muestran un patrón distinto: la coerción institucionalizada prolongada produce aceptación simultánea de ambos polos de la escala de violencia — represión y resistencia — aunque con magnitudes y mecanismos diferentes. Llamamos a este patrón reconfiguración normativa dual: bajo tensión coercitiva sostenida, la violencia en general — y no solo la violencia de resistencia — se reclasifica como recurso legítimo situado, independientemente de quién la ejerce.
 
-## Regularización, no benevolencia: Tyler revisitado {#sec-disc-mecanismo}
+Los resultados permiten distinguir, además, dos momentos de un mismo proceso histórico que la literatura ha tendido a tratar como continuos. El estallido social de octubre de 2019 actuó como apertura normativa de alcance nacional: la justificación de la violencia de cambio social aumentó entre olas 2 y 3 para toda la muestra, sin efecto diferencial por territorio ni por pertenencia étnica (`r fmt_beta_p(paper$period_estallido_resg$estimate, paper$period_estallido_resg$p.value)`; triple interacción del estallido no significativa en @sec-res-estallido). Este hallazgo replica, con datos longitudinales, lo que estudios transversales habían sugerido sobre la expansión del repertorio de contención durante el estallido [@somma2021; @gonzalez2020]: la violencia colectiva se reclasificó temporalmente como recurso político legítimo a escala de todo el país, no como práctica confinada a territorios en conflicto. El diseño espejo confirma que este proceso no fue privativo de la población indígena — lo que descarta lecturas que reducen la escalada actitudinal a radicalismos étnicos preexistentes.
 
-El hallazgo más contraintuitivo del análisis es que el estado de excepción se asoció con una mejora en la percepción de justicia procedimental ingroup entre indígenas en zona de excepción (`r paper$med_ingroup_did$beta_p`). Esto contrasta con la predicción directa de Disi Pavlic et al. (2024), quienes proponen que la represión deteriora la justicia procedimental como mecanismo del backlash. La clave está en la diferencia entre represión puntual e institucionalizada: el estallido fue caótico y reactivo, mientras que el decreto fue predecible e institucional. Tyler (1990) distingue entre el resultado de la interacción y el procedimiento: las personas pueden aceptar resultados desfavorables si perciben que el procedimiento fue justo. La regularización del control territorial no implica mejor trato en términos absolutos, sino trato más consistente y predecible.
+El segundo momento, sin embargo, produce una fractura territorial y étnica que el primero no anticipaba. Tras el decreto de estado de excepción (octubre de 2021) y la derrota del Apruebo (septiembre de 2022), la justificación de la violencia de cambio social cae en el agregado (`r fmt_beta_p(paper$t2_resg$estimate, paper$t2_resg$p.value)`) — compatible con el ciclo de agotamiento que la literatura sobre ciclos de protesta predice [@tarrow1994] — pero entre las personas indígenas residentes en la zona de excepción esta tendencia se revierte: el coeficiente DiD para cambio social es positivo, significativo y robusto a múltiples especificaciones (`r paper$tau4_resg$beta_p`; @sec-res-decreto, @sec-res-robustez). La institucionalización de la coerción en un territorio no contuvo la justificación de la resistencia; la profundizó, precisamente entre quienes la experimentan de manera directa y sostenida.
 
-La mediación asimétrica confirma que el mecanismo opera en direcciones opuestas según el tipo de violencia. Para la violencia de control social, la regularización procedimental genera aquiescencia: la mejora en la percepción de trato legítimo al propio grupo facilita la aceptación del uso de la fuerza estatal (atenuación del `r fmt_es(abs(paper$ate_ctrl), 0)` %). Para la violencia de cambio social, la regularización suprime parte del efecto: sin la mejora procedimental, la justificación de la resistencia sería aún mayor (supresión del `r fmt_es(paper$ate_resg, 0)` %). Lo observado en el DiD es el efecto neto de dos fuerzas opuestas.
+Esta divergencia desafía dos interpretaciones comunes. La primera — que la reducción del caos represivo debería generar aquiescencia actitudinal — no se sostiene para la dimensión de resistencia. La segunda — que todo aumento en la justificación de la violencia responde a un mecanismo identitario de fortalecimiento del ingroup bajo amenaza [@tajfel1986] — tampoco se sostiene de forma exclusiva, porque el efecto territorial del decreto es independiente de la intensidad de la identidad étnica en baseline, como se desarrolla en @sec-disc-identidad. Lo que emerge en cambio es un patrón de contención fallida: la coerción institucionalizada produjo efectos actitudinales diferenciados según el tipo de violencia, y lo hizo a través de un mecanismo procedimental que opera de manera asimétrica, que describimos a continuación.
 
-## Identidad dual como amortiguador {#sec-disc-identidad}
+## Regularización, no benevolencia: Tyler revisitado en un contexto de excepción {#sec-disc-mecanismo}
 
-La heterogeneidad por predominancia identitaria añade una dimensión inesperada al análisis. El patrón no monótono — efectos fuertes entre quienes tienen predominancia clara (sea nacional o étnica) y efecto invertido entre quienes tienen identidad equilibrada — sugiere que la identidad dual opera como amortiguador contra la polarización actitudinal. Este hallazgo conecta con la literatura de identidades duales en contextos postcoloniales: la capacidad de mantener ambas identidades simultáneamente previene la dinámica de "nosotros contra ellos" que la coerción institucionalizada puede activar.
+El hallazgo más contraintuitivo del análisis es que el estado de excepción se asoció con una *mejora* en la percepción de justicia procedimental ingroup entre las personas indígenas de la zona de excepción (`r paper$med_ingroup_did$beta_p`). Esta distinción es crucial para caracterizar correctamente el fenómeno: no estamos ante una reacción de resistencia pura frente a la coerción, sino ante una reconfiguración del marco normativo sobre el uso legítimo de la fuerza. La regularización procedimental produce aquiescencia institucional (mayor aceptación de la represión) y resistencia territorial (mayor justificación del cambio social) al mismo tiempo, porque ambas actitudes responden a referentes distintos: la institución policial en abstracto y la situación de ocupación territorial en concreto.
 
-Notablemente, la predominancia identitaria condicionó la respuesta al estallido pero no al decreto. El estallido fue un fenómeno de movilización identitariamente diferenciada, mientras que el decreto operó por proximidad territorial — afectó a todos los que vivían en la zona, independientemente de su perfil identitario.
+A primera vista, el aumento en justicia procedimental ingroup parece contradecir la literatura: @disipavlic2024 muestran que la exposición a represión policial durante el estallido deterioró la percepción de justicia procedimental en población general, y la teoría de la reacción psicológica predice que la coerción impuesta genera resistencia cognitiva, no aquiescencia. La clave está en una distinción conceptual que la literatura ha establecido pero rara vez aplicada empíricamente en contextos de conflicto étnico prolongado: la diferencia entre represión puntual e institucionalización predecible.
 
-## Implicaciones para la SIT {#sec-disc-sit}
+La represión durante el estallido fue reactiva, heterogénea y no rutinizada: una misma protesta podía terminar con dispersión violenta o sin intervención policial, y las normas de uso de la fuerza eran percibidas como arbitrarias [@somma2021; @gonzalez2020]. El decreto de estado de excepción, en cambio, instaló una presencia policial y militar estructurada, con protocolos formalizados y geográficamente delimitados. Retomando la distinción de @tyler1990, las personas sometidas a control territorial pueden distinguir entre el resultado de la interacción — desfavorable, por definición, cuando implica restricción de movimiento y vigilancia permanente — y el procedimiento a través del cual ese resultado se produce. La regularización del control no implicó mejor trato en términos absolutos, sino trato más *consistente* y *anticipable*: se sabe cuándo llega el retén, cómo opera, qué puede esperarse de él. Esa predictibilidad es, en el marco de Tyler, una forma de justicia procedimental — aun cuando el contenido del procedimiento sea coercitivo.
 
-La simetría id_causa / id_chile replica mecanismos de identidad social en conflicto étnico latinoamericano [@tajfel1986]. La distinción entre tipos de violencia muestra que el aumento diferencial en ola 4 no se reduce a una narrativa unidimensional pro-Estado o pro-resistencia.
+El análisis de mediación confirma que este mecanismo opera, y que lo hace de manera asimétrica según el tipo de violencia (@sec-res-mecanismo). Para la justificación de la represión estatal, la mejora en la percepción de justicia procedimental ingroup media aproximadamente un `r fmt_es(abs(paper$ate_ctrl), 0)`% del efecto DiD: parte de la mayor aceptación de la violencia policial entre indígenas en zona de excepción se explica porque perciben que Carabineros trata a su grupo con mayor predictibilidad y respeto formal. Este canal es coherente con el argumento de @gerber2018 sobre el rol mediador de la legitimidad institucional — aunque aquí, a diferencia del diseño transversal de Gerber y colegas, el ordenamiento temporal con mediadores rezagados permite atribuir precedencia al cambio procedimental respecto al actitudinal.
 
-## Canal actitudinal hacia el voto {#sec-disc-voto}
+Para la justificación de la resistencia, el mecanismo opera en dirección opuesta: al controlar por la mejora en justicia procedimental ingroup, el efecto DiD sobre cambio social se *amplifica* (supresión de aproximadamente `r fmt_es(paper$ate_resg, 0)`%). Esto significa que la regularización procedimental actúa como freno parcial de la justificación de la resistencia: sin esa mejora en el trato percibido, los indígenas en zona de excepción justificarían aún más la violencia colectiva de cambio social. En términos sustantivos, la coerción institucionalizada produce dos efectos simultáneos y opuestos: por un lado, legitima parcialmente a la institución policial en tanto institución (el Estado cumple sus procedimientos); por otro, no legitima la situación de ocupación territorial como situación justa. Lo observado en el coeficiente DiD es el efecto neto de estas dos fuerzas — lo que hace que el fenómeno sea empíricamente más modesto de lo que sería sin el canal procedimental, pero conceptualmente mucho más rico.
 
-El plebiscito sugiere que el estado de excepción se vincula al voto Rechazo **a través** de actitudes hacia la violencia y la justicia procedimental, no directamente por identidad o zona [@zaller1992]. El aumento paralelo en ambos tipos de violencia entre indígenas en zona de excepción en ola 4 refleja, probablemente, una **normalización situada** de la violencia como recurso legítimo bajo tensión prolongada, no apoyo simple a la represión.
+## Identidad dual como amortiguador y sus límites {#sec-disc-identidad}
+
+La heterogeneidad por predominancia identitaria revela un patrón que la literatura sobre identidades duales en contextos poscoloniales anticipaba pero no había documentado empíricamente en este contexto (@sec-apendice-a8). El efecto del decreto sobre la justificación de la violencia de control social sigue un patrón no monótono: es fuerte entre quienes tienen predominancia nacional (identificación con Chile sobre la causa indígena), fuerte también entre quienes tienen predominancia étnica (causa indígena sobre Chile), pero significativamente menor — e incluso de signo invertido — entre quienes mantienen una identidad equilibrada entre ambos polos.
+
+Este patrón sugiere que la identidad dual opera como amortiguador contra la polarización actitudinal inducida por la coerción. Quienes mantienen simultáneamente una identificación fuerte con el Estado-nación chileno y con su pueblo originario disponen de un marco cognitivo más complejo para procesar la intervención estatal: no la leen exclusivamente como amenaza al ingroup ni como defensa del orden legítimo, sino como una intervención con legitimidades parciales y contradictorias. Esta interpretación es consistente con los hallazgos de @gonzalez2022 sobre la identidad supraordinada y las identidades duales como recurso de eficacia colectiva — aunque aquí el efecto no es sobre la acción política sino sobre la justificación de la violencia.
+
+Conviene sin embargo marcar un límite importante de este hallazgo: la predominancia identitaria condiciona la respuesta al estallido (ola 3) pero no al decreto (ola 4). El estado de excepción opera primariamente por *proximidad territorial*, no por *intensidad identitaria*. Esto sugiere que el decreto activa un mecanismo de experiencia directa — vivir bajo control territorial — que sobrepasa las diferencias en el perfil identitario de quien lo experimenta. En términos de política pública, esta distinción tiene implicaciones relevantes: intervenciones orientadas a fortalecer la identidad dual como estrategia de desescalada actitudinal pueden ser efectivas para los efectos del estallido (un fenómeno de movilización identitariamente diferenciada), pero insuficientes para los efectos de la coerción territorial prolongada, que opera por un canal experiencial más directo.
+
+## Implicaciones para la teoría de la identidad social y el conflicto étnico {#sec-disc-sit}
+
+Los resultados tienen implicaciones que trascienden el caso chileno. La Teoría de la Identidad Social [@tajfel1986] predice que la amenaza exogrupal fortalece la identificación ingroup y activa la diferenciación intergrupal — un mecanismo que la literatura sobre conflicto étnico ha aplicado ampliamente para explicar la radicalización actitudinal bajo coerción estatal. Nuestros hallazgos matizan esta predicción de dos maneras.
+
+Primero, el efecto de la coerción sobre la justificación de la violencia no es unidimensional: el decreto aumenta la justificación de la resistencia y, por vía indirecta, también la aceptación de la represión estatal. Esto es conceptualmente imposible en un marco SIT estricto, donde el fortalecimiento ingroup debería producir mayor rechazo de la violencia exogrupal (represión) y mayor apoyo a la violencia ingroup (resistencia). Los datos muestran que la coerción institucionalizada puede producir, simultáneamente, mayor aceptación de ambos tipos de violencia — lo que sugiere que el mecanismo no es puramente intergrupal sino que involucra una reclasificación del uso de la fuerza como recurso legítimo en contextos de tensión prolongada, independientemente de quién lo ejerce.
+
+Segundo, la asimetría identitaria de baseline — los indígenas se identifican en promedio ligeramente más con Chile que con su causa (`r fmt_es(paper$predom_brecha_indi, 2)`), lo que la literatura ha documentado como producto de presiones asimilacionistas [@bengoa2002; @gonzalez2022] — no opera como barrera frente a la reconfiguración actitudinal del decreto. La experiencia de vivir bajo estado de excepción modifica las actitudes independientemente de la posición en el continuo identitario. Esto sugiere que los modelos que predicen cambios actitudinales a partir de la intensidad identitaria tienen menor poder predictivo cuando la coerción es territorial, directa y prolongada.
+
+## Nota sobre el plebiscito {#sec-disc-voto}
+
+Como evidencia contextual adicional, el voto Rechazo en el plebiscito de salida (septiembre de 2022) fue significativamente más probable entre residentes de la zona de excepción (OR ≈ `r sprintf("%.1f", exp(coef(m_rechazo)["cerca_conflictocerca"]))`, `r fmt_p_inline(summary(m_rechazo)$coefficients["cerca_conflictocerca", "Pr(>|z|)"])`, con independencia de la identidad étnica — un patrón consistente con la normalización de la desconfianza institucional documentada en los modelos longitudinales, aunque su interpretación causal excede el alcance de este diseño (véase @sec-apendice-a10).
 
 # Limitaciones {#sec-limitaciones}
 
-1. **Una sola ola pre-tratamiento estricta** (ola 2). Ola 3 es pre-decreto pero post-estallido, lo que impide un placebo limpio para el decreto como shock aislado.
-2. **Tratamiento grueso** (comunas vs. buffers geométricos como en Disi Pavlic et al.).
-3. **Attrition diferencial** entre olas.
-4. **Mediación aproximada**, no identificada causalmente. Precedencia temporal imperfecta cuando mediador y VD comparten ola.
-5. **SUTVA**: difusión mediática fuera de zona de excepción.
-6. Controles actitudinales posiblemente **post-tratamiento**.
-7. La mejora en justicia procedimental ingroup puede reflejar **sesgo de supervivencia**: quienes perciben peor trato pueden haber migrado fuera de la zona entre olas 3 y 4.
-8. La **heterogeneidad por terciles** es exploratoria y el *N* por subgrupo es reducido; interpretar con cautela.
+Cuatro limitaciones merecen atención explícita antes de las conclusiones.
+
+**Identificación causal parcial.** El diseño cuasi-experimental permite estimar el efecto *del período* del estado de excepción, no del decreto como shock aislado. El coeficiente DiD para ola 4 captura conjuntamente el decreto (octubre de 2021), la derrota del Apruebo (septiembre de 2022), la continuidad del conflicto y el paso del tiempo entre olas. La imposibilidad de separar estos componentes es una limitación inherente al diseño de panel con olas anuales, señalada también en la literatura sobre diseños análogos [@legewie2013]. El análisis de robustez — en particular el placebo olas 1→2 (@sec-apendice-a5) y la comparación de especificaciones (@sec-apendice-a3, @sec-apendice-a4) — reduce pero no elimina esta ambigüedad.
+
+**Definición territorial del tratamiento.** El tratamiento se define a nivel de comuna, siguiendo la delimitación oficial del decreto. Esto genera dos problemas: primero, posible heterogeneidad dentro de las 53 comunas (la experiencia de la excepción no es idéntica en zonas urbanas y rurales de La Araucanía); segundo, posibles efectos de spillover hacia comunas adyacentes no incluidas en el decreto pero con alta densidad mediática del conflicto. El análisis con zona ampliada (decreto + provincia de Valdivia) aborda el segundo problema pero no el primero.
+
+**Mediación aproximada.** El análisis de mecanismo sigue el enfoque de diferencia de coeficientes con mediadores rezagados, lo que reduce — pero no elimina — el riesgo de simultaneidad entre mediador y variable dependiente cuando ambos se miden en la misma ola. La identificación causal de la mediación requeriría un diseño experimental o instrumentos para el mediador, que no están disponibles en este diseño. Los resultados del análisis de mecanismo deben interpretarse como evidencia sugestiva de un canal procedimental, no como estimación causal del efecto mediado.
+
+**Sesgo de supervivencia en la zona de excepción.** La mejora en la percepción de justicia procedimental ingroup podría reflejar parcialmente un sesgo de composición: quienes percibían peor trato por parte de Carabineros pueden haber migrado fuera de la zona entre olas 3 y 4, de modo que la ola 4 sobrerepresenta a quienes tenían percepciones más favorables. Sin datos de movilidad inter-olas no es posible descartar esta explicación alternativa, que aconseja moderación en la interpretación del coeficiente de Paso 1.
 
 # Conclusiones {#sec-conclusiones}
 
-La coerción institucionalizada del estado de excepción no logró contener la apertura normativa que el estallido social produjo entre quienes la experimentan directamente. El hallazgo central del paper es una demanda dual paradójica: las personas indígenas en zona de excepción aumentaron simultáneamente la justificación de la violencia de control social y de cambio social, configurando una respuesta actitudinal que no es reducible a polarización unidimensional ni a apoyo simple a la represión.
+Este artículo examinó los efectos diferenciales de dos shocks sobre la justificación de la violencia entre personas indígenas y no indígenas en Chile: el estallido social de 2019 y el estado de excepción prolongado en territorios del sur del país (2021–2023). Utilizando cuatro olas de la Encuesta Longitudinal de Relaciones Interculturales (ELRI) y un diseño de diferencias en diferencias con panel balanceado, documentamos dos patrones distintos. El estallido actuó como apertura normativa de alcance nacional: la justificación de la violencia de cambio social aumentó para toda la muestra, sin diferencial territorial ni étnico — replicando con datos longitudinales lo que estudios transversales habían sugerido. El decreto de estado de excepción, en cambio, produjo una reconfiguración normativa dual entre quienes lo experimentaron directamente: profundizó la justificación de la resistencia (`r paper$tau4_resg$beta_p`) y legitimó parcialmente la represión estatal por efecto indirecto, mediado por la regularización procedimental percibida (≈ `r fmt_es(abs(paper$ate_ctrl), 0)`% de mediación sobre control social).
 
-El mecanismo que media esta demanda dual opera por una vía inesperada: la institucionalización de la coerción regularizó las interacciones con las fuerzas del Estado, mejorando la percepción de justicia procedimental ingroup. Esta regularización — no benevolencia, sino predecibilidad — legitimó la violencia de control (mediación del `r fmt_es(abs(paper$ate_ctrl), 0)` %), pero no suprimió la resistencia territorial (supresión del `r fmt_es(paper$ate_resg, 0)` % indica que el efecto directo de la coerción es más fuerte que el efecto amortiguador de la regularización).
+La contribución teórica central es la distinción entre represión puntual e institucionalización coercitiva prolongada como productoras de efectos actitudinales cualitativamente distintos. La represión puntual — documentada por @disipavlic2024 durante el estallido — deteriora la justicia procedimental y aumenta la justificación de la resistencia. La institucionalización predecible — el decreto — mejora la percepción de procedimiento ingroup [@tyler1990] y produce efectos asimétricos: legitimación parcial de la institución policial y profundización simultánea de la justificación de la resistencia. Este patrón no es reducible al concepto de backlash: la coerción institucionalizada no produce radicalización unidireccional, sino una reconfiguración del marco normativo sobre el uso de la fuerza en la que ambos polos de la escala — represión y resistencia — se vuelven más aceptables, aunque por mecanismos distintos y con magnitudes diferentes. Llamamos a este fenómeno reconfiguración normativa dual.
 
-Las implicaciones para la política pública son directas: el estado de excepción tiene costos actitudinales bidireccionales que no se resuelven con el fin formal de la medida. Las identidades duales — mapuche y chileno simultáneamente — operan como amortiguador contra esta dinámica, lo que sugiere que las políticas de reconocimiento que fortalecen la identidad dual podrían ser más efectivas que las que refuerzan una identidad excluyente. La agenda futura incluye análisis con buffers geométricos, mediación formal con diseños de variables instrumentales, y extensión a otros contextos de estados de excepción en América Latina.
+Los hallazgos tienen implicaciones para la literatura sobre conflicto étnico y para el diseño de políticas de seguridad en territorios con conflictos históricamente enraizados. Para la literatura, los modelos que predicen cambios actitudinales a partir de la intensidad de la identidad étnica tienen menor poder predictivo cuando la coerción es territorial, directa y prolongada: la proximidad geográfica al conflicto supera a la intensidad identitaria como predictor de la reconfiguración actitudinal bajo estados de excepción. Para la política pública, la institucionalización de la coerción como estrategia de contención puede generar aquiescencia parcial — la regularización procedimental reduce la percepción de arbitrariedad — pero no desactiva la justificación de la resistencia. La contención territorial produce contención actitudinal fallida: estabiliza la percepción de la institución sin estabilizar la percepción de la situación.
+
+Este estudio tiene limitaciones que abren una agenda de investigación. El diseño de panel con olas anuales no permite aislar el efecto del decreto de otros eventos concurrentes — la derrota del Apruebo, la continuidad del conflicto, el cambio de gobierno. Futuras investigaciones podrían beneficiarse de diseños con mayor granularidad temporal, datos de movilidad inter-olas para abordar el sesgo de supervivencia, e instrumentos para la identificación causal del mecanismo procedimental. Más allá de sus limitaciones, el estudio documenta un fenómeno que la literatura no había caracterizado empíricamente en el contexto del conflicto mapuche: la coerción institucionalizada prolongada no contiene la justificación de la violencia — la reconfigura. Esa reconfiguración es dual, asimétrica y opera por mecanismos que los diseños transversales y las medidas puntuales de represión no pueden capturar. El conflicto mapuche, en sus dimensiones actitudinales, es más complejo de lo que los instrumentos de política de seguridad parecen reconocer.
 
 \newpage
 
 # Apéndice {#sec-apendice}
 
-## Tabla A1 — Modelos A, B y C (apéndice) {#tbl-apendice-m1m2}
+## A1 — Operacionalización detallada {#tbl-apendice-operacionalizacion}
 
 ```{r}
-#| label: tbl-apendice-m1m2
-#| tbl-cap: "Modelos por transición (A/B) y tres períodos (C). Sincronizado con tabla_apendice_m1_m2.html."
+#| label: tbl-apendice-operacionalizacion
+#| tbl-cap: "Operacionalización de variables principales e ítems ELRI."
 
-if (exists("mA_ctrl")) {
+tibble::tribble(
+  ~Variable,            ~Ítem,                                      ~Escala,        ~Fuente,
+  "Justif. represión estatal",   "Carabineros repriman (d3_1)",
+                                                                  "1–5 (ítem único)", "ELRI D",
+  "Cambio social",               "Tomas de terrenos (d4_2) + corte carreteras (d4_3)",
+                                                                  "1–5 (α≈.75)",  "ELRI D",
+  "Just. proc. ingroup", "Trato Carabineros a MI grupo étnico (d5_1 o d5_2 según identidad)",
+                                                                  "1–5",          "ELRI D",
+  "Just. proc. outgroup", "Trato Carabineros al OTRO grupo (d5_2 o d5_1 según identidad)",
+                                                                  "1–5",          "ELRI D",
+  "Brecha just. proc.",  "Diferencia percibida: outgroup − ingroup", "−4 a +4",      "Calculada",
+  "Just. proc. (promedio)", "Promedio d5_1 + d5_2 (comparabilidad)", "1–5",          "ELRI D",
+  "Id. causa indígena", "Me identifico con la causa indígena (d6_1)", "1–5",          "ELRI D",
+  "Id. con Chile",      "Identificación con Chile (a6)",            "1–5",          "ELRI A",
+  "Id. pueblo originario", "Promedio a4 + a5",                      "1–5 (r≈.82)",  "ELRI A",
+  "Predominancia identitaria", "Id. étnica − id. Chile",            "−4 a +4",      "Calculada",
+  "Perc. desigualdad",  "Condiciones de vida indígenas vs. no ind. (c22, invertida)",
+                                                                  "1–5",          "ELRI C",
+  "Apoyo moviliz.",     "Apoyo a movilizaciones indígenas (c25)",   "1–5",          "ELRI C"
+) |>
+  gt() |>
+  cols_label(
+    Variable = "Variable", Ítem = "Ítem(s)",
+    Escala = "Escala", Fuente = "Módulo"
+  ) |>
+  tab_options(
+    table.border.top.style = "solid",
+    table.border.bottom.style = "solid",
+    column_labels.border.bottom.style = "solid",
+    table_body.hlines.style = "none",
+    table.font.size = px(11)
+  ) |>
+  opt_stylize(style = 1) |>
+  publish_gt()
+```
+
+## A2 — Balance pretratamiento (ola 2) {#sec-apendice-a2}
+
+Diagnóstico de balance en baseline (ola 2) antes del estado de excepción. La tabla completa de diferencias estandarizadas se generó en `04_robustez.R` (`output/tablas/tabla_balance_ola2.html`).
+
+```{r}
+#| label: fig-apendice-balance
+#| fig-cap: "Love plot: balance pretratamiento (ola 2). Línea vertical en |SMD| = 0,1."
+#| fig-width: 9
+#| fig-height: 6
+#| out-width: "95%"
+
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_loveplot_balance_pre.png"))
+```
+
+## A3 — Propensity score matching (PSM) {#sec-apendice-a3}
+
+```{r}
+#| label: tbl-apendice-psm
+#| tbl-cap: "Modelos DiD en muestra emparejada (nearest neighbor, ola 2)."
+
+if (!is.null(robustez$m2_ctrl_matched)) {
   modelsummary(
     list(
-      "Ctrl — Estallido (A)" = mA_ctrl,
-      "Cambio — Estallido (A)" = mA_resg,
-      "Ctrl — Decreto (B)" = mB_ctrl,
-      "Cambio — Decreto (B)" = mB_resg,
-      "Ctrl — Tres períodos (C)" = mC_ctrl,
-      "Cambio — Tres períodos (C)" = mC_resg
+      "Represión estatal (PSM)" = robustez$m2_ctrl_matched,
+      "Cambio social (PSM)"     = robustez$m2_resg_matched
     ),
     statistic = "({std.error})",
     stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+    coef_map = coef_rename_did,
     fmt = 3,
-    coef_rename = coef_rename_did,
     gof_map = c("nobs", "icc", "rmse"),
     output = ms_out()
   ) |> style_ms()
 }
 ```
 
-## Tabla A2 — Modelos plebiscito {#tbl-apendice-pleb}
+## A4 — Ponderación inversa (IPW) {#sec-apendice-a4}
 
-```{r}
-#| label: tbl-apendice-pleb
-#| tbl-cap: "Modelos logísticos del plebiscito 2022 (Apéndice). Odds ratios."
+### Resumen forest plot
 
-modelsummary(
-  list(
-    "Participó" = m_movil,
-    "Rechazo"   = m_rechazo,
-    "Rechazo estricto" = m_rechazo_strict
-  ),
-  exponentiate = TRUE,
-  statistic = "({std.error})",
-  stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
-  fmt = 3,
-  coef_rename = coef_rename_pleb,
-  coef_omit = "edad|mujer",
-  gof_map = c("nobs", "aic"),
-  output = ms_out()
-) |> style_ms()
-```
-
-## Análisis de robustez {#sec-apendice-robustez}
-
-Para paliar la imposibilidad de testear formalmente tendencias paralelas con una sola ola pretratamiento, se implementaron análisis complementarios de balance en ola 2, propensity score matching (PSM), ponderación inversa de la probabilidad (IPW) con diagnóstico de pesos extremos, un placebo pretratamiento (olas 1–2), modelos por ítem y una replicación con codificación ordinal de las variables dependientes. En todas las especificaciones el coeficiente de interés es la triple interacción **Ola 4 × identidad indígena × zona de excepción** ($\tau_4$).
-
-@fig-apendice-robustez resume la estabilidad de $\tau_4$ entre el modelo principal, IPW, PSM y placebo. @tbl-apendice-robustez-resumen condensa los mismos resultados en formato tabular.
+@fig-apendice-robustez resume la estabilidad de $\tau_4$ entre el modelo principal, IPW, PSM y placebo. @tbl-apendice-robustez-resumen condensa los mismos resultados.
 
 ```{r}
 #| label: fig-apendice-robustez
@@ -926,7 +848,7 @@ knitr::include_graphics(file.path(root_dir, "output/figuras/fig_robustez_compara
 
 ```{r}
 #| label: tbl-apendice-robustez-resumen
-#| tbl-cap: "Resumen de análisis de robustez. Coeficiente de interés: Ola 4 × Indígena × Zona [DiD] (β)."
+#| tbl-cap: "Resumen de robustez. Coeficiente: Ola 4 × Indígena × Zona [DiD] (β)."
 
 paper$tbl_robustez |>
   gt() |>
@@ -945,56 +867,50 @@ paper$tbl_robustez |>
   publish_gt()
 ```
 
-En el modelo principal (Modelo C), la interacción triple es positiva y significativa para violencia de control social (`r paper$tau4_ctrl$beta_p`) y cambio social (`r paper$tau4_resg$beta_p`). El placebo pretratamiento (olas 1–2) `r if (paper$placebo_ns) "no alcanza significancia en ninguna variable dependiente, lo que es compatible con la ausencia de una divergencia equivalente antes del período analizado" else "muestra al menos un coeficiente significativo; la interpretación causal debe ser más cautelosa"`. En el PSM, los coeficientes mantienen dirección positiva (control: `r paper$psm_ctrl$beta_p`; cambio: `r paper$psm_resg$beta_p`) pero pierden significancia estadística. La explicación más probable no es solo la reducción muestral (*n* = `r paper$n_psm` folios emparejados), sino el **soporte común estrecho** entre tratados y controles: la zona de excepción concentra características sociodemográficas y territoriales que dificultan encontrar contrapartes válidas fuera de ella, lo que limita la estrategia de matching pero no invalida el diseño DiD condicional.
+### Diagnóstico de pesos y trimming
 
-### Ponderación inversa (IPW) y trimming de pesos
-
-El IPW estimado en ola 2 ajusta por diferencias observables en la probabilidad de residir en zona de excepción. La distribución de pesos presenta asimetría y valores extremos (@fig-apendice-pesos-ipw). En la especificación original, los pesos oscilan entre `r fmt_es(paper$diag_ipw_orig$min, 2)` y `r fmt_es(paper$diag_ipw_orig$max, 1)` (mediana = `r fmt_es(paper$diag_ipw_orig$mediana, 2)`; media = `r fmt_es(paper$diag_ipw_orig$media, 2)`; p95 = `r fmt_es(paper$diag_ipw_orig$p95, 2)`; p99 = `r fmt_es(paper$diag_ipw_orig$p99, 1)`). Tras truncar al percentil 5–95 %, el rango se reduce a [`r fmt_es(paper$diag_ipw_trim595$min, 2)`; `r fmt_es(paper$diag_ipw_trim595$max, 2)`], con media = `r fmt_es(paper$diag_ipw_trim595$media, 2)` y mediana = `r fmt_es(paper$diag_ipw_trim595$mediana, 2)`.
-
-Para violencia de control social, el IPW original (`r paper$ipw_o_ctrl$beta_p`) amplifica la magnitud respecto al modelo principal, pero el efecto permanece positivo y altamente significativo tras el trimming (1–99 %: `r paper$ipw_199_ctrl$beta_stars`; 5–95 %: `r paper$ipw_595_ctrl$beta_stars`), lo que sugiere que el aumento ponderado no parece explicarse exclusivamente por observaciones con pesos extremos. Para violencia de cambio social, la dirección positiva se mantiene en todas las especificaciones IPW, pero la magnitud es sensible al tratamiento de pesos: el coeficiente pasa de `r paper$ipw_o_resg$beta_p` en el IPW original a `r paper$ipw_199_resg$beta_p` con trimming 1–99 % y `r paper$ipw_595_resg$beta_p` con trimming 5–95 %. En conjunto, la evidencia es más sólida para la **dirección** del cambio diferencial que para el tamaño puntual del coeficiente.
+El IPW estimado en ola 2 ajusta por diferencias observables en la probabilidad de residir en zona de excepción. La distribución de pesos presenta asimetría y valores extremos (@fig-apendice-pesos-ipw). En la especificación original, los pesos oscilan entre `r fmt_es(paper$diag_ipw_orig$min, 2)` y `r fmt_es(paper$diag_ipw_orig$max, 1)` (mediana = `r fmt_es(paper$diag_ipw_orig$mediana, 2)`). Tras truncar al percentil 5–95 %, el rango se reduce a [`r fmt_es(paper$diag_ipw_trim595$min, 2)`; `r fmt_es(paper$diag_ipw_trim595$max, 2)`]. Para cambio social, la dirección positiva del DiD se mantiene en todas las especificaciones IPW; para represión estatal, el IPW amplifica la magnitud respecto al modelo principal (`r paper$ipw_o_ctrl$beta_p`).
 
 ```{r}
 #| label: fig-apendice-pesos-ipw
-#| fig-cap: "Distribución de pesos IPW en ola 2 (baseline). Líneas verticales: percentiles 1 y 99."
+#| fig-cap: "Distribución de pesos IPW en ola 2 (baseline)."
 #| fig-width: 8
 #| fig-height: 5
 #| out-width: "85%"
-#| fig-align: center
 
 knitr::include_graphics(file.path(root_dir, "output/figuras/fig_hist_pesos_ipw.png"))
 ```
 
-### Tabla completa de coeficientes de robustez
-
 ```{r}
 #| label: tbl-apendice-robustez
-#| tbl-cap: "Resumen completo de robustez (todos los modelos estimados en 04_robustez.R)."
+#| tbl-cap: "Resumen completo de robustez (04_robustez.R)."
 
 paper$resumen_robustez |>
   dplyr::select(modelo, variable_dependiente, estimate, std.error, p.value, signif) |>
   dplyr::mutate(
     variable_dependiente = dplyr::recode(
       variable_dependiente,
-      idx_vio_control = "Control social",
-      idx_vio_resguardo = "Cambio social"
+      idx_vio_control = "Represión estatal",
+      idx_vio_resguardo = "Cambio social",
+      idx_vio_control_dual = "Represión (índice dual)"
     ),
     estimate = purrr::map_chr(estimate, ~ fmt_es(.x)),
     p.value = purrr::map_chr(p.value, ~ fmt_p_inline(.x))
   ) |>
   gt() |>
   cols_label(
-    modelo = "Especificación",
-    variable_dependiente = "VD",
-    estimate = "β",
-    std.error = "EE",
-    p.value = "p",
-    signif = ""
+    modelo = "Especificación", variable_dependiente = "VD",
+    estimate = "β", std.error = "EE", p.value = "p", signif = ""
   ) |>
   tab_options(table.font.size = px(9)) |>
   publish_gt()
 ```
 
-### Modelos DiD por ítem {#tbl-apendice-items}
+## A5 — Placebo pretratamiento (olas 1–2) {#sec-apendice-a5}
+
+Sin shocks entre 2016 y 2018, el coeficiente placebo debe aproximarse a cero. El placebo pretratamiento `r if (paper$placebo_ns) "no alcanza significancia en ninguna variable dependiente" else "muestra al menos un coeficiente significativo; interpretar con cautela"`.
+
+## A6 — Modelos DiD por ítem {#sec-apendice-a6}
 
 ```{r}
 #| label: tbl-apendice-items
@@ -1017,7 +933,11 @@ if (!is.null(robustez$item_models) && length(robustez$item_models) > 0) {
 }
 ```
 
-### Codificación ordinal (sensibilidad) {#tbl-apendice-likert}
+## A7 — Análisis de sensibilidad {#sec-apendice-a7}
+
+Índice dual d3_1+d3_2, modelo con `perc_injusticia` (N reducido) y codificación ordinal.
+
+### Codificación ordinal {#tbl-apendice-likert}
 
 Se replicaron los modelos DiD con una codificación ordinal de las variables dependientes (Rechaza [1–2] / Neutral [3] / Justifica [4–5], esquema A simétrico). Los resultados son consistentes en dirección y significancia con la especificación continua, siendo más sensibles al efecto DiD en cambio social (β = 1,87**, *p* < ,01) que en control social (β = 1,14+, *p* = ,08).
 
@@ -1044,41 +964,122 @@ if (file.exists(likert_path)) {
 }
 ```
 
-## Tabla A4 — Consistencia interna {#tbl-apendice-alpha}
+## A8 — Heterogeneidad identitaria {#sec-apendice-a8}
+
+Exploración por terciles de predominancia identitaria (baseline ola 2). El efecto del decreto opera por proximidad territorial más que por intensidad identitaria en baseline.
+
+```{r}
+#| label: fig-apendice-identidad
+#| fig-cap: "Identidad ingroup vs. outgroup por grupo y zona (Apéndice A8)."
+#| fig-width: 12
+#| fig-height: 6
+#| out-width: "100%"
+
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_identidad_ingroup_outgroup.png"))
+```
+
+```{r}
+#| label: tbl-apendice-hetero
+#| tbl-cap: "Efecto DiD (Modelo C) por tercil de predominancia identitaria."
+
+if (!is.null(paper$hetero_terciles)) {
+  paper$hetero_terciles |>
+    gt() |>
+    cols_label(
+      vd = "VD", tercil = "Tercil", estimate = "β",
+      std.error = "SE", p.value = "p", beta_p = "Coeficiente"
+    ) |>
+    fmt_number(columns = c(estimate, std.error, p.value), decimals = 3) |>
+    publish_gt()
+}
+```
+
+## A9 — Consistencia interna {#tbl-apendice-alpha}
 
 ```{r}
 #| label: tbl-apendice-alpha
 #| tbl-cap: "Consistencia interna de índices compuestos (alfa de Cronbach e intercorrelación ítem)."
 
-alpha_ctrl <- psych::alpha(
-  subset_data[, c("vio_ctrl_carb", "vio_ctrl_agric")],
-  check.keys = TRUE
-)
 alpha_resg <- psych::alpha(
   subset_data[, c("vio_camb_tierras", "vio_camb_cortes")],
   check.keys = TRUE
 )
-r_ctrl <- cor(subset_data$vio_ctrl_carb, subset_data$vio_ctrl_agric,
-              use = "complete.obs")
 r_resg <- cor(subset_data$vio_camb_tierras, subset_data$vio_camb_cortes,
               use = "complete.obs")
+r_id <- NA_real_
+if (file.exists(file.path(root_dir, "data/BBDD_ELRI_LONG.RData"))) {
+  load(file.path(root_dir, "data/BBDD_ELRI_LONG.RData"))
+  r_id <- cor(BBDD_ELRI_LONG$a4, BBDD_ELRI_LONG$a5, use = "pairwise.complete.obs")
+}
 
 tibble::tibble(
-  Indice = c("Control social (status quo)", "Cambio social"),
-  Alpha  = c(alpha_ctrl$total$raw_alpha, alpha_resg$total$raw_alpha),
-  `Correlacion inter-item` = c(r_ctrl, r_resg)
+  Indice = c(
+    "Represión estatal (status quo)",
+    "Cambio social",
+    "Justicia proc. ingroup",
+    "Justicia proc. outgroup",
+    "Identidad étnica (a4+a5)"
+  ),
+  Items = c("1 (d3_1)", "2 (d4_2+d4_3)", "1", "1", "2 (a4+a5)"),
+  Alpha = c("—", sprintf("%.3f", alpha_resg$total$raw_alpha), "—", "—", "—"),
+  `Correlacion inter-item` = c(
+    "—", sprintf("%.3f", r_resg), "—", "—",
+    if (!is.na(r_id)) sprintf("%.3f", r_id) else "—"
+  ),
+  Nota = c(
+    "Ítem único",
+    "Adecuado",
+    "Ítem único",
+    "Ítem único",
+    "Alta correlación"
+  )
 ) |>
   gt() |>
-  fmt_number(columns = c(Alpha, `Correlacion inter-item`), decimals = 3) |>
   tab_header(
-    title = "Consistencia interna de índices compuestos",
-    subtitle = "Alfa de Cronbach y correlación inter-ítem"
+    title = "Consistencia interna de índices",
+    subtitle = "Alfa de Cronbach e intercorrelación ítem"
   ) |>
   opt_stylize(style = 1) |>
   publish_gt()
 ```
 
-## Tabla A5 — Análisis de mecanismo ingroup/outgroup {#tbl-apendice-mecanismo}
+### Especificaciones alternativas (ítem único vs. dual; perc. injusticia)
+
+```{r}
+#| label: tbl-apendice-sensibilidad
+#| tbl-cap: "Modelos de sensibilidad: control con perc. injusticia (N reducido) e índice dual d3_1+d3_2."
+
+if (!is.null(robustez$m_sensibilidad_injusticia) || !is.null(robustez$m_sensibilidad_control_dual)) {
+  sens_paper <- Filter(Negate(is.null), list(
+    "Control (principal)" = modelos$mC_ctrl,
+    "+ perc. injusticia" = robustez$m_sensibilidad_injusticia,
+    "Índice dual d3_1+d3_2" = robustez$m_sensibilidad_control_dual
+  ))
+  tbl_sens <- modelsummary(
+    sens_paper,
+    statistic = "({std.error})",
+    stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+    coef_map = coef_rename_did,
+    fmt = 3,
+    gof_map = c("nobs", "icc", "rmse"),
+    output = ms_out()
+  ) |> style_ms()
+  if (!is.null(robustez$n_sens_injusticia)) {
+    nota_n <- paste0(
+      "Nota: N modelo con perc. injusticia = ",
+      robustez$n_sens_injusticia,
+      " (pérdida ~46 % por missingness en c23)."
+    )
+    if (inherits(tbl_sens, "gt_tbl")) {
+      tbl_sens <- tbl_sens |>
+        gt::tab_source_note(source_note = nota_n)
+    }
+  }
+  tbl_sens
+}
+```
+
+## Tabla complementaria — Mecanismo (9 modelos) {#tbl-apendice-mecanismo}
 
 ```{r}
 #| label: tbl-apendice-mecanismo
@@ -1113,25 +1114,76 @@ if (!is.null(mecanismo$m1_ingroup)) {
 }
 ```
 
-## Tabla A6 — Heterogeneidad por terciles {#tbl-apendice-hetero}
+## Tabla complementaria — Modelos A, B y C completos {#tbl-apendice-m1m2}
 
 ```{r}
-#| label: tbl-apendice-hetero
-#| tbl-cap: "Efecto DiD por tercil de predominancia identitaria (baseline ola 2)."
+#| label: tbl-apendice-m1m2
+#| tbl-cap: "Modelos por transición (A/B) y tres períodos (C)."
 
-if (!is.null(paper$hetero_terciles)) {
-  paper$hetero_terciles |>
-    gt() |>
-    cols_label(
-      vd = "VD", tercil = "Tercil", estimate = "β",
-      std.error = "SE", p.value = "p", beta_p = "Coeficiente"
-    ) |>
-    fmt_number(columns = c(estimate, std.error, p.value), decimals = 3) |>
-    publish_gt()
+if (exists("mA_ctrl")) {
+  modelsummary(
+    list(
+      "Ctrl — Estallido (A)" = mA_ctrl,
+      "Cambio — Estallido (A)" = mA_resg,
+      "Ctrl — Decreto (B)" = mB_ctrl,
+      "Cambio — Decreto (B)" = mB_resg,
+      "Ctrl — Tres períodos (C)" = mC_ctrl,
+      "Cambio — Tres períodos (C)" = mC_resg
+    ),
+    statistic = "({std.error})",
+    stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+    fmt = 3,
+    coef_rename = coef_rename_did,
+    gof_map = c("nobs", "icc", "rmse"),
+    output = ms_out()
+  ) |> style_ms()
 }
 ```
 
-## Figura A1 — Coeficientes completos M2 {#fig-apendice-coef}
+## A10 — Análisis del plebiscito de salida (septiembre 2022) {#sec-apendice-a10}
+
+El plebiscito constitucional de septiembre de 2022 ocurrió entre las olas 3 (dic. 2020–may 2021) y 4 (2023) de ELRI. El análisis del voto se realiza con datos de ola 4, lo que implica que las actitudes medidas son posteriores al evento analizado; los resultados deben interpretarse como asociaciones descriptivas, no causales.
+
+Estimamos tres modelos logísticos en ola 4: (1) probabilidad de haber votado (vs. no votar), (2) probabilidad de voto Rechazo (entre votantes), (3) probabilidad de voto Rechazo vs. Apruebo (excluyendo nulos).
+
+```{r}
+#| label: tbl-apendice-pleb
+#| tbl-cap: "Modelos logísticos del plebiscito constitucional de 2022 (ola 4). Odds ratios con errores estándar entre paréntesis."
+
+modelsummary(
+  list(
+    "Participó\n(votó)"           = m_movil,
+    "Voto Rechazo\n(vs. resto)"   = m_rechazo,
+    "Voto Rechazo\n(vs. Apruebo)" = m_rechazo_strict
+  ),
+  exponentiate = TRUE,
+  statistic = "({std.error})",
+  stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+  fmt = 3,
+  coef_rename = coef_rename_pleb,
+  gof_map = list(
+    list(raw = "nobs", clean = "N observaciones", fmt = 0),
+    list(raw = "aic",  clean = "AIC",             fmt = 1)
+  ),
+  notes = "Odds ratios. + p<.1, * p<.05, ** p<.01, *** p<.001. Solo ola 4.",
+  output = ms_out()
+) |> style_ms()
+```
+
+Los residentes de la zona de excepción muestran una probabilidad significativamente mayor de voto Rechazo (OR ≈ `r sprintf("%.1f", exp(coef(m_rechazo)["cerca_conflictocerca"]))`, `r fmt_p_inline(summary(m_rechazo)$coefficients["cerca_conflictocerca", "Pr(>|z|)"])`). La interacción Indígena × Zona no alcanza significancia (OR = `r sprintf("%.2f", exp(coef(m_rechazo)["indigeneousindi:cerca_conflictocerca"]))`, `r fmt_p_inline(summary(m_rechazo)$coefficients["indigeneousindi:cerca_conflictocerca", "Pr(>|z|)"])`), lo que indica que el efecto territorial no es diferencial por etnia. La justificación de represión estatal predice positivamente el voto Rechazo (OR ≈ `r sprintf("%.2f", exp(coef(m_rechazo)["idx_vio_control"]))`, `r fmt_p_inline(summary(m_rechazo)$coefficients["idx_vio_control", "Pr(>|z|)"])`), mientras que la justificación de violencia de cambio social lo predice negativamente (OR ≈ `r sprintf("%.2f", exp(coef(m_rechazo)["idx_vio_resguardo"]))`, `r fmt_p_inline(summary(m_rechazo)$coefficients["idx_vio_resguardo", "Pr(>|z|)"])`).
+
+```{r}
+#| label: fig-apendice-rechazo
+#| fig-cap: "Probabilidades predichas de voto Rechazo por identidad étnica y zona de residencia (plebiscito septiembre 2022). Intervalos de confianza al 95 %; resto de variables en sus medias."
+#| fig-width: 7
+#| fig-height: 5
+#| out-width: "80%"
+#| fig-align: center
+
+knitr::include_graphics(file.path(root_dir, "output/figuras/fig_prob_rechazo.png"))
+```
+
+## Figura complementaria — Coeficientes Modelo C {#fig-apendice-coef}
 
 ```{r}
 #| label: fig-apendice-coef
@@ -1141,6 +1193,90 @@ if (!is.null(paper$hetero_terciles)) {
 
 knitr::include_graphics(file.path(root_dir, "output/figuras/fig_coeficientes.png"))
 ```
+
+## A11 — Especificación de modelos {#sec-apendice-a11}
+
+Presentamos las fórmulas de todas las especificaciones. La principal es el Modelo C (§4.1, @eq-m2); las alternativas se incluyen por transparencia.
+
+### A11.1 Modelo A: estallido (olas 2→3)
+
+$$
+Y_{it} = \beta_0 + \beta_1 T_{it}^{(2 \to 3)} + \beta_2 \text{Indi}_i + \beta_3 \text{Zona}_i + \tau_A (T_{it}^{(2 \to 3)} \times \text{Indi}_i \times \text{Zona}_i) + \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
+$$
+
+Nota: transición binaria ola 2→3; útil para el Bloque 1 (replicación del estallido).
+
+### A11.2 Modelo B: decreto (olas 3→4)
+
+$$
+Y_{it} = \beta_0 + \beta_1 T_{it}^{(3 \to 4)} + \beta_2 \text{Indi}_i + \beta_3 \text{Zona}_i + \tau_B (T_{it}^{(3 \to 4)} \times \text{Indi}_i \times \text{Zona}_i) + \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
+$$
+
+### A11.3 Análisis de mediación (diferencia de coeficientes)
+
+Paso 1 — tratamiento sobre mediador:
+
+$$
+J_{it} = \alpha_0 + \sum_t \beta_t \text{Ola}_t + \cdots + \tau_t^{(J)} (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) + \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
+$$
+
+Paso 3 — VD con mediador rezagado:
+
+$$
+Y_{it} = \alpha_0 + \delta J_{i,t-1} + \sum_t \beta_t \text{Ola}_t + \cdots + \tau_t' (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) + \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
+$$
+
+Efecto mediado $= \tau_t - \tau_t'$; porcentaje mediado $= 100(\tau_t - \tau_t')/\tau_t$. Si $\tau_t - \tau_t' < 0$, hay supresión.
+
+### A11.4 Análisis por ítem
+
+Para cada ítem $j \in \{d3_1, d3_2, d4_2, d4_3\}$:
+
+$$
+Y_{j,it} = \beta_0 + \cdots + \tau_{j} (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) + \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
+$$
+
+### A11.5 Propensity score matching
+
+$$
+\Pr(\text{Zona}_i = 1 \mid \mathbf{X}_i) = \text{logit}^{-1}(\boldsymbol{\beta}'\mathbf{X}_i)
+$$
+
+Matching: vecino más cercano 1:1, sin reemplazo. DiD sobre muestra emparejada.
+
+### A11.6 Inverse probability weighting
+
+$$
+w_i = \frac{\Pr(\text{Zona}_i)}{\Pr(\text{Zona}_i \mid \mathbf{X}_i)}
+$$
+
+Variantes con trimming percentiles 1–99 % y 5–95 % (tablas en A4).
+
+### A11.7 Placebo (olas 1→2)
+
+$$
+Y_{it} = \beta_0 + \beta_1 T_{it}^{(1 \to 2)} + \cdots + \tau_{\text{plc}} (T_{it}^{(1 \to 2)} \times \text{Indi}_i \times \text{Zona}_i) + \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
+$$
+
+Predicción: $\tau_{\text{plc}} \approx 0$ (sin shocks entre 2016 y 2018).
+
+### A11.8 Heterogeneidad por predominancia identitaria
+
+Por tercil $k$ de predominancia (baseline):
+
+$$
+Y_{it} = \beta_0 + \cdots + \tau_k (\text{Ola}_t \times \text{Indi}_i \times \text{Zona}_i) + \mathbf{X}_{it}'\boldsymbol{\gamma} + u_i + \varepsilon_{it}
+$$
+
+Análisis de matiz: el decreto opera por $Z$, no por intensidad identitaria lineal (véase A8). El análisis logístico del plebiscito (diseño transversal en ola 4) figura en @sec-apendice-a10.
+
+### A11.9 ICC y contraste M1 vs. M2
+
+$$
+\text{ICC} = \frac{\sigma_u^2}{\sigma_u^2 + \sigma_\varepsilon^2}
+$$
+
+Modelo M1 (sin interacciones DiD) vs. M2 (@eq-m2): LRT con 5 gl adicionales.
 
 ## Referencias {.unnumbered}
 

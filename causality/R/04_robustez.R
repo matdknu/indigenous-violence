@@ -138,21 +138,30 @@ cor_ur_cc <- cor(
 )
 incluir_urbano_rural <- abs(cor_ur_cc) <= 0.5
 
-controles_base <- if (incluir_urbano_rural) {
-  "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + perc_injusticia"
+if (file.exists("data/analysis_metadata.rds")) {
+  metadata <- readRDS("data/analysis_metadata.rds")
+  controles_base <- metadata$controles_base
 } else {
-  "mujer + edad + id_chile + id_causa + perc_desigualdad + perc_injusticia"
+  controles_base <- if (incluir_urbano_rural) {
+    "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+  } else {
+    "mujer + edad + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+  }
 }
+
+controles_sens_injusticia <- paste(
+  controles_base, "+ perc_injusticia"
+)
 
 ps_formula <- as.formula(paste(
   "tratado_zona ~ indigeneous + mujer + edad + urbano_rural +",
-  "id_chile + id_causa + perc_desigualdad + perc_injusticia +",
+  "id_chile + id_causa + perc_desigualdad +",
   "idx_vio_control + idx_vio_resguardo"
 ))
 
 ps_covars <- c(
   "indigeneous", "mujer", "edad", "urbano_rural",
-  "id_chile", "id_causa", "perc_desigualdad", "perc_injusticia",
+  "id_chile", "id_causa", "perc_desigualdad",
   "idx_vio_control", "idx_vio_resguardo"
 )
 
@@ -726,6 +735,68 @@ if (length(item_models) > 0) {
   cat("\n")
 }
 
+# ── 15.5b Modelos de sensibilidad (apéndice) ──────────────────────────────────
+
+cat("--- 15.5b Sensibilidad: perc_injusticia e índice dual d3_1+d3_2 ---\n\n")
+
+m_sensibilidad_injusticia <- tryCatch(
+  lmer(
+    formula_did("idx_vio_control", controles_sens_injusticia),
+    data = subset_data,
+    REML = FALSE
+  ),
+  error = function(e) {
+    cat("⚠ Error modelo sensibilidad perc_injusticia:", conditionMessage(e), "\n")
+    NULL
+  }
+)
+
+if (!is.null(m_sensibilidad_injusticia)) {
+  n_sens_injust <- nobs(m_sensibilidad_injusticia)
+  cat("Modelo sensibilidad perc_injusticia — N =", n_sens_injust,
+      "(pérdida por missingness ~46% en c23)\n")
+}
+
+m_sensibilidad_control_dual <- tryCatch(
+  lmer(
+    formula_did("idx_vio_control_dual", controles_base),
+    data = subset_data,
+    REML = FALSE
+  ),
+  error = function(e) {
+    cat("⚠ Error modelo sensibilidad índice dual:", conditionMessage(e), "\n")
+    NULL
+  }
+)
+
+if (!is.null(m_sensibilidad_control_dual)) {
+  cf_dual <- extract_coef(
+    m_sensibilidad_control_dual, TERM_DID_DECRETO,
+    "Sensibilidad índice dual (d3_1+d3_2)", "idx_vio_control_dual"
+  )
+  cat("Índice dual d3_1+d3_2 — DiD decreto:",
+      round(cf_dual$estimate, 3), cf_dual$signif,
+      "(p =", format.pval(cf_dual$p.value, digits = 3), ")\n\n")
+}
+
+sens_list <- list(
+  "Control + perc. injusticia (apéndice)" = m_sensibilidad_injusticia,
+  "Control índice dual d3_1+d3_2 (A7)" = m_sensibilidad_control_dual
+)
+sens_named <- sens_list[!vapply(sens_list, is.null, logical(1))]
+
+if (length(sens_named) > 0) {
+  modelsummary(
+    sens_named,
+    statistic = "({std.error})",
+    stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+    fmt = 3,
+    gof_map = c("nobs", "icc", "rmse"),
+    output = "output/tablas/tabla_sensibilidad_apendice.html"
+  )
+  cat("✓ Tabla sensibilidad guardada: output/tablas/tabla_sensibilidad_apendice.html\n\n")
+}
+
 # ── 15.6 Tabla resumen final de robustez ──────────────────────────────────────
 
 cat("--- 15.6 Tabla resumen de robustez ---\n\n")
@@ -737,6 +808,21 @@ if (!exists("mC_ctrl")) {
 if (!exists("mA_ctrl")) {
   mA_ctrl <- mA_resg <- mB_ctrl <- mB_resg <- NULL
 }
+
+filas_sens <- purrr::compact(list(
+  if (!is.null(m_sensibilidad_injusticia)) {
+    extract_coef(
+      m_sensibilidad_injusticia, TERM_DID_DECRETO,
+      "Sensibilidad + perc. injusticia", "idx_vio_control"
+    )
+  },
+  if (!is.null(m_sensibilidad_control_dual)) {
+    extract_coef(
+      m_sensibilidad_control_dual, TERM_DID_DECRETO,
+      "Sensibilidad índice dual (A7)", "idx_vio_control_dual"
+    )
+  }
+))
 
 resumen_robustez <- bind_rows(
   extract_coef(mC_ctrl, TERM_DID_ESTALLIDO, "C — DiD estallido", "idx_vio_control"),
@@ -764,7 +850,13 @@ resumen_robustez <- bind_rows(
   imap_dfr(item_models, ~ extract_coef(
     .x, TERM_DID_DECRETO, paste("Ítem:", item_labels[[.y]]), .y
   ))
-) |>
+)
+
+if (length(filas_sens) > 0) {
+  resumen_robustez <- bind_rows(resumen_robustez, bind_rows(filas_sens))
+}
+
+resumen_robustez <- resumen_robustez |>
   mutate(
     ci_lo = estimate - 1.96 * std.error,
     ci_hi = estimate + 1.96 * std.error,
@@ -1023,8 +1115,20 @@ saveRDS(
     m_nucleo_ctrl = m_nucleo_ctrl,
     m_nucleo_resg = m_nucleo_resg,
     item_models = item_models,
+    m_sensibilidad_injusticia = if (exists("m_sensibilidad_injusticia")) {
+      m_sensibilidad_injusticia
+    } else {
+      NULL
+    },
+    m_sensibilidad_control_dual = if (exists("m_sensibilidad_control_dual")) {
+      m_sensibilidad_control_dual
+    } else {
+      NULL
+    },
+    n_sens_injusticia = if (exists("n_sens_injust")) n_sens_injust else NA_integer_,
     resumen_robustez = resumen_robustez,
-    controles_base = controles_base
+    controles_base = controles_base,
+    controles_sens_injusticia = controles_sens_injusticia
   ),
   "data/robustez.rds"
 )

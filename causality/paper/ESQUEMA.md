@@ -4,7 +4,7 @@
 
 | Índice | Concepto | Ítems | Sentido |
 |--------|----------|-------|---------|
-| **idx_vio_control** | Violencia de **control social** | d3_1 + d3_2 | Carabineros/civiles sobre indígenas |
+| **idx_vio_control** | Justificación de **represión estatal** | d3_1 (ítem único) | Carabineros repriman protestas |
 | **idx_vio_cambio** | Violencia de **cambio social** | d4_2 + d4_3 | Acciones pro-indígenas (tomas, cortes) |
 
 *Excluido del análisis:* justicia procedimental (d5_1/d5_2) — no es variable dependiente.

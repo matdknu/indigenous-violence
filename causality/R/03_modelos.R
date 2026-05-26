@@ -57,12 +57,18 @@ cat("Distribución urbano_rural × cerca_conflicto:\n")
 print(table(subset_data$urbano_rural, subset_data$cerca_conflicto, useNA = "ifany"))
 cat("\n")
 
-controles_base <- if (incluir_urbano_rural) {
-  "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + perc_injusticia"
+if (file.exists("data/analysis_metadata.rds")) {
+  metadata <- readRDS("data/analysis_metadata.rds")
+  controles_base <- metadata$controles_base
+  cat("Controles (desde analysis_metadata.rds):", controles_base, "\n\n")
 } else {
-  "mujer + edad + id_chile + id_causa + perc_desigualdad + perc_injusticia"
+  controles_base <- if (incluir_urbano_rural) {
+    "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+  } else {
+    "mujer + edad + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+  }
+  cat("Controles en modelos:", controles_base, "\n\n")
 }
-cat("Controles en modelos:", controles_base, "\n\n")
 
 # ── Coeficientes de interés (DiD triple) ────────────────────────────────────────
 
@@ -485,7 +491,7 @@ coef_rename_pleb <- c(
   "edad45_54"            = "Edad 45–54",
   "edad55_64"            = "Edad 55–64",
   "edad65+"              = "Edad 65+",
-  "idx_vio_control"      = "Justif. vio. control social",
+  "idx_vio_control"      = "Justif. represión estatal",
   "idx_vio_resguardo"    = "Justif. vio. cambio social",
   "idx_just_proc"        = "Justicia procedimental",
   "apoyo_movil"          = "Apoyo movilizaciones",

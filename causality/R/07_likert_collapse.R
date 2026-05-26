@@ -158,10 +158,14 @@ cor_ur_cc <- cor(
   use = "complete.obs"
 )
 incluir_urbano_rural <- abs(cor_ur_cc) <= 0.5
-controles_base <- if (incluir_urbano_rural) {
-  "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + perc_injusticia"
+if (file.exists("data/analysis_metadata.rds")) {
+  controles_base <- readRDS("data/analysis_metadata.rds")$controles_base
 } else {
-  "mujer + edad + id_chile + id_causa + perc_desigualdad + perc_injusticia"
+  controles_base <- if (incluir_urbano_rural) {
+    "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+  } else {
+    "mujer + edad + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+  }
 }
 
 form_did <- function(y) {
