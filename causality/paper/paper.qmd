@@ -7,7 +7,7 @@ author:
       - Observatorio de Violencia y Legitimidad Social (OLES)
   - name: Federico Díaz
     affiliation: Pontificia Universidad Católica de Chile
-  - name: Mónica Gerber (invitada, por confirmar)
+  - name: Monica M. Gerber (invitada, por confirmar)
     affiliation:
       - Pontificia Universidad Católica de Chile
       - Observatorio de Violencia y Legitimidad Social (OLES)
