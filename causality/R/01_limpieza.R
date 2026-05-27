@@ -122,7 +122,7 @@ panel <- panel |>
   ungroup()
 
 # ── 5. Identidad y sociodemografía fijadas desde ola 1 ────────────────────────
-
+#
 identidad_ola1 <- panel |>
   filter(ola == 1) |>
   transmute(
@@ -460,6 +460,33 @@ cat("Ola 3 (dic2020-may21): N =",
     sum(subset_data$ola == 3), "— Resabio estallido social\n")
 cat("Ola 4 (2023):          N =",
     sum(subset_data$ola == 4), "— Decreto + derrota Apruebo\n")
+
+cat("\nMuestra analítica:\n")
+cat("  Indígena:      N =",
+    sum(subset_data$indigeneous == "indi" & subset_data$ola == 2),
+    "(ola 2 baseline)\n")
+cat("  No indígena:   N =",
+    sum(subset_data$indigeneous == "no_indi" & subset_data$ola == 2),
+    "(ola 2 baseline)\n")
+
+cat("\n--- Composición de la muestra (ola 2 baseline) ---\n")
+composicion <- subset_data |>
+  filter(ola == 2) |>
+  group_by(indigeneous) |>
+  summarise(
+    n = n(),
+    n_zona_decreto = sum(zona_decreto == "decreto"),
+    pct_zona = round(n_zona_decreto / n * 100, 1),
+    .groups = "drop"
+  )
+print(composicion)
+
+cat("Niveles indigeneous:", paste(levels(subset_data$indigeneous), collapse = ", "), "\n")
+cat("N por grupo (ola 2):\n")
+print(table(
+  subset_data$indigeneous[subset_data$ola == 2],
+  useNA = "ifany"
+))
 
 cat("\n--- CAPA 1 — Decreto estricto (53 comunas) ---\n")
 print(table(subset_data$zona_decreto, subset_data$ola))

@@ -3,15 +3,15 @@
 GRUPO_COLORES <- c(
   "No indígena / lejos"          = "#4575B4",
   "No indígena / zona excepción" = "#74ADD1",
-  "Indígena / lejos"             = "#D73027",
-  "Indígena / zona excepción"    = "#F46D43"
+  "Indígena / lejos"              = "#D73027",
+  "Indígena / zona excepción"     = "#F46D43"
 )
 
 GRUPO_LINETYPES <- c(
   "No indígena / lejos"          = "dashed",
   "No indígena / zona excepción" = "solid",
-  "Indígena / lejos"             = "dashed",
-  "Indígena / zona excepción"    = "solid"
+  "Indígena / lejos"              = "dashed",
+  "Indígena / zona excepción"     = "solid"
 )
 
 LIKERT_Y_MIN <- 1

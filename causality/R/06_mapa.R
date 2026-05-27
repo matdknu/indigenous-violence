@@ -5,7 +5,7 @@
 # =============================================================================
 
 pacman::p_load(
-  dplyr, ggplot2, sf, stringr, janitor,
+  dplyr, tidyr, ggplot2, sf, stringr, janitor,
   chilemapas, rvest, scales, patchwork
 )
 

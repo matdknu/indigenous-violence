@@ -310,6 +310,53 @@ build_paper_results <- function(
     NULL
   }
 
+  n_indi_ola2 <- n_noindi_ola2 <- n_persona_olas <- NA_integer_
+  if (!is.null(subset_data)) {
+    n_indi_ola2 <- sum(
+      subset_data$indigeneous == "indi" & subset_data$ola == 2,
+      na.rm = TRUE
+    )
+    n_noindi_ola2 <- sum(
+      subset_data$indigeneous == "no_indi" & subset_data$ola == 2,
+      na.rm = TRUE
+    )
+    n_persona_olas <- nrow(subset_data)
+  }
+
+  or_rechazo_zona <- p_or_zona <- NA_real_
+  if (!is.null(modelos$m_rechazo)) {
+    cf <- coef(modelos$m_rechazo)
+    if ("cerca_conflictocerca" %in% names(cf)) {
+      or_rechazo_zona <- as.numeric(exp(cf["cerca_conflictocerca"]))
+      p_or_zona <- summary(modelos$m_rechazo)$coefficients[
+        "cerca_conflictocerca", "Pr(>|z|)"
+      ]
+    }
+  }
+
+  med_ctrl_pct <- if (!is.na(ate_ctrl)) ate_ctrl else NA_real_
+  sup_resg_pct <- if (!is.na(ate_resg)) abs(ate_resg) else NA_real_
+
+  sens_mapuche_tbl <- if (!is.null(robustez$sens_mapuche_compare)) {
+    robustez$sens_mapuche_compare |>
+      dplyr::mutate(
+        beta_stars = purrr::map2_chr(
+          .data$estimate, .data$p.value, fmt_beta_stars
+        ),
+        beta_p = purrr::map2_chr(
+          .data$estimate, .data$p.value, fmt_beta_p
+        )
+      ) |>
+      dplyr::transmute(
+        muestra = .data$modelo,
+        vd = .data$vd_label,
+        beta_stars = .data$beta_stars,
+        beta_p = .data$beta_p
+      )
+  } else {
+    NULL
+  }
+
   list(
     resumen_robustez = resumen,
     tbl_robustez = build_tbl_robustez_paper(resumen),
@@ -356,8 +403,65 @@ build_paper_results <- function(
     med_ingroup_did = med_ingroup_did,
     med_outgroup_did = med_outgroup_did,
     med_brecha_did = med_brecha_did,
-    hetero_terciles = hetero_terciles
+    hetero_terciles = hetero_terciles,
+
+    sens_mapuche_tbl = sens_mapuche_tbl,
+    n_individuos = n_panel,
+    n_persona_olas = n_persona_olas,
+    n_indi_ola2 = n_indi_ola2,
+    n_noindi_ola2 = n_noindi_ola2,
+    b_ola3_resg = period_estallido_resg$estimate,
+    p_ola3_resg = period_estallido_resg$p.value,
+    b_decreto_resg = t2_resg$estimate,
+    p_decreto_resg = t2_resg$p.value,
+    b_T_M_ingroup = med_ingroup_did$estimate,
+    p_T_M_ingroup = med_ingroup_did$p.value,
+    med_ctrl_pct = med_ctrl_pct,
+    sup_resg_pct = sup_resg_pct,
+    or_rechazo_zona = or_rechazo_zona,
+    p_or_zona = p_or_zona,
+    tau4_resg_ipw = ipw_o_resg$estimate,
+    p_tau4_resg_ipw = ipw_o_resg$p.value,
+    tau4_ctrl_ipw = ipw_o_ctrl$estimate,
+    p_tau4_ctrl_ipw = ipw_o_ctrl$p.value
   )
 }
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
+
+#' Regenera data/paper_results.rds desde los .rds del pipeline.
+refresh_paper_results <- function(root_dir = ".") {
+  modelos <- readRDS(file.path(root_dir, "data/modelos.rds"))
+  mecanismo <- if (file.exists(file.path(root_dir, "data/mecanismo.rds"))) {
+    readRDS(file.path(root_dir, "data/mecanismo.rds"))
+  } else {
+    NULL
+  }
+  robustez <- readRDS(file.path(root_dir, "data/robustez.rds"))
+  subset_data <- readRDS(file.path(root_dir, "data/subset_data.rds"))
+  hetero_identidad <- if (file.exists(file.path(root_dir, "data/hetero_identidad.rds"))) {
+    readRDS(file.path(root_dir, "data/hetero_identidad.rds"))
+  } else {
+    NULL
+  }
+  paper <- build_paper_results(
+    modelos = modelos,
+    mecanismo = mecanismo,
+    robustez = robustez,
+    subset_data = subset_data,
+    hetero_identidad = hetero_identidad
+  )
+  saveRDS(paper, file.path(root_dir, "data/paper_results.rds"))
+  cat("✓ paper_results.rds actualizado\n")
+  cat("  τ₄ cambio social: β =", round(paper$tau4_resg$estimate, 3),
+      "p =", round(paper$tau4_resg$p.value, 3), "\n")
+  cat("  τ₄ control social: β =", round(paper$tau4_ctrl$estimate, 3),
+      "p =", round(paper$tau4_ctrl$p.value, 3), "\n")
+  cat("  Mediación control: ~", round(paper$med_ctrl_pct, 0), "%\n")
+  cat("  Supresión cambio: ~", round(paper$sup_resg_pct, 0), "%\n")
+  cat("  N indígena ola 2:", paper$n_indi_ola2, "\n")
+  cat("  N no indígena ola 2:", paper$n_noindi_ola2, "\n")
+  cat("  N individuos panel:", paper$n_individuos, "\n")
+  cat("  N persona-olas:", paper$n_persona_olas, "\n")
+  invisible(paper)
+}

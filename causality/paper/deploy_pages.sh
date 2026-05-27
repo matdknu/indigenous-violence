@@ -9,7 +9,7 @@ DOCS="$REPO_ROOT/docs"
 
 cd "$SCRIPT_DIR"
 if [[ "${1:-}" == "--render" ]]; then
-  quarto render paper.qmd --to html
+  ./render_html.sh
 fi
 
 if [[ ! -f paper.html ]]; then
@@ -21,7 +21,11 @@ mkdir -p "$DOCS/figuras" "$DOCS/tablas"
 sed 's|\.\./output/figuras/|figuras/|g' paper.html > "$DOCS/index.html"
 rm -rf "$DOCS/paper_files"
 cp -R paper_files "$DOCS/"
-rsync -a "$CAUSALITY/output/figuras/" "$DOCS/figuras/"
+if [[ -d "$SCRIPT_DIR/figuras" ]]; then
+  rsync -a "$SCRIPT_DIR/figuras/" "$DOCS/figuras/"
+else
+  rsync -a "$CAUSALITY/output/figuras/" "$DOCS/figuras/"
+fi
 rsync -a "$CAUSALITY/output/tablas/" "$DOCS/tablas/"
 
 echo "✓ GitHub Pages: $DOCS/index.html ($(wc -l < "$DOCS/index.html") líneas)"

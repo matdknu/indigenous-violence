@@ -18,10 +18,8 @@ library(cardx)
 if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
 
-getwd()
-
 subset_data <- readRDS("data/subset_data.rds")
-source("causality/R/plot_helpers.R")
+source(if (file.exists("R/plot_helpers.R")) "R/plot_helpers.R" else "causality/R/plot_helpers.R")
 
 PERIODO_LABELS <- c(
   "pre"       = "Ola 2\n(2018)",
@@ -249,7 +247,7 @@ tray_long <- subset_data |>
       ),
       labels = c(
         "No indígena / lejos", "No indígena / zona excepción",
-        "Indígena / lejos",    "Indígena / zona excepción"
+        "Indígena / lejos",     "Indígena / zona excepción"
       )
     )
   )

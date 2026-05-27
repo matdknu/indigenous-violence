@@ -1094,6 +1094,45 @@ interpretar_ipw_trimming <- function(resumen_ipw, resumen_principal = NULL) {
 interpretar_robustez(resumen_robustez)
 interpretar_ipw_trimming(resumen_ipw_trimming, resumen_robustez)
 
+# ── Sensibilidad A7.2: restricción a población mapuche ────────────────────────
+
+cat("\n--- Sensibilidad A7.2: solo mapuche (a1 = 1) vs todos indígenas ---\n")
+
+datos_mapuche <- subset_data |>
+  filter(
+    .data$indigeneous == "no_indi" |
+      (.data$indigeneous == "indi" & .data$cat_indi == "mapuche")
+  )
+
+m_map_ctrl <- lmer(
+  formula_did("idx_vio_control", controles_base),
+  data = datos_mapuche, REML = FALSE
+)
+m_map_resg <- lmer(
+  formula_did("idx_vio_resguardo", controles_base),
+  data = datos_mapuche, REML = FALSE
+)
+
+sens_mapuche_compare <- bind_rows(
+  extract_coef(mC_ctrl, TERM_DID_DECRETO, "Todos indígenas", "idx_vio_control"),
+  extract_coef(mC_resg, TERM_DID_DECRETO, "Todos indígenas", "idx_vio_resguardo"),
+  extract_coef(m_map_ctrl, TERM_DID_DECRETO, "Solo mapuche", "idx_vio_control"),
+  extract_coef(m_map_resg, TERM_DID_DECRETO, "Solo mapuche", "idx_vio_resguardo")
+) |>
+  mutate(
+    vd_label = if_else(
+      .data$variable_dependiente == "idx_vio_control",
+      "Control social", "Cambio social"
+    ),
+    ic95 = sprintf(
+      "[%.3f, %.3f]",
+      .data$estimate - 1.96 * .data$std.error,
+      .data$estimate + 1.96 * .data$std.error
+    )
+  )
+
+print(sens_mapuche_compare |> select(modelo, vd_label, estimate, p.value, signif))
+
 saveRDS(
   list(
     baseline_ola2 = baseline_ola2,
@@ -1127,6 +1166,7 @@ saveRDS(
     },
     n_sens_injusticia = if (exists("n_sens_injust")) n_sens_injust else NA_integer_,
     resumen_robustez = resumen_robustez,
+    sens_mapuche_compare = sens_mapuche_compare,
     controles_base = controles_base,
     controles_sens_injusticia = controles_sens_injusticia
   ),
