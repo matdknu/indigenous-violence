@@ -72,6 +72,7 @@ execute:
   warning: false
   message: false
   cache: true
+  dir: file
 ---
 
 ```{r}
@@ -89,10 +90,38 @@ pacman::p_load(
 )
 library(cardx)
 
-if (basename(getwd()) == "paper") {
-  root_dir <- ".."
-} else {
-  root_dir <- "."
+# Raíz del proyecto (causality/), independiente del cwd de Quarto Preview
+find_project_root <- function() {
+  qmd_dir <- tryCatch(
+    dirname(knitr::current_input(dir = TRUE)),
+    error = function(e) character()
+  )
+  if (length(qmd_dir) && nzchar(qmd_dir)) {
+    cand <- normalizePath(file.path(qmd_dir, ".."), winslash = "/", mustWork = FALSE)
+    if (file.exists(file.path(cand, "data", "subset_data.rds"))) return(cand)
+  }
+  if (file.exists("data/subset_data.rds")) {
+    return(normalizePath(".", winslash = "/", mustWork = FALSE))
+  }
+  if (file.exists("../data/subset_data.rds")) {
+    return(normalizePath("..", winslash = "/", mustWork = FALSE))
+  }
+  stop("No se encuentra data/subset_data.rds. Ejecute el pipeline desde causality/.")
+}
+
+root_dir <- find_project_root()
+paper_dir <- file.path(root_dir, "paper")
+dir.create(file.path(paper_dir, "figuras"), recursive = TRUE, showWarnings = FALSE)
+
+# Copia figuras junto al .qmd y las incrusta con ruta absoluta (vista previa + HTML + DOCX)
+include_figura <- function(filename) {
+  src <- file.path(root_dir, "output", "figuras", filename)
+  if (!file.exists(src)) {
+    stop("Figura no encontrada: ", src, call. = FALSE)
+  }
+  dest <- file.path(paper_dir, "figuras", filename)
+  file.copy(src, dest, overwrite = TRUE)
+  knitr::include_graphics(dest)
 }
 
 subset_data <- readRDS(file.path(root_dir, "data/subset_data.rds"))
@@ -136,6 +165,20 @@ paper <- build_paper_results(
   hetero_identidad = hetero_identidad
 )
 saveRDS(paper, file.path(root_dir, "data/paper_results.rds"))
+
+likert_resumen <- NULL
+likert_path_setup <- file.path(root_dir, "data/likert_collapse.rds")
+if (file.exists(likert_path_setup)) {
+  likert_resumen <- readRDS(likert_path_setup)$resumen_modelos
+}
+
+likert_line <- function(spec, vd) {
+  if (is.null(likert_resumen)) return("—")
+  row <- likert_resumen |>
+    dplyr::filter(.data$spec == .env$spec, .data$vd == .env$vd)
+  if (nrow(row) == 0) return("—")
+  fmt_beta_stars(row$estimate[1], row$p.value[1])
+}
 
 # Aliases para chunks que usan m2_* / mA_* / mB_*
 m2_ctrl <- modelos$mC_ctrl %||% modelos$m2_ctrl
@@ -310,7 +353,7 @@ La coerción prolongada e institucionalizada puede alterar actitudes por dos ví
 #| fig-height: 5
 #| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_modelo_conceptual.png"))
+include_figura("fig_modelo_conceptual.png")
 ```
 
 ::: {.hipotesis}
@@ -543,18 +586,30 @@ En baseline (ola 2), la estructura ingroup/outgroup de justicia procedimental mu
 
 ## Trayectorias descriptivas y divergencia temporal {#sec-res-tray}
 
-@fig-trayectorias muestra las trayectorias de las dos variables dependientes por grupo. La justificación de la violencia de cambio social sube entre la ola 2 y la ola 3 para toda la muestra, compatible con la apertura normativa del estallido (H2), y baja en la ola 4, compatible con el agotamiento del ciclo y la derrota del Apruebo. Sin embargo, esta contención no es homogénea: entre personas indígenas en zona de excepción, la caída en ola 4 es menor o inexistente, anticipando el hallazgo central de los modelos DiD.
+@fig-trayectorias-justifica muestra la **proporción** de encuestados que justifica la violencia (respuestas 3–5 en escala 1–5), por identidad étnica y zona de excepción. Los modelos DiD y de mecanismo usan las VD en escala **continua** 1–5 (`idx_vio_control`, `idx_vio_resguardo`); esta figura es solo lectura descriptiva.
 
-La justificación de violencia de control social muestra un patrón inverso: relativamente estable entre olas 2 y 3, sube en la ola 4, especialmente entre personas indígenas en zona de excepción. En el baseline (ola 2), la zona de excepción exhibe menor justificación de violencia de cambio social (`r fmt_beta_p(paper$baseline_zona_resg$estimate, paper$baseline_zona_resg$p.value)`) que fuera de ella — patrón que, al ir en dirección opuesta a los efectos post-tratamiento, es consistente con la plausibilidad del supuesto de tendencias paralelas.
+En **cambio social**, la proporción que justifica sube entre la ola 2 y la ola 3 en todos los grupos, compatible con la apertura normativa del estallido (H2), y baja en la ola 4 en la muestra agregada; entre personas indígenas en zona de excepción la disminución es menor, anticipando el hallazgo central del DiD del decreto. En **control social**, el perfil es distinto: relativamente estable entre olas 2 y 3 y mayor presión al alza en la ola 4, especialmente entre indígenas en zona de excepción. En baseline (ola 2), la zona de excepción exhibe menor justificación de violencia de cambio social (`r fmt_beta_p(paper$baseline_zona_resg$estimate, paper$baseline_zona_resg$p.value)`) que fuera de ella — patrón opuesto a los efectos post-tratamiento, consistente con tendencias paralelas plausibles.
 
 ```{r}
-#| label: fig-trayectorias
-#| fig-cap: "Trayectorias medias de justificación de la violencia por el control social (status quo) y por el cambio social, por identidad étnica y zona de excepción. Línea sólida: zona de excepción; línea punteada: lejos del conflicto."
+#| label: fig-trayectorias-justifica
+#| fig-cap: "Evolución longitudinal de la proporción que justifica la violencia (respuestas 3–5), por identidad étnica y zona de excepción. Solo fines descriptivos; los modelos usan la escala continua 1–5."
 #| fig-width: 11
 #| fig-height: 5
 #| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_trayectorias.png"))
+include_figura("fig_trayectorias_justifica.png")
+```
+
+@fig-cohorte-transicion-justifica resume, en una cuadrícula facetada por **iteración** (olas 2–4), la idea descriptiva de que quienes en ola 2 no justifican una dimensión (1–2) pueden mostrar después mayor justificación en la otra: filas = «no justificas control → ¿justifican cambio?» y el recorrido inverso; columnas = cada ola de medición. Barras grises: % que justifica (3–5); barras rojas: % que intensifica (Δ≥1 o cruza a 3–5 desde ola 2). Un asterisco (*) en la etiqueta indica cambio significativo respecto a la ola anterior (McNemar pareado, *p* < .05). Solo descriptivo.
+
+```{r}
+#| label: fig-cohorte-transicion-justifica
+#| fig-cap: "Cuadrícula facetada: si no justificas una forma de violencia en ola 2, proporción de la cohorte que justifica o intensifica la otra dimensión en cada iteración (ola). Solo descriptivo."
+#| fig-width: 13
+#| fig-height: 8.5
+#| out-width: "100%"
+
+include_figura("fig_cohorte_transicion_justifica.png")
 ```
 
 ## Bloque 1 — Replicación del estallido {#sec-res-estallido}
@@ -580,7 +635,7 @@ La comparación LRT (M1 vs. M2[^m2-nota]) indica que la especificación DiD mejo
 #| fig-height: 5.5
 #| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_medias_predichas.png"))
+include_figura("fig_medias_predichas.png")
 ```
 
 ```{r}
@@ -617,7 +672,7 @@ El análisis de mediación sigue el enfoque de diferencia de coeficientes [@imai
 #| fig-height: 5
 #| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_esquema_mediacion.png"))
+include_figura("fig_esquema_mediacion.png")
 ```
 
 @fig-justproc muestra las trayectorias por grupo étnico. El decreto se asoció con una mejora significativa en la percepción de justicia procedimental ingroup entre personas indígenas en zona de excepción (`r paper$med_ingroup_did$beta_p`). Esto sugiere que la institucionalización del estado de excepción — la transición de enfrentamientos caóticos a control territorial predecible — regularizó las interacciones y mejoró la percepción de justicia procedimental ingroup (no por benevolencia, sino por estabilidad de reglas — Tyler, 1990).
@@ -629,7 +684,7 @@ knitr::include_graphics(file.path(root_dir, "output/figuras/fig_esquema_mediacio
 #| fig-height: 6
 #| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_trayectorias_justproc_inout.png"))
+include_figura("fig_trayectorias_justproc_inout.png")
 ```
 
 @fig-brecha muestra la brecha percibida (outgroup − ingroup). En ola 4, la brecha se redujo marginalmente para personas indígenas en zona de excepción (`r paper$med_brecha_did$beta_p`), consistente con la regularización del trato institucional.
@@ -641,7 +696,7 @@ knitr::include_graphics(file.path(root_dir, "output/figuras/fig_trayectorias_jus
 #| fig-height: 6
 #| out-width: "90%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_brecha_justproc.png"))
+include_figura("fig_brecha_justproc.png")
 ```
 
 **Paso 1 — Tratamiento → mediadores (DiD DECRETO):**
@@ -676,7 +731,7 @@ knitr::include_graphics(file.path(root_dir, "output/figuras/fig_brecha_justproc.
 #| fig-height: 8
 #| out-width: "95%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_mediacion_ingroup.png"))
+include_figura("fig_mediacion_ingroup.png")
 ```
 
 La tabla completa de modelos de mecanismo (9 especificaciones) se presenta en @tbl-apendice-mecanismo.
@@ -784,7 +839,7 @@ Diagnóstico de balance en baseline (ola 2) antes del estado de excepción. La t
 #| fig-height: 6
 #| out-width: "95%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_loveplot_balance_pre.png"))
+include_figura("fig_loveplot_balance_pre.png")
 ```
 
 ## A3 — Propensity score matching (PSM) {#sec-apendice-a3}
@@ -822,7 +877,7 @@ if (!is.null(robustez$m2_ctrl_matched)) {
 #| fig-height: 6
 #| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_robustez_comparativa.png"))
+include_figura("fig_robustez_comparativa.png")
 ```
 
 ```{r}
@@ -857,7 +912,7 @@ El IPW estimado en ola 2 ajusta por diferencias observables en la probabilidad d
 #| fig-height: 5
 #| out-width: "85%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_hist_pesos_ipw.png"))
+include_figura("fig_hist_pesos_ipw.png")
 ```
 
 ```{r}
@@ -918,7 +973,7 @@ if (!is.null(robustez$item_models) && length(robustez$item_models) > 0) {
 
 ### Codificación ordinal {#tbl-apendice-likert}
 
-Se replicaron los modelos DiD con una codificación ordinal de las variables dependientes (Rechaza [1–2] / Neutral [3] / Justifica [4–5], esquema A simétrico). Los resultados son consistentes en dirección y significancia con la especificación continua, siendo más sensibles al efecto DiD en cambio social (β = 1,87**, *p* < ,01) que en control social (β = 1,14+, *p* = ,08).
+La especificación **principal** del manuscrito (Modelo C y bloques DiD) usa VD en escala continua 1–5. Como **sensibilidad**, se replicó el mismo DiD recodificando las VD en tres categorías — Rechaza [1–2] / Neutral [3] / Justifica [4–5] (esquema A simétrico) y esquema B de intensidad — estimadas con CLMM (@tbl-apendice-likert). En escala continua, el τ₄ coincide con el Modelo C: cambio social (`r paper$tau4_resg$beta_p`) y control social (`r paper$tau4_ctrl$beta_p`). Las versiones ordinales mantienen **dirección positiva** en cambio social (ordinal A: `r likert_line("Ordinal A (simétrico)", "Cambio social")`; lineal cód. A: `r likert_line("Lineal cód. A", "Cambio social")`), pero con mayor imprecisión que el continuo; en control social los τ₄ ordinales no alcanzan significancia en A (`r likert_line("Ordinal A (simétrico)", "Control social")`). Se interpreta que el hallazgo principal no depende de tratar la VD como ordinal.
 
 ```{r}
 #| label: tbl-apendice-likert
@@ -978,7 +1033,7 @@ Exploración por terciles de predominancia identitaria (baseline ola 2). El efec
 #| fig-height: 6
 #| out-width: "100%"
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_identidad_ingroup_outgroup.png"))
+include_figura("fig_identidad_ingroup_outgroup.png")
 ```
 
 ```{r}
@@ -1183,7 +1238,7 @@ Los residentes de la zona de excepción muestran una probabilidad significativam
 #| out-width: "80%"
 #| fig-align: center
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_prob_rechazo.png"))
+include_figura("fig_prob_rechazo.png")
 ```
 
 ## Figura complementaria — Coeficientes Modelo C {#fig-apendice-coef}
@@ -1194,7 +1249,7 @@ knitr::include_graphics(file.path(root_dir, "output/figuras/fig_prob_rechazo.png
 #| fig-width: 13
 #| fig-height: 9
 
-knitr::include_graphics(file.path(root_dir, "output/figuras/fig_coeficientes.png"))
+include_figura("fig_coeficientes.png")
 ```
 
 ## A11 — Especificación de modelos {#sec-apendice-a11}

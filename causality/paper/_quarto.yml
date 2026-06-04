@@ -1,0 +1,4 @@
+project:
+  type: default
+  post-render:
+    - bash post-render-html.sh
