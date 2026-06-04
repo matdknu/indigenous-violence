@@ -588,3 +588,4 @@ saveRDS(
   "data/modelos.rds"
 )
 cat("✓ Modelos guardados: data/modelos.rds\n")
+

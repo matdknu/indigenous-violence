@@ -891,7 +891,7 @@ resumen_robustez |>
   ) |>
   gtsave("output/tablas/tabla_resumen_robustez.html")
 
-cat("✓ Resumen robustez: output/tablas/tabla_resumen_robustez.{csv,html}\n\n")
+cat("✓ Resumen rxobustez: output/tablas/tabla_resumen_robustez.{csv,html}\n\n")
 print(resumen_robustez)
 
 # ── Forest plot comparativo de especificaciones ───────────────────────────────
