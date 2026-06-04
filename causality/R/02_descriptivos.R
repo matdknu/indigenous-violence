@@ -82,7 +82,6 @@ desc_grupo <- subset_data |>
     vio_control_m   = round(mean(idx_vio_control, na.rm = TRUE), 2),
     vio_resguardo_m    = round(mean(idx_vio_resguardo,  na.rm = TRUE), 2),
     perc_desig_m     = round(mean(perc_desigualdad,  na.rm = TRUE), 2),
-    perc_injust_m    = round(mean(perc_injusticia,   na.rm = TRUE), 2),
     apoyo_movil_m    = round(mean(apoyo_movil,       na.rm = TRUE), 2),
     id_causa_m        = round(mean(id_causa,          na.rm = TRUE), 2),
     .groups = "drop"
@@ -110,10 +109,14 @@ baseline <- subset_data |> filter(ola == 2)
 tabla_socdem <- baseline |>
   select(
     indigeneous, mujer, edad, urbano_rural, cerca_conflicto,
-    id_chile, id_indi, id_causa
+    id_chile, id_causa
   ) |>
   tbl_summary(
     by = indigeneous,
+    label = list(
+      id_chile ~ "Identificación con Chile",
+      id_causa ~ "Identificación con la causa indígena"
+    ),
     statistic = list(
       all_categorical() ~ "{n} ({p}%)",
       all_continuous()  ~ "{mean} ± {sd}"
@@ -138,7 +141,7 @@ cat("✓ Tabla 1 guardada: output/tablas/tabla_socdem.{html,docx}\n")
 
 vars_desc <- c(
   "idx_vio_control", "idx_vio_resguardo",
-  "perc_desigualdad", "perc_injusticia", "apoyo_movil",
+  "perc_desigualdad", "apoyo_movil",
   "id_chile", "id_causa"
 )
 
@@ -163,8 +166,9 @@ tabla_descriptivos <- subset_data |>
       labels = c(
         "Justif. vio. control social (status quo)",
         "Justif. vio. cambio social",
-        "Perc. desigualdad", "Perc. injusticia", "Apoyo movilizaciones",
-        "Id. con Chile", "Id. causa indígena"
+        "Perc. desigualdad", "Apoyo movilizaciones",
+        "Identificación con Chile",
+        "Identificación con la causa indígena"
       )
     ),
     Media = round(Media, 2),

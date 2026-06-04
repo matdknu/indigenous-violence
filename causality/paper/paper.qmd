@@ -201,7 +201,6 @@ coef_rename_did <- c(
   "id_chile"             = "Id. con Chile",
   "id_causa"             = "Id. causa indígena",
   "perc_desigualdad"     = "Perc. desigualdad",
-  "perc_injusticia"      = "Perc. injusticia",
   "periodoestallido:indigeneousindi"              = "Ola 3 × Indígena",
   "periododecreto:indigeneousindi"                 = "Ola 4 × Indígena",
   "periodoestallido:cerca_conflictocerca"          = "Ola 3 × Zona excepción",
@@ -420,7 +419,7 @@ El estado de excepción fue declarado el 12 de octubre de 2021 en **53 comunas d
 
 El supuesto de tendencias paralelas no es testeable formalmente con una sola ola pre-tratamiento (ola 2). Por esta razón, los resultados se interpretan como cambios diferenciales compatibles con una lógica de diferencias-en-diferencias extendida, pero **no como estimaciones causales definitivas**. Este análisis se presenta como **evidencia cuasi-experimental exploratoria**: los hallazgos son compatibles con una interpretación de cambio diferencial posterior al estado de excepción, aunque no concluyente causalmente. En la ola 2, las diferencias por zona de excepción van en dirección opuesta a los patrones post-tratamiento observados (`r fmt_beta_p(paper$baseline_zona_resg$estimate, paper$baseline_zona_resg$p.value)` para cambio social), lo que es consistente —aunque no establece— con la plausibilidad del contrafactual.
 
-Nuestra estrategia se inspira en diseños que explotan la coincidencia entre un evento político y el trabajo de campo de una encuesta [@legewie2013]. A diferencia de ese diseño —donde el evento ocurre durante una misma ola—, nuestros shocks ocurren **entre** olas separadas temporalmente. El coeficiente DiD del decreto captura el efecto del **período** de coerción institucionalizada (decreto prolongado, derrota del Apruebo y evolución del conflicto entre 2021 y 2023), no del decreto aislado del 12 de octubre de 2021.
+Nuestra estrategia se inspira en diseños que explotan la coincidencia entre un evento político y el trabajo de campo de una encuesta [@legewie2013]. A diferencia de ese diseño —donde el evento ocurre durante una misma ola—, nuestros shocks ocurren **entre** olas separadas temporalmente. El coeficiente DiD de la ola 4 no identifica el decreto en forma aislada: agrega la coerción institucionalizada prolongada, la **derrota del plebiscito de salida** (septiembre de 2022) y la frustración asociada al cierre del canal constituyente, además de la evolución del conflicto territorial entre 2021 y 2023. El diseño DiD atenúa, pero no elimina, esta ambigüedad de atribución (@sec-limitaciones).
 
 ## Variables {#sec-variables}
 
@@ -436,7 +435,7 @@ $$
 \tau_4 = \beta(\text{Ola}_4 \times \text{Indígena} \times \text{Zona excepción})
 $$
 
-que captura el cambio diferencial en actitudes entre grupos expuestos y no expuestos al decreto prolongado, controlando por tendencias temporales generales (efectos de período) y diferencias preexistentes entre zonas. Los controles incluyen identificación con Chile (a6), identificación con la causa indígena (d6_1), percepción de desigualdad (c22 invertida), malestar por diferencias (c24), apoyo a movilizaciones (c25), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según su correlación con `cerca_conflicto` (umbral |*r*| ≤ 0,5; en estos datos *r* = 0,35, por lo que se incluye). La percepción de injusticia (c23) se excluye de los modelos principales por missingness elevado (~46 % por ola); un modelo de sensibilidad con este control figura en el Apéndice (@sec-apendice-a7).
+que captura el cambio diferencial en actitudes entre grupos expuestos y no expuestos al decreto prolongado, controlando por tendencias temporales generales (efectos de período) y diferencias preexistentes entre zonas. Los controles incluyen identificación con Chile (a6), identificación con la causa indígena (d6_1), percepción de desigualdad (c22 invertida), malestar por diferencias (c24), apoyo a movilizaciones (c25), sexo, edad y zona urbano/rural. Esta última se incluye condicionalmente según su correlación con `cerca_conflicto` (umbral |*r*| ≤ 0,5; en estos datos *r* = 0,35, por lo que se incluye).
 
 `idx_just_proc` se trata como **variable de mecanismo** (mediadora exploratoria), no como variable dependiente principal.
 
@@ -492,7 +491,7 @@ tbl_socdem <- subset_data |>
   filter(ola == 2) |>
   select(
     indigeneous, mujer, edad, urbano_rural,
-    cerca_conflicto, id_chile, id_indi, id_causa
+    cerca_conflicto, id_chile, id_causa
   ) |>
   tbl_summary(
     by = indigeneous,
@@ -502,8 +501,7 @@ tbl_socdem <- subset_data |>
       urbano_rural    ~ "Zona (rural)",
       cerca_conflicto ~ "Zona de excepción",
       id_chile        ~ "Identificación con Chile",
-      id_indi         ~ "Id. pueblo originario",
-      id_causa        ~ "Id. causa indígena"
+      id_causa        ~ "Identificación con la causa indígena"
     ),
     statistic = list(
       all_continuous()  ~ "{mean} ({sd})",
@@ -564,8 +562,8 @@ subset_data |>
     idx_vio_resguardo = "Cambio social",
     perc_desigualdad  = "Perc. desigualdad",
     apoyo_movil       = "Apoyo movilizaciones",
-    id_chile          = "Id. con Chile",
-    id_causa          = "Id. causa indígena"
+    id_chile          = "Identificación con Chile",
+    id_causa          = "Identificación con la causa indígena"
   )) |>
   gt(groupname_col = c("periodo", "indigeneous")) |>
   cols_label(indigeneous = "Grupo", M = "M", SD = "SD") |>
@@ -772,7 +770,15 @@ Como evidencia contextual convergente, el voto Rechazo fue significativamente m�
 
 # Limitaciones {#sec-limitaciones}
 
-Cuatro limitaciones merecen atención. **Identificación causal parcial:** el coeficiente DiD de ola 4 captura conjuntamente el decreto, la derrota del Apruebo y la continuidad del conflicto; el análisis de robustez reduce pero no elimina esta ambigüedad [@legewie2013]. **Definición territorial:** el tratamiento a nivel comunal oculta heterogeneidad intra-comunal y posibles spillovers hacia zonas adyacentes. **Mediación aproximada:** el enfoque de diferencia de coeficientes con mediadores rezagados reduce el riesgo de simultaneidad pero no identifica causalmente el efecto mediado; los resultados deben interpretarse como evidencia sugestiva de un canal procedimental. **Sesgo de supervivencia:** la mejora en justicia procedimental ingroup podría reflejar migración selectiva de quienes percibían peor trato fuera de la zona entre olas 3 y 4.
+Cuatro limitaciones merecen atención.
+
+**Atribución causal compuesta (confounding temporal).** El τ₄ de la ola 4 sintetiza un período heterogéneo: estado de excepción prolongado, derrota del plebiscito de salida (2022), clausura del proceso constituyente y persistencia del conflicto mapuche. No es posible aislar con el diseño DiD cuánto de los cambios actitudinales responde a la militarización territorial frente a la frustración política del cierre institucional; el DiD solo acota el contrafactual bajo tendencias paralelas, no sustituye una descomposición de shocks [@legewie2013].
+
+**Identificación cuasi-experimental parcial.** Los resultados son compatibles con cambio diferencial post-decreto, pero no constituyen prueba causal definitiva del estado de excepción en solitario.
+
+**Definición territorial.** El tratamiento a nivel comunal oculta heterogeneidad intra-comunal y posibles spillovers hacia zonas adyacentes.
+
+**Mediación aproximada y sesgo de supervivencia.** El enfoque de diferencia de coeficientes con mediadores rezagados no identifica causalmente el efecto mediado. La mejora en justicia procedimental ingroup podría reflejar, en parte, migración selectiva entre olas 3 y 4.
 
 # Conclusiones {#sec-conclusiones}
 
@@ -969,7 +975,7 @@ if (!is.null(robustez$item_models) && length(robustez$item_models) > 0) {
 
 ## A7 — Análisis de sensibilidad {#sec-apendice-a7}
 
-Índice dual d3_1+d3_2, modelo con `perc_injusticia` (N reducido) y codificación ordinal.
+Índice dual d3_1+d3_2 (operacionalización alternativa de control social) y codificación ordinal.
 
 ### Codificación ordinal {#tbl-apendice-likert}
 
@@ -1101,19 +1107,20 @@ tibble::tibble(
   publish_gt()
 ```
 
-### Especificaciones alternativas (ítem único vs. dual; perc. injusticia)
+### Especificación alternativa: índice dual de control social (d3_1+d3_2) {#tbl-apendice-sens-dual}
+
+El manuscrito principal usa d3_1 como ítem único de represión estatal. Como sensibilidad, se reestimó el Modelo C con un índice que promedia d3_1 y d3_2 (excluido del análisis principal por razones conceptuales; véase @sec-variables).
 
 ```{r}
 #| label: tbl-apendice-sensibilidad
-#| tbl-cap: "Modelos de sensibilidad: control con perc. injusticia (N reducido) e índice dual d3_1+d3_2."
+#| tbl-cap: "Sensibilidad: represión estatal con índice dual d3_1+d3_2 vs. ítem único (d3_1)."
 
-if (!is.null(robustez$m_sensibilidad_injusticia) || !is.null(robustez$m_sensibilidad_control_dual)) {
+if (!is.null(robustez$m_sensibilidad_control_dual)) {
   sens_paper <- Filter(Negate(is.null), list(
-    "Control (principal)" = modelos$mC_ctrl,
-    "+ perc. injusticia" = robustez$m_sensibilidad_injusticia,
+    "Control (principal, d3_1)" = modelos$mC_ctrl,
     "Índice dual d3_1+d3_2" = robustez$m_sensibilidad_control_dual
   ))
-  tbl_sens <- modelsummary(
+  modelsummary(
     sens_paper,
     statistic = "({std.error})",
     stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
@@ -1122,18 +1129,6 @@ if (!is.null(robustez$m_sensibilidad_injusticia) || !is.null(robustez$m_sensibil
     gof_map = c("nobs", "icc", "rmse"),
     output = ms_out()
   ) |> style_ms()
-  if (!is.null(robustez$n_sens_injusticia)) {
-    nota_n <- paste0(
-      "Nota: N modelo con perc. injusticia = ",
-      robustez$n_sens_injusticia,
-      " (pérdida ~46 % por missingness en c23)."
-    )
-    if (inherits(tbl_sens, "gt_tbl")) {
-      tbl_sens <- tbl_sens |>
-        gt::tab_source_note(source_note = nota_n)
-    }
-  }
-  tbl_sens
 }
 ```
 

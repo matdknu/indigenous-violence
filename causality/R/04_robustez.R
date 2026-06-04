@@ -149,10 +149,6 @@ if (file.exists("data/analysis_metadata.rds")) {
   }
 }
 
-controles_sens_injusticia <- paste(
-  controles_base, "+ perc_injusticia"
-)
-
 ps_formula <- as.formula(paste(
   "tratado_zona ~ indigeneous + mujer + edad + urbano_rural +",
   "id_chile + id_causa + perc_desigualdad +",
@@ -736,26 +732,7 @@ if (length(item_models) > 0) {
 }
 
 # ── 15.5b Modelos de sensibilidad (apéndice) ──────────────────────────────────
-
-cat("--- 15.5b Sensibilidad: perc_injusticia e índice dual d3_1+d3_2 ---\n\n")
-
-m_sensibilidad_injusticia <- tryCatch(
-  lmer(
-    formula_did("idx_vio_control", controles_sens_injusticia),
-    data = subset_data,
-    REML = FALSE
-  ),
-  error = function(e) {
-    cat("⚠ Error modelo sensibilidad perc_injusticia:", conditionMessage(e), "\n")
-    NULL
-  }
-)
-
-if (!is.null(m_sensibilidad_injusticia)) {
-  n_sens_injust <- nobs(m_sensibilidad_injusticia)
-  cat("Modelo sensibilidad perc_injusticia — N =", n_sens_injust,
-      "(pérdida por missingness ~46% en c23)\n")
-}
+cat("--- 15.5b Sensibilidad: índice dual d3_1+d3_2 ---\n\n")
 
 m_sensibilidad_control_dual <- tryCatch(
   lmer(
@@ -780,7 +757,6 @@ if (!is.null(m_sensibilidad_control_dual)) {
 }
 
 sens_list <- list(
-  "Control + perc. injusticia (apéndice)" = m_sensibilidad_injusticia,
   "Control índice dual d3_1+d3_2 (A7)" = m_sensibilidad_control_dual
 )
 sens_named <- sens_list[!vapply(sens_list, is.null, logical(1))]
@@ -810,12 +786,6 @@ if (!exists("mA_ctrl")) {
 }
 
 filas_sens <- purrr::compact(list(
-  if (!is.null(m_sensibilidad_injusticia)) {
-    extract_coef(
-      m_sensibilidad_injusticia, TERM_DID_DECRETO,
-      "Sensibilidad + perc. injusticia", "idx_vio_control"
-    )
-  },
   if (!is.null(m_sensibilidad_control_dual)) {
     extract_coef(
       m_sensibilidad_control_dual, TERM_DID_DECRETO,
@@ -1154,21 +1124,14 @@ saveRDS(
     m_nucleo_ctrl = m_nucleo_ctrl,
     m_nucleo_resg = m_nucleo_resg,
     item_models = item_models,
-    m_sensibilidad_injusticia = if (exists("m_sensibilidad_injusticia")) {
-      m_sensibilidad_injusticia
-    } else {
-      NULL
-    },
     m_sensibilidad_control_dual = if (exists("m_sensibilidad_control_dual")) {
       m_sensibilidad_control_dual
     } else {
       NULL
     },
-    n_sens_injusticia = if (exists("n_sens_injust")) n_sens_injust else NA_integer_,
     resumen_robustez = resumen_robustez,
     sens_mapuche_compare = sens_mapuche_compare,
-    controles_base = controles_base,
-    controles_sens_injusticia = controles_sens_injusticia
+    controles_base = controles_base
   ),
   "data/robustez.rds"
 )

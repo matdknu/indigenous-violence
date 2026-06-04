@@ -96,7 +96,6 @@ coef_rename_did <- c(
   "id_chile"             = "Id. con Chile",
   "id_causa"             = "Id. causa indígena",
   "perc_desigualdad"     = "Perc. desigualdad",
-  "perc_injusticia"      = "Perc. injusticia",
   "periodoestallido:indigeneousindi"      = "Ola 3 × Indígena",
   "periododecreto:indigeneousindi"          = "Ola 4 × Indígena",
   "periodoestallido:cerca_conflictocerca" = "Ola 3 × Zona excepción",

@@ -85,7 +85,7 @@ vars_sustantivas <- c(
   "c12", "c13", "c14", "c15", "c16",
   "c17_1", "c17_2", "c17_4", "c18", "c19",
   "c21_2", "c21_4",
-  "c22", "c23", "c24", "c25",
+  "c22", "c24", "c25",
   "c26_1", "c26_2", "c26_3", "c27_1", "c27_3",
   "c28_1", "c28_2", "c28_3", "c28_4", "c28_5", "c28_6",
   "c29_1", "c30_1", "c31_1", "c31_2", "c32_1", "c32_2",
@@ -230,7 +230,6 @@ panel_completo <- panel |>
 
     # Controles sustantivos
     perc_desigualdad = 6L - as.integer(c22),
-    perc_injusticia  = 6L - as.integer(c23),
     malestar_diferen = as.numeric(c24),
     apoyo_movil      = as.numeric(c25),
     id_chile         = as.numeric(a6),
@@ -343,7 +342,7 @@ panel_completo <- panel |>
     just_proc_ingroup, just_proc_outgroup, brecha_just_proc,
     id_causa = d6_1,
     voto_participa = d13, voto_opcion = d14,
-    perc_desigualdad, perc_injusticia, malestar_diferen, apoyo_movil,
+    perc_desigualdad, malestar_diferen, apoyo_movil,
     idx_represion_estatal, idx_vio_control, idx_vio_control_dual,
     idx_vio_resguardo, idx_just_proc,
     idx_vio_control_ord, idx_vio_resguardo_ord,
@@ -351,14 +350,12 @@ panel_completo <- panel |>
     justifica_control_cont, justifica_resguardo_cont
   )
 
-# ── Verificación inversión c22/c23 ────────────────────────────────────────────
+# ── Verificación inversión c22 ─────────────────────────────────────────────────
 
-cat("\n--- Verificación inversión c22/c23 ---\n")
+cat("\n--- Verificación inversión c22 (perc_desigualdad) ---\n")
 cat("Rango perc_desigualdad:",
     paste(range(panel_completo$perc_desigualdad, na.rm = TRUE), collapse = " – "), "\n")
-cat("Rango perc_injusticia: ",
-    paste(range(panel_completo$perc_injusticia, na.rm = TRUE), collapse = " – "), "\n")
-cat("Esperado: rango 1–5 (mayor = más desigualdad / injusticia percibida)\n")
+cat("Esperado: rango 1–5 (mayor = más desigualdad percibida)\n")
 
 saveRDS(panel_completo, "data/panel_completo.rds")
 cat("\n✓ Panel completo guardado:", nrow(panel_completo), "obs,",
@@ -413,7 +410,7 @@ subset_placebo_pre <- panel_completo |>
     justifica_control_cat, justifica_resguardo_cat,
     just_proc_ingroup, just_proc_outgroup, brecha_just_proc,
     id_chile, id_causa,
-    perc_desigualdad, perc_injusticia, malestar_diferen, apoyo_movil
+    perc_desigualdad, malestar_diferen, apoyo_movil
   )
 
 saveRDS(subset_placebo_pre, "data/subset_placebo_pre.rds")
