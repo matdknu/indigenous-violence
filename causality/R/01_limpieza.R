@@ -239,9 +239,14 @@ panel_completo <- panel |>
     # Represión estatal: ítem único d3_1 (Carabineros repriman); d3_2 excluido (vigilantismo)
     idx_represion_estatal = as.numeric(d3_1),
     idx_vio_control       = as.numeric(d3_1),  # alias para scripts/paper
-    idx_vio_resguardo     = rowMeans(pick(d4_2, d4_3), na.rm = TRUE),
+    # Exigir ambos ítems (na.rm=FALSE): índice incompleto → NA
+    idx_vio_resguardo     = rowMeans(cbind(as.numeric(d4_2), as.numeric(d4_3)), na.rm = FALSE),
     # Solo apéndice A7 — índice dual d3_1 + d3_2 (sensibilidad)
-    idx_vio_control_dual  = rowMeans(pick(d3_1, d3_2), na.rm = TRUE),
+    idx_vio_control_dual  = rowMeans(cbind(as.numeric(d3_1), as.numeric(d3_2)), na.rm = FALSE),
+    # Identidad (canónico en 01; scripts 08/08b no recomputan desde raw)
+    a5_num = as.numeric(a5),
+    idx_id_etnica = rowMeans(cbind(as.numeric(a4), as.numeric(a5)), na.rm = FALSE),
+    predominancia_id = idx_id_etnica - as.numeric(a6),
 
     # ── Justicia procedimental: estructura ingroup/outgroup ────────────
     #
@@ -273,7 +278,7 @@ panel_completo <- panel |>
 
     # Mantener idx_just_proc promediado para comparabilidad
     # (pero ya NO es el mediador principal)
-    idx_just_proc = rowMeans(pick(d5_1, d5_2), na.rm = TRUE),
+    idx_just_proc = rowMeans(cbind(as.numeric(d5_1), as.numeric(d5_2)), na.rm = FALSE),
 
     # Ítems colapsados — esquema A
     d3_1_ord = likert_sym_item(d3_1),
@@ -283,7 +288,7 @@ panel_completo <- panel |>
 
     # Índices ordinales (1–3); control = ítem único d3_1
     idx_vio_control_ord   = as.numeric(d3_1_ord),
-    idx_vio_resguardo_ord = rowMeans(pick(d4_2_ord, d4_3_ord), na.rm = TRUE),
+    idx_vio_resguardo_ord = rowMeans(cbind(as.numeric(d4_2_ord), as.numeric(d4_3_ord)), na.rm = FALSE),
 
     # Categorías ordenadas (redondeo post-ítem)
     justifica_control_cat   = factor_ord_A(idx_vio_control_ord),
@@ -334,7 +339,7 @@ panel_completo <- panel |>
     comuna, comuna_cod,
     zona_decreto, zona_decreto_ampliada,
     cerca_conflicto, nucleo_conflicto, region_conflicto,
-    id_chile, id_indi = a4,
+    id_chile, id_indi = a4, a5, a5_num, idx_id_etnica, predominancia_id,
     vio_ctrl_carb = d3_1, vio_ctrl_agric = d3_2,
     vio_camb_tierras = d4_2, vio_camb_cortes = d4_3,
     d3_1_ord, d3_2_ord, d4_2_ord, d4_3_ord,
@@ -365,7 +370,8 @@ cat("\n✓ Panel completo guardado:", nrow(panel_completo), "obs,",
 
 subset_data <- panel_completo |>
   filter(ola %in% c(2, 3, 4)) |>
-  filter(!is.na(indigeneous))
+  filter(!is.na(indigeneous)) |>
+  distinct(folio, ola, .keep_all = TRUE)
 
 # Colinealidad urbano_rural × zona (usa cerca_conflicto = alias decreto)
 cor_ur_zd <- cor(
@@ -533,3 +539,4 @@ cat("  Indígenas: brecha > 0 (perciben mejor trato al outgroup)\n")
 cat("  No indígenas: brecha ≈ 0 o < 0 (perciben trato igual o mejor a su grupo)\n")
 
 cat("\n✓ 01_limpieza.R ejecutado correctamente.\n")
+

@@ -77,10 +77,11 @@ tidy_term <- function(model, term) {
 build_tbl_robustez_paper <- function(resumen_robustez) {
   map <- c(
     "C — DiD decreto"        = "Modelo principal M2",
-    "IPW original"           = "IPW original",
-    "IPW trim 1–99%"         = "IPW trim 1–99 %",
+    "FE folio + cluster comuna" = "FE folio + cluster comuna",
+    "DRDID (indi, zona)"     = "DRDID (indi × zona)",
+    "IPW original"           = "IPW original (feols+cluster)",
     "IPW trim 5–95%"         = "IPW trim 5–95 %",
-    "PSM"                    = "PSM (nearest neighbor)",
+    "PSM"                    = "PSM (caliper 0.2)",
     "Placebo real (ola1→2)"  = "Placebo ola 1–2"
   )
   purrr::imap_dfr(map, function(label, modelo) {
@@ -187,7 +188,7 @@ build_paper_results <- function(
                       med_resg_sin$estimate > med_resg_med$estimate
 
   n_panel <- if (!is.null(subset_data)) {
-    length(unique(subset_data$folio))
+    dplyr::n_distinct(subset_data$folio)
   } else {
     NA_integer_
   }
@@ -230,6 +231,7 @@ build_paper_results <- function(
   placebo_ns <- all(c(plcb_ctrl$p.value, plcb_resg$p.value) >= 0.05, na.rm = TRUE)
 
   # ── Efectos de período (Modelo C) y transición (Modelo B) ───────────────────
+  period_estallido_ctrl <- tidy_term(mC_ctrl, "periodoestallido")
   period_estallido_resg <- tidy_term(mC_resg, "periodoestallido")
   period_decreto_ctrl   <- tidy_term(mC_ctrl, "periododecreto")
   period_decreto_resg   <- tidy_term(mC_resg, "periododecreto")
@@ -311,16 +313,20 @@ build_paper_results <- function(
   }
 
   n_indi_ola2 <- n_noindi_ola2 <- n_persona_olas <- NA_integer_
+  desc_indi_lejos_cambio <- desc_indi_cerca_cambio <- NA_real_
   if (!is.null(subset_data)) {
-    n_indi_ola2 <- sum(
-      subset_data$indigeneous == "indi" & subset_data$ola == 2,
-      na.rm = TRUE
-    )
-    n_noindi_ola2 <- sum(
-      subset_data$indigeneous == "no_indi" & subset_data$ola == 2,
-      na.rm = TRUE
-    )
+    bl2 <- subset_data |> dplyr::filter(.data$ola == 2)
+    n_indi_ola2 <- sum(bl2$indigeneous == "indi", na.rm = TRUE)
+    n_noindi_ola2 <- sum(bl2$indigeneous == "no_indi", na.rm = TRUE)
     n_persona_olas <- nrow(subset_data)
+    desc_indi_lejos_cambio <- bl2 |>
+      dplyr::filter(.data$indigeneous == "indi", .data$cerca_conflicto == "lejos") |>
+      dplyr::summarise(m = mean(.data$idx_vio_resguardo, na.rm = TRUE)) |>
+      dplyr::pull(m)
+    desc_indi_cerca_cambio <- bl2 |>
+      dplyr::filter(.data$indigeneous == "indi", .data$cerca_conflicto == "cerca") |>
+      dplyr::summarise(m = mean(.data$idx_vio_resguardo, na.rm = TRUE)) |>
+      dplyr::pull(m)
   }
 
   or_rechazo_zona <- p_or_zona <- NA_real_
@@ -336,6 +342,35 @@ build_paper_results <- function(
 
   med_ctrl_pct <- if (!is.na(ate_ctrl)) ate_ctrl else NA_real_
   sup_resg_pct <- if (!is.na(ate_resg)) abs(ate_resg) else NA_real_
+
+  med_ctrl_brecha_pct <- NA_real_
+  med_resg_brecha_pct <- NA_real_
+  med_ctrl_brecha_med <- med_resg_brecha_med <- list(
+    estimate = NA_real_, p.value = NA_real_
+  )
+  if (!is.null(mecanismo$comparacion_atenuacion)) {
+    comp <- mecanismo$comparacion_atenuacion
+    br_ctrl <- comp |>
+      dplyr::filter(.data$vd == "Vio. control", .data$mediador == "Brecha lag")
+    br_resg <- comp |>
+      dplyr::filter(.data$vd == "Vio. resguardo", .data$mediador == "Brecha lag")
+    if (nrow(br_ctrl)) {
+      med_ctrl_brecha_pct <- br_ctrl$atenuacion[1]
+      med_ctrl_brecha_med <- list(
+        estimate = br_ctrl$b_con[1],
+        p.value = br_ctrl$p_con[1]
+      )
+    }
+    if (nrow(br_resg)) {
+      med_resg_brecha_pct <- abs(br_resg$atenuacion[1])
+      med_resg_brecha_med <- list(
+        estimate = br_resg$b_con[1],
+        p.value = br_resg$p_con[1]
+      )
+    }
+  }
+
+  n_modelo_C <- if (!is.null(mC_ctrl)) nrow(mC_ctrl@frame) else NA_integer_
 
   sens_mapuche_tbl <- if (!is.null(robustez$sens_mapuche_compare)) {
     robustez$sens_mapuche_compare |>
@@ -410,14 +445,37 @@ build_paper_results <- function(
     n_persona_olas = n_persona_olas,
     n_indi_ola2 = n_indi_ola2,
     n_noindi_ola2 = n_noindi_ola2,
+    desc_indi_lejos_cambio = desc_indi_lejos_cambio,
+    desc_indi_cerca_cambio = desc_indi_cerca_cambio,
+    icc_ctrl = if (!is.null(mC_ctrl) && requireNamespace("performance", quietly = TRUE)) {
+      performance::icc(mC_ctrl)$ICC_adjusted
+    } else NA_real_,
+    icc_resg = if (!is.null(mC_resg) && requireNamespace("performance", quietly = TRUE)) {
+      performance::icc(mC_resg)$ICC_adjusted
+    } else NA_real_,
+    t2_decreto_resg = t2_resg$estimate,
+    p_t2_decreto_resg = t2_resg$p.value,
+    b_ola3_ctrl = period_estallido_ctrl$estimate,
+    p_ola3_ctrl = period_estallido_ctrl$p.value,
     b_ola3_resg = period_estallido_resg$estimate,
     p_ola3_resg = period_estallido_resg$p.value,
+    b_decreto_ctrl = period_decreto_ctrl$estimate,
+    p_decreto_ctrl = period_decreto_ctrl$p.value,
     b_decreto_resg = t2_resg$estimate,
     p_decreto_resg = t2_resg$p.value,
+    b_decreto_resg_B = coef_row(resumen, "B — Decreto (3→4)", "idx_vio_resguardo")$estimate,
+    p_decreto_resg_B = coef_row(resumen, "B — Decreto (3→4)", "idx_vio_resguardo")$p.value,
     b_T_M_ingroup = med_ingroup_did$estimate,
     p_T_M_ingroup = med_ingroup_did$p.value,
     med_ctrl_pct = med_ctrl_pct,
+    med_ctrl_brecha_pct = med_ctrl_brecha_pct,
+    med_ctrl_brecha_med = med_ctrl_brecha_med,
+    med_resg_brecha_pct = med_resg_brecha_pct,
+    med_resg_brecha_med = med_resg_brecha_med,
     sup_resg_pct = sup_resg_pct,
+    n_modelo_C = n_modelo_C,
+    ipw_595_ctrl = ipw_595_ctrl,
+    ipw_595_resg = ipw_595_resg,
     or_rechazo_zona = or_rechazo_zona,
     p_or_zona = p_or_zona,
     tau4_resg_ipw = ipw_o_resg$estimate,

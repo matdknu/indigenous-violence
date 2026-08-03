@@ -29,8 +29,16 @@ for s in "${SCRIPTS[@]}"; do
 done
 
 echo ""
+echo ">>> sessionInfo"
+Rscript -e 'writeLines(capture.output(sessionInfo()), "output/session_info.txt"); cat("✓ output/session_info.txt\n")'
+
+echo ""
 echo ">>> paper_results.rds"
 Rscript -e 'source("R/paper_results.R"); refresh_paper_results()'
+
+echo ""
+echo ">>> verificar_paper_consistencia"
+Rscript R/verificar_paper_consistencia.R || true
 
 echo ""
 echo ">>> Render HTML"

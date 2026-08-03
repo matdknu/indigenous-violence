@@ -21,29 +21,8 @@ if (!dir.exists("output/tablas"))  dir.create("output/tablas",  recursive = TRUE
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
 
 subset_data <- readRDS("data/subset_data.rds")
-
-# Cargar panel raw para obtener a5 (no está en panel_completo ni subset_data)
-load("data/BBDD_ELRI_LONG.RData")
-
-# Función para recodificar missing (copiada de 01_limpieza.R)
-recode_missing <- function(x) {
-  miss_vals <- c(66L, 77L, 88L, 99L, 8888L, 9999L)
-  xv <- if (inherits(x, "haven_labelled")) {
-    as.integer(haven::zap_labels(x))
-  } else {
-    as.integer(x)
-  }
-  if_else(xv %in% miss_vals, NA_integer_, xv)
-}
-
-# Extraer a5 del panel raw y limpiar missing
-a5_data <- BBDD_ELRI_LONG |>
-  select(folio, ola, a5) |>
-  mutate(a5 = recode_missing(a5))
-
-# Unir a5 a subset_data
-subset_data <- subset_data |>
-  left_join(a5_data, by = c("folio", "ola"))
+# a5 / idx_id_etnica / predominancia_id ya vienen de 01_limpieza.R
+stopifnot(all(c("a5", "idx_id_etnica", "predominancia_id") %in% names(subset_data)))
 
 # ── 1. DIAGNÓSTICO BÁSICO (ola 2, baseline) ──────────────────────────────────
 

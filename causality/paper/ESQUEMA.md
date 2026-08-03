@@ -11,11 +11,11 @@
 
 ## Título tentativo
 
-**"Estado de excepción, identidad étnica y justificación de la violencia: evidencia cuasi-experimental de un panel longitudinal en Chile (2016–2022)"**
+**"Apertura normativa y contención fallida: estallido social, estado de excepción y justificación de la violencia entre personas indígenas y no indígenas en Chile (2018–2023)"**
 
 ## Abstract (estructura)
 
-Panel longitudinal espejo (ELRI, N=1.592, 4 olas 2016–2022) + DiD exploratorio. Shock: estado de excepción oct. 2021. VDs: justificación de violencia de **control social** (Estado/Carabineros → indígenas) y de **cambio social** (indígenas → transformación territorial). Resultado: brecha actitudinal ampliada con efecto rezagado (ola 4). Vio. control predice voto Rechazo (OR≈1.36); vio. cambio lo reduce (OR≈0.81).
+Panel longitudinal espejo (ELRI, N=1.578 panel balanceado olas 2–4, 4.742 persona-olas) + DiD exploratorio. Shock: estado de excepción oct. 2021 (53 comunas, La Araucanía + Biobío). VDs: represión estatal (d3_1, ítem único) y cambio social (d4_2+d4_3). Modelo C τ₄: control β≈0,46 (n.s.), cambio β≈0,82* (p≈,035).
 
 ## Hipótesis
 

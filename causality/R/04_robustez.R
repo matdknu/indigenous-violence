@@ -24,10 +24,17 @@ set.seed(2024)
 
 if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
 pacman::p_load(
-  dplyr, tidyverse, lme4, lmerTest, broom.mixed,
+  dplyr, tidyverse, lme4, lmerTest, broom.mixed, broom,
   modelsummary, ggplot2, stringr, gt, haven,
-  MatchIt, cobalt, WeightIt
+  MatchIt, cobalt, WeightIt, fixest
 )
+# DRDID opcional (Fase C)
+has_drdid <- requireNamespace("DRDID", quietly = TRUE)
+if (!has_drdid) {
+  tryCatch(install.packages("DRDID", repos = "https://cloud.r-project.org"),
+           error = function(e) NULL)
+  has_drdid <- requireNamespace("DRDID", quietly = TRUE)
+}
 
 if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
@@ -54,41 +61,40 @@ signif_stars <- function(p) {
 }
 
 extract_coef <- function(model, term_interest, modelo, variable_dependiente) {
-  if (is.null(model)) {
-    return(tibble(
-      modelo = modelo,
-      variable_dependiente = variable_dependiente,
-      term = term_interest,
-      estimate = NA_real_,
-      std.error = NA_real_,
-      p.value = NA_real_,
-      signif = ""
-    ))
-  }
+  empty <- tibble(
+    modelo = modelo,
+    variable_dependiente = variable_dependiente,
+    term = term_interest,
+    estimate = NA_real_,
+    std.error = NA_real_,
+    p.value = NA_real_,
+    signif = ""
+  )
+  if (is.null(model)) return(empty)
   td <- tryCatch(
     broom.mixed::tidy(model, effects = "fixed"),
-    error = function(e) tibble()
+    error = function(e) {
+      tryCatch(broom::tidy(model), error = function(e2) tibble())
+    }
   )
+  if (!nrow(td) || !"term" %in% names(td)) return(empty)
+  # feols puede usar i() names; permitir match parcial
   row <- td |> filter(.data$term == .env$term_interest)
   if (nrow(row) == 0) {
-    return(tibble(
-      modelo = modelo,
-      variable_dependiente = variable_dependiente,
-      term = term_interest,
-      estimate = NA_real_,
-      std.error = NA_real_,
-      p.value = NA_real_,
-      signif = ""
-    ))
+    row <- td |> filter(grepl(term_interest, .data$term, fixed = TRUE) |
+                          grepl("periododecreto.*indi.*cerca|decreto.*indi.*cerca",
+                                .data$term))
   }
+  if (nrow(row) == 0) return(empty)
+  pval <- if ("p.value" %in% names(row)) row$p.value[1] else NA_real_
   tibble(
     modelo = modelo,
     variable_dependiente = variable_dependiente,
     term = term_interest,
     estimate = row$estimate[1],
     std.error = row$std.error[1],
-    p.value = row$p.value[1],
-    signif = signif_stars(row$p.value[1])
+    p.value = pval,
+    signif = signif_stars(pval)
   )
 }
 
@@ -149,16 +155,15 @@ if (file.exists("data/analysis_metadata.rds")) {
   }
 }
 
+# PS sin outcomes baseline (evita condicionar por Y pre en matching/IPW)
 ps_formula <- as.formula(paste(
   "tratado_zona ~ indigeneous + mujer + edad + urbano_rural +",
-  "id_chile + id_causa + perc_desigualdad +",
-  "idx_vio_control + idx_vio_resguardo"
+  "id_chile + id_causa + perc_desigualdad"
 ))
 
 ps_covars <- c(
   "indigeneous", "mujer", "edad", "urbano_rural",
-  "id_chile", "id_causa", "perc_desigualdad",
-  "idx_vio_control", "idx_vio_resguardo"
+  "id_chile", "id_causa", "perc_desigualdad"
 )
 
 # Modelos principales (cargar o re-estimar)
@@ -244,12 +249,14 @@ m_psm <- NULL
 if (min(table(baseline_cc$tratado_zona)) < 5) {
   cat("⚠ Muy pocos casos en algún grupo; PSM omitido.\n\n")
 } else {
+  set.seed(2024)
   m_psm <- tryCatch(
     matchit(
       ps_formula,
       data = baseline_cc,
       method = "nearest",
       distance = "logit",
+      caliper = 0.2,
       ratio = 1,
       replace = FALSE
     ),
@@ -260,8 +267,10 @@ if (min(table(baseline_cc$tratado_zona)) < 5) {
   )
 
   if (!is.null(m_psm)) {
-    cat("Resumen MatchIt:\n")
+    cat("Resumen MatchIt (caliper=0.2):\n")
     print(summary(m_psm))
+    n_unmatched <- sum(m_psm$weights == 0 & baseline_cc$tratado_zona == 1)
+    cat("Tratados sin pareja (caliper):", n_unmatched, "\n")
 
     bal_psm <- bal.tab(m_psm, un = TRUE, abs = TRUE, thresholds = c(m = 0.1))
     cat("\nBalance post-matching:\n")
@@ -344,21 +353,33 @@ summarizar_pesos <- function(w, label = "IPW") {
   )
 }
 
+# IPW con feols + cluster comunal (SE sandwich; NO weights= de lme4)
 fit_ipw_did <- function(data, weights_col, controles) {
   dat <- data
-  dat$.w_lmer <- as.numeric(dat[[weights_col]])
+  dat$.w_ipw <- as.numeric(dat[[weights_col]])
+  dat <- dat |>
+    dplyr::filter(!is.na(.data$.w_ipw), .data$.w_ipw > 0, !is.na(.data$comuna_cod))
+  # Interacciones DiD como factores para feols
+  f_ctrl <- as.formula(paste(
+    "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +", controles
+  ))
+  f_resg <- as.formula(paste(
+    "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +", controles
+  ))
   list(
-    ctrl = lmer(
-      formula_did("idx_vio_control", controles),
-      data = dat,
-      weights = .w_lmer,
-      REML = FALSE
+    ctrl = tryCatch(
+      feols(f_ctrl, data = dat, weights = ~.w_ipw, cluster = ~comuna_cod),
+      error = function(e) {
+        cat("⚠ feols IPW ctrl:", conditionMessage(e), "\n")
+        NULL
+      }
     ),
-    resg = lmer(
-      formula_did("idx_vio_resguardo", controles),
-      data = dat,
-      weights = .w_lmer,
-      REML = FALSE
+    resg = tryCatch(
+      feols(f_resg, data = dat, weights = ~.w_ipw, cluster = ~comuna_cod),
+      error = function(e) {
+        cat("⚠ feols IPW resg:", conditionMessage(e), "\n")
+        NULL
+      }
     )
   )
 }
@@ -366,6 +387,7 @@ fit_ipw_did <- function(data, weights_col, controles) {
 if (min(table(baseline_cc$tratado_zona)) < 5) {
   cat("⚠ Muy pocos casos en algún grupo; IPW omitido.\n\n")
 } else {
+  set.seed(2024)
   w_ipw <- tryCatch(
     weightit(
       ps_formula,
@@ -773,6 +795,153 @@ if (length(sens_named) > 0) {
   cat("✓ Tabla sensibilidad guardada: output/tablas/tabla_sensibilidad_apendice.html\n\n")
 }
 
+# ── 15.5b FE individuales + cluster comuna + DRDID (Fase B/C) ─────────────────
+
+cat("--- 15.5b FE (fixest), cluster comuna, DRDID ---\n\n")
+
+n_comunas_tratadas <- subset_data |>
+  dplyr::filter(
+    .data$ola == 4,
+    .data$indigeneous == "indi",
+    .data$cerca_conflicto == "cerca"
+  ) |>
+  dplyr::summarise(n_comunas = dplyr::n_distinct(.data$comuna_cod)) |>
+  dplyr::pull(.data$n_comunas)
+cat("Comunas en celda tratado (indi × cerca × ola 4):", n_comunas_tratadas, "\n")
+
+f_fe_ctrl <- as.formula(paste(
+  "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +", controles_base, "| folio"
+))
+f_fe_resg <- as.formula(paste(
+  "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +", controles_base, "| folio"
+))
+f_cl_ctrl <- as.formula(paste(
+  "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +", controles_base
+))
+f_cl_resg <- as.formula(paste(
+  "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +", controles_base
+))
+
+m_fe_ctrl <- tryCatch(
+  feols(f_fe_ctrl, data = subset_data, cluster = ~comuna_cod),
+  error = function(e) { cat("⚠ FE ctrl:", conditionMessage(e), "\n"); NULL }
+)
+m_fe_resg <- tryCatch(
+  feols(f_fe_resg, data = subset_data, cluster = ~comuna_cod),
+  error = function(e) { cat("⚠ FE resg:", conditionMessage(e), "\n"); NULL }
+)
+m_cl_ctrl <- tryCatch(
+  feols(f_cl_ctrl, data = subset_data, cluster = ~comuna_cod),
+  error = function(e) { cat("⚠ cluster ctrl:", conditionMessage(e), "\n"); NULL }
+)
+m_cl_resg <- tryCatch(
+  feols(f_cl_resg, data = subset_data, cluster = ~comuna_cod),
+  error = function(e) { cat("⚠ cluster resg:", conditionMessage(e), "\n"); NULL }
+)
+
+# lmer con (1|folio)+(1|comuna_cod) como sensibilidad RE multinivel
+m_re_cl_ctrl <- tryCatch(
+  lmer(
+    as.formula(paste(
+      "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +",
+      controles_base, "+ (1 | folio) + (1 | comuna_cod)"
+    )),
+    data = subset_data, REML = FALSE
+  ),
+  error = function(e) { cat("⚠ RE+comuna ctrl:", conditionMessage(e), "\n"); NULL }
+)
+m_re_cl_resg <- tryCatch(
+  lmer(
+    as.formula(paste(
+      "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto +",
+      controles_base, "+ (1 | folio) + (1 | comuna_cod)"
+    )),
+    data = subset_data, REML = FALSE
+  ),
+  error = function(e) { cat("⚠ RE+comuna resg:", conditionMessage(e), "\n"); NULL }
+)
+
+# DRDID en submuestra indígena: tratado = zona, post = ola 4 (panel balanceado)
+m_drdid_ctrl <- m_drdid_resg <- NULL
+drdid_resumen <- NULL
+if (has_drdid) {
+  prep_drdid <- function(vd) {
+    d <- subset_data |>
+      dplyr::filter(.data$indigeneous == "indi", .data$ola %in% c(2L, 4L)) |>
+      dplyr::mutate(
+        id = as.integer(factor(.data$folio)),
+        year = as.integer(.data$ola),
+        treat = as.integer(.data$cerca_conflicto == "cerca"),
+        y = as.numeric(.data[[vd]]),
+        id_chile_n = as.numeric(.data$id_chile),
+        id_causa_n = as.numeric(.data$id_causa)
+      ) |>
+      dplyr::filter(
+        !is.na(.data$y), !is.na(.data$treat),
+        !is.na(.data$id_chile_n), !is.na(.data$id_causa_n)
+      ) |>
+      dplyr::distinct(.data$id, .data$year, .keep_all = TRUE)
+    # Solo IDs con ambas olas (requisito panel DRDID)
+    ids_ok <- d |>
+      dplyr::count(.data$id) |>
+      dplyr::filter(.data$n == 2L) |>
+      dplyr::pull(.data$id)
+    d |> dplyr::filter(.data$id %in% ids_ok)
+  }
+  run_drdid <- function(vd) {
+    d <- prep_drdid(vd)
+    if (nrow(d) < 50) return(NULL)
+    # Covariables numéricas estables pre/post; fallback ~1
+    out <- tryCatch(
+      DRDID::drdid(
+        yname = "y", tname = "year", idname = "id",
+        dname = "treat", xformla = ~ id_chile_n + id_causa_n,
+        data = as.data.frame(d), panel = TRUE, boot = FALSE
+      ),
+      error = function(e) {
+        cat("⚠ DRDID covars", vd, ":", conditionMessage(e), "→ reintento ~1\n")
+        tryCatch(
+          DRDID::drdid(
+            yname = "y", tname = "year", idname = "id",
+            dname = "treat", xformla = ~ 1,
+            data = as.data.frame(d), panel = TRUE, boot = FALSE
+          ),
+          error = function(e2) {
+            cat("⚠ DRDID", vd, ":", conditionMessage(e2), "\n")
+            NULL
+          }
+        )
+      }
+    )
+    out
+  }
+  m_drdid_ctrl <- run_drdid("idx_vio_control")
+  m_drdid_resg <- run_drdid("idx_vio_resguardo")
+  extract_drdid <- function(obj, vd, label) {
+    if (is.null(obj)) {
+      return(tibble(
+        modelo = label, variable_dependiente = vd, term = "ATT_DRDID",
+        estimate = NA_real_, std.error = NA_real_, p.value = NA_real_, signif = ""
+      ))
+    }
+    att <- as.numeric(obj$ATT)
+    se <- as.numeric(obj$se)
+    z <- if (is.finite(se) && se > 0) att / se else NA_real_
+    p <- if (is.finite(z)) 2 * stats::pnorm(-abs(z)) else NA_real_
+    tibble(
+      modelo = label, variable_dependiente = vd, term = "ATT_DRDID",
+      estimate = att, std.error = se, p.value = p, signif = signif_stars(p)
+    )
+  }
+  drdid_resumen <- bind_rows(
+    extract_drdid(m_drdid_ctrl, "idx_vio_control", "DRDID (indi, zona)"),
+    extract_drdid(m_drdid_resg, "idx_vio_resguardo", "DRDID (indi, zona)")
+  )
+  print(drdid_resumen)
+} else {
+  cat("⚠ Paquete DRDID no disponible; omitido.\n")
+}
+
 # ── 15.6 Tabla resumen final de robustez ──────────────────────────────────────
 
 cat("--- 15.6 Tabla resumen de robustez ---\n\n")
@@ -811,6 +980,13 @@ resumen_robustez <- bind_rows(
   extract_coef(m2_resg_ipw_trim_1_99, TERM_DID_DECRETO, "IPW trim 1–99%", "idx_vio_resguardo"),
   extract_coef(m2_ctrl_ipw_trim_5_95, TERM_DID_DECRETO, "IPW trim 5–95%", "idx_vio_control"),
   extract_coef(m2_resg_ipw_trim_5_95, TERM_DID_DECRETO, "IPW trim 5–95%", "idx_vio_resguardo"),
+  extract_coef(m_fe_ctrl, TERM_DID_DECRETO, "FE folio + cluster comuna", "idx_vio_control"),
+  extract_coef(m_fe_resg, TERM_DID_DECRETO, "FE folio + cluster comuna", "idx_vio_resguardo"),
+  extract_coef(m_cl_ctrl, TERM_DID_DECRETO, "OLS cluster comuna", "idx_vio_control"),
+  extract_coef(m_cl_resg, TERM_DID_DECRETO, "OLS cluster comuna", "idx_vio_resguardo"),
+  extract_coef(m_re_cl_ctrl, TERM_DID_DECRETO, "RE folio+comuna", "idx_vio_control"),
+  extract_coef(m_re_cl_resg, TERM_DID_DECRETO, "RE folio+comuna", "idx_vio_resguardo"),
+  if (!is.null(drdid_resumen)) drdid_resumen else NULL,
   extract_coef(m_placebo_ctrl_real, TERM_PLACEBO_REAL,
                "Placebo real (ola1→2)", "idx_vio_control"),
   extract_coef(m_placebo_resg_real, TERM_PLACEBO_REAL,
@@ -1131,7 +1307,19 @@ saveRDS(
     },
     resumen_robustez = resumen_robustez,
     sens_mapuche_compare = sens_mapuche_compare,
-    controles_base = controles_base
+    controles_base = controles_base,
+    m_fe_ctrl = if (exists("m_fe_ctrl")) m_fe_ctrl else NULL,
+    m_fe_resg = if (exists("m_fe_resg")) m_fe_resg else NULL,
+    m_cl_ctrl = if (exists("m_cl_ctrl")) m_cl_ctrl else NULL,
+    m_cl_resg = if (exists("m_cl_resg")) m_cl_resg else NULL,
+    m_re_cl_ctrl = if (exists("m_re_cl_ctrl")) m_re_cl_ctrl else NULL,
+    m_re_cl_resg = if (exists("m_re_cl_resg")) m_re_cl_resg else NULL,
+    m_drdid_ctrl = if (exists("m_drdid_ctrl")) m_drdid_ctrl else NULL,
+    m_drdid_resg = if (exists("m_drdid_resg")) m_drdid_resg else NULL,
+    drdid_resumen = if (exists("drdid_resumen")) drdid_resumen else NULL,
+    n_comunas_tratadas = if (exists("n_comunas_tratadas")) n_comunas_tratadas else NA_integer_,
+    ipw_estimator = "feols_weights_cluster_comuna",
+    ps_includes_outcomes = FALSE
   ),
   "data/robustez.rds"
 )

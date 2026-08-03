@@ -17,45 +17,20 @@ pacman::p_load(
 
 if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
 
-# ── 1. CARGAR DATOS Y RECREAR VARIABLES ──────────────────────────────────────
+# ── 1. CARGAR DATOS (identidad canónica desde 01_limpieza) ───────────────────
 
 subset_data <- readRDS("data/subset_data.rds")
+n_pre <- nrow(subset_data)
+stopifnot("predominancia_id" %in% names(subset_data), "idx_id_etnica" %in% names(subset_data))
 
-# Cargar a5 desde panel raw
-load("data/BBDD_ELRI_LONG.RData")
-
-recode_missing <- function(x) {
-  miss_vals <- c(66L, 77L, 88L, 99L, 8888L, 9999L)
-  xv <- if (inherits(x, "haven_labelled")) {
-    as.integer(haven::zap_labels(x))
-  } else {
-    as.integer(x)
-  }
-  if_else(xv %in% miss_vals, NA_integer_, xv)
-}
-
-a5_data <- BBDD_ELRI_LONG |>
-  select(folio, ola, a5) |>
-  mutate(a5 = recode_missing(a5))
-
-subset_data <- subset_data |>
-  left_join(a5_data, by = c("folio", "ola"), relationship = "many-to-many") |>
-  mutate(
-    a4_num = as.numeric(id_indi),
-    a5_num = as.numeric(a5),
-    a6_num = as.numeric(id_chile),
-    idx_id_etnica = rowMeans(pick(a4_num, a5_num), na.rm = TRUE),
-    id_nacional = a6_num,
-    predominancia_id = idx_id_etnica - id_nacional
-  )
-
-# Fijar predominancia al baseline
+# Fijar predominancia al baseline (sin rejoin many-to-many al raw)
 predom_base <- subset_data |>
   filter(ola == 2) |>
+  distinct(folio, .keep_all = TRUE) |>
   select(folio, predominancia_base = predominancia_id)
 
 subset_data <- subset_data |>
-  left_join(predom_base, by = "folio") |>
+  left_join(predom_base, by = "folio", relationship = "many-to-one") |>
   group_by(indigeneous) |>
   mutate(
     predom_tercil = ntile(predominancia_base, 3),
@@ -69,12 +44,14 @@ subset_data <- subset_data |>
     )
   ) |>
   ungroup()
+stopifnot(nrow(subset_data) == n_pre)
 
 metadata <- readRDS("data/analysis_metadata.rds")
 controles_base <- metadata$controles_base
 
-# ── 2. MODELOS DiD POR TERCIL ─────────────────────────────────────────────────
+# ── 2. MODELOS DiD POR TERCIL (exploratorio; multiplicidad no ajustada) ───────
 
+cat("Nota: terciles = análisis exploratorio (sin corrección multiplicidad).\n")
 TERM_DID_DEC <- "periododecreto:indigeneousindi:zona_decretodecreto"
 
 resultados <- list()
@@ -136,7 +113,7 @@ tabla_gt <- df_resultados |>
   gt(groupname_col = "vd_label") |>
   tab_header(
     title = "Heterogeneidad del efecto DiD por predominancia identitaria baseline",
-    subtitle = "Modelos mixtos DiD (Modelo C) estratificados por tercil de predominancia"
+    subtitle = "Exploratorio (sin corrección multiplicidad). Preferir interacción continua DiD×predominancia."
   ) |>
   cols_label(
     tercil = "Tercil predominancia",

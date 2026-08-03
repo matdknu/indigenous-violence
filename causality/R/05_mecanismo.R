@@ -1,26 +1,11 @@
 # =============================================================================
-# 05_mecanismo.R — Mecanismo de mediación: justicia procedimental
-#                  ingroup/outgroup como canal del efecto DiD
+# 05_mecanismo.R — Mecanismo: JP ingroup/outgroup (ajuste + exploratorio)
 #
-# Hipótesis:
-#   H4a: just_proc_ingroup media el efecto sobre justificación de violencia
-#        — deterioro del trato percibido al propio grupo
-#   H4b: brecha_just_proc (outgroup − ingroup) como indicador de
-#        discriminación relativa percibida
-#   H4c: el mecanismo opera asimétricamente por tipo de violencia
+# Paso 1: decreto → mediadores en ola 4 (post-tratamiento)
+# Paso 3: ajuste DiD por JP rezagada (ola 3 = PRE-decreto) — NO mediación causal
+# Paso 4: mediación exploratoria misma-ola (ola 4) con bootstrap Δβ
 #
-# Análisis en 4 pasos:
-#   Paso 0: descriptivos de trayectorias ingroup/outgroup/brecha
-#   Paso 1: tratamiento → mediadores (just_proc_ingroup, brecha)
-#   Paso 2: mediadores → VDs (controlando tratamiento)
-#   Paso 3: atenuación del DiD al incluir mediadores
-#
-# Input:  data/subset_data.rds, data/analysis_metadata.rds
-# Output: output/figuras/fig_trayectorias_justproc_inout.png
-#         output/figuras/fig_brecha_justproc.png
-#         output/figuras/fig_mediacion_ingroup.png
-#         output/tablas/tabla_mecanismo_ingroup.html
-#         data/mecanismo.rds
+# VD = misma escala continua 1–5 que Modelo C (idx_vio_control / idx_vio_resguardo)
 # =============================================================================
 
 set.seed(2024)
@@ -331,14 +316,15 @@ cat("(Ola 2 no tiene lag → NA esperado para ola 2)\n")
 # ══════════════════════════════════════════════════════════════════════════════
 
 cat("\n", paste(rep("=", 70), collapse=""), "\n")
-cat("PASO 3: ¿Se atenúa el DiD al incluir mediadores?\n")
+cat("PASO 3: Ajuste DiD por JP rezagada (pre-decreto; NO mediación causal)\n")
+cat("VD = continua 1–5 (misma que Modelo C)\n")
 cat(paste(rep("=", 70), collapse=""), "\n")
 
-# ── Modelos SIN mediador (baseline) ──────────────────────────────────────────
+# ── Modelos SIN mediador (baseline) — escala continua ─────────────────────────
 
 m_ctrl_sin <- lmer(
   as.formula(paste(
-    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_control ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -346,7 +332,7 @@ m_ctrl_sin <- lmer(
 
 m_resg_sin <- lmer(
   as.formula(paste(
-    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_resguardo ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -356,7 +342,7 @@ m_resg_sin <- lmer(
 
 m_ctrl_ingroup <- lmer(
   as.formula(paste(
-    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_control ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ ingroup_lag + (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -364,7 +350,7 @@ m_ctrl_ingroup <- lmer(
 
 m_resg_ingroup <- lmer(
   as.formula(paste(
-    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_resguardo ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ ingroup_lag + (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -374,7 +360,7 @@ m_resg_ingroup <- lmer(
 
 m_ctrl_brecha <- lmer(
   as.formula(paste(
-    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_control ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ brecha_lag + (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -382,7 +368,7 @@ m_ctrl_brecha <- lmer(
 
 m_resg_brecha <- lmer(
   as.formula(paste(
-    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_resguardo ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ brecha_lag + (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -392,7 +378,7 @@ m_resg_brecha <- lmer(
 
 m_ctrl_ambos <- lmer(
   as.formula(paste(
-    "idx_vio_control_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_control ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ ingroup_lag + brecha_lag + (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -400,7 +386,7 @@ m_ctrl_ambos <- lmer(
 
 m_resg_ambos <- lmer(
   as.formula(paste(
-    "idx_vio_resguardo_ord ~ periodo * indigeneous * zona_decreto +",
+    "idx_vio_resguardo ~ periodo * indigeneous * zona_decreto +",
     controles_base, "+ ingroup_lag + brecha_lag + (1 | folio)"
   )),
   data = subset_med, REML = FALSE
@@ -451,12 +437,67 @@ print(comp |>
   as.data.frame()
 )
 
-cat("\nInterpretación:\n")
-cat("  Atenuación 10–30% → mediación parcial (canal contribuye)\n")
-cat("  Atenuación 30–60% → mediación sustancial\n")
-cat("  Atenuación > 60%  → mediación fuerte (canal principal)\n")
-cat("  Atenuación ≈ 0%   → canal no opera\n")
-cat("  Atenuación < 0%   → supresión (mediador tiene efecto contrario)\n")
+cat("\nInterpretación (ajuste, no mediación):\n")
+cat("  Δβ > 0  → atenuación al condicionar por JP pre-decreto\n")
+cat("  Δβ < 0  → amplificación (patrón de supresión)\n")
+cat("  El lag es PRE-decreto: NO identifica path decreto→M→Y\n")
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PASO 4: Mediación exploratoria misma-ola (ola 4) — bootstrap Δβ
+# ══════════════════════════════════════════════════════════════════════════════
+
+cat("\n", paste(rep("=", 70), collapse=""), "\n")
+cat("PASO 4: Exploratorio — mediador contemporáneo ola 4 (precedencia NO identificada)\n")
+cat(paste(rep("=", 70), collapse=""), "\n")
+
+dat_ola4 <- subset_data |>
+  dplyr::filter(.data$ola == 4, !is.na(.data$just_proc_ingroup))
+
+boot_delta_beta <- function(data, vd, n_boot = 200L, seed = 2024) {
+  set.seed(seed)
+  f_sin <- as.formula(paste(
+    vd, "~ indigeneous * zona_decreto +", controles_base
+  ))
+  f_con <- as.formula(paste(
+    vd, "~ indigeneous * zona_decreto + just_proc_ingroup +", controles_base
+  ))
+  term <- "indigeneousindi:zona_decretodecreto"
+  get_b <- function(d, f) {
+    m <- tryCatch(stats::lm(f, data = d), error = function(e) NULL)
+    if (is.null(m)) return(NA_real_)
+    cf <- coef(m)
+    if (!term %in% names(cf)) return(NA_real_)
+    unname(cf[term])
+  }
+  b0_sin <- get_b(data, f_sin)
+  b0_con <- get_b(data, f_con)
+  deltas <- replicate(n_boot, {
+    idx <- sample.int(nrow(data), replace = TRUE)
+    d <- data[idx, , drop = FALSE]
+    bs <- get_b(d, f_sin)
+    bc <- get_b(d, f_con)
+    if (is.na(bs) || is.na(bc) || abs(bs) < 1e-8) return(NA_real_)
+    (bs - bc) / abs(bs) * 100
+  })
+  deltas <- deltas[is.finite(deltas)]
+  tibble::tibble(
+    vd = vd,
+    b_sin = b0_sin,
+    b_con = b0_con,
+    delta_pct = if (!is.na(b0_sin) && abs(b0_sin) > 1e-8) {
+      (b0_sin - b0_con) / abs(b0_sin) * 100
+    } else NA_real_,
+    boot_lo = if (length(deltas)) unname(quantile(deltas, 0.025, na.rm = TRUE)) else NA_real_,
+    boot_hi = if (length(deltas)) unname(quantile(deltas, 0.975, na.rm = TRUE)) else NA_real_,
+    n_boot = length(deltas),
+    nota = "Exploratorio: M y Y en ola 4; precedencia no identificada"
+  )
+}
+
+med_expl_ctrl <- boot_delta_beta(dat_ola4, "idx_vio_control")
+med_expl_resg <- boot_delta_beta(dat_ola4, "idx_vio_resguardo")
+mediacion_exploratoria_ola4 <- dplyr::bind_rows(med_expl_ctrl, med_expl_resg)
+print(mediacion_exploratoria_ola4)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURAS Y TABLAS FINALES
@@ -497,16 +538,13 @@ p_mediacion <- ggplot(comp_fig,
     name = NULL
   ) +
   labs(
-    title = "Mediación: atenuación del DiD al incluir justicia procedimental",
+    title = "Ajuste DiD por JP rezagada (pre-decreto)",
     subtitle = paste0(
       "Coeficiente τ₄ (Decreto × Indígena × Zona) · IC 95%\n",
-      "Mediadores rezagados (valor en ola anterior)"
+      "JP rezagada = ola 3 (PRE-decreto) · NO es mediación causal · VD continua 1–5"
     ),
     x = "Coeficiente DiD estimado", y = NULL,
-    caption = paste0(
-      "Rojo = sin mediador · Azul = con mediador\n",
-      "Si azul se acerca a 0 respecto a rojo → mediación parcial"
-    )
+    caption = "Rojo = sin ajuste · Azul = con JP rezagada"
   ) +
   theme_minimal(base_size = 11) +
   theme(
@@ -558,10 +596,9 @@ modelsummary(
   coef_omit = "edad|mujer|urbano|malestar|apoyo",
   gof_map = c("nobs", "icc", "rmse"),
   notes = paste0(
-    "Paso 1: efecto del tratamiento sobre mediadores. ",
-    "Columnas 4–9: modelos DiD con y sin mediadores rezagados. ",
-    "Controles sociodem. y sustantivos omitidos. ",
-    "Mediadores rezagados = valor en ola anterior. ",
+    "Paso 1: decreto → mediadores (ola 4). ",
+    "Columnas 4–9: ajuste DiD por JP rezagada (ola 3 = PRE-decreto); ",
+    "NO mediación causal. VD continua 1–5 (igual Modelo C). ",
     "+ p<.1, * p<.05, ** p<.01, *** p<.001."
   ),
   output = "output/tablas/tabla_mecanismo_ingroup.html"
@@ -572,11 +609,9 @@ cat("✓ Tabla mecanismo guardada\n")
 
 saveRDS(
   list(
-    # Paso 1: tratamiento → mediadores
     m1_ingroup  = m1_ingroup,
     m1_outgroup = m1_outgroup,
     m1_brecha   = m1_brecha,
-    # Paso 3: modelos con y sin mediadores
     m_ctrl_sin     = m_ctrl_sin,
     m_ctrl_ingroup = m_ctrl_ingroup,
     m_ctrl_brecha  = m_ctrl_brecha,
@@ -585,9 +620,10 @@ saveRDS(
     m_resg_ingroup = m_resg_ingroup,
     m_resg_brecha  = m_resg_brecha,
     m_resg_ambos   = m_resg_ambos,
-    # Tabla comparativa
     comparacion_atenuacion = comp,
-    # Descriptivos
+    mediacion_exploratoria_ola4 = mediacion_exploratoria_ola4,
+    vd_escala = "continua_1_5",
+    paso3_interpretacion = "ajuste_jp_rezagada_pre_decreto",
     desc_just = desc_just
   ),
   "data/mecanismo.rds"

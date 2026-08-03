@@ -446,7 +446,11 @@ m_movil <- glm(
 )
 
 cat("\nOdds ratios — Movilización:\n")
-print(round(exp(cbind(OR = coef(m_movil), confint(m_movil))), 3))
+# Wald CI (más estable que perfil); modelos asociacionales (ola 4, predictores post)
+print(round(exp(cbind(
+  OR = coef(m_movil),
+  confint.default(m_movil)
+)), 3))
 
 # ── M_rechazo: voto Rechazo entre votantes ────────────────────────────────────
 
@@ -461,7 +465,11 @@ m_rechazo <- glm(
 )
 
 cat("\nOdds ratios — Voto Rechazo:\n")
-print(round(exp(cbind(OR = coef(m_rechazo), confint(m_rechazo))), 3))
+cat("(Asociacional: predictores post-tratamiento en ola 4)\n")
+print(round(exp(cbind(
+  OR = coef(m_rechazo),
+  confint.default(m_rechazo)
+)), 3))
 
 # ── M_rechazo_strict: Rechazo vs Apruebo ──────────────────────────────────────
 
@@ -476,7 +484,10 @@ m_rechazo_strict <- glm(
 )
 
 cat("\nOdds ratios — Rechazo vs Apruebo (estricto):\n")
-print(round(exp(cbind(OR = coef(m_rechazo_strict), confint(m_rechazo_strict))), 3))
+print(round(exp(cbind(
+  OR = coef(m_rechazo_strict),
+  confint.default(m_rechazo_strict)
+)), 3))
 
 # ── Tabla 4 — Modelos plebiscito ──────────────────────────────────────────────
 
