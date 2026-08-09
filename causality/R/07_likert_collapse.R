@@ -1,16 +1,18 @@
 # =============================================================================
-# 07_likert_collapse.R — Colapso ordinal Likert 1–5 → 3 categorías (A vs B)
+# 07_likert_collapse.R — Robustez ordinal: clmm de VD ítem único (A vs B)
 #
-# Propósito: comparar dos esquemas de recodificación para justificación de
-#            violencia (control social y cambio social), visualizar distribuciones
-#            y contrastar ajuste de modelos DiD (continuo vs ordinal).
+# Propósito: con VD de ítem único 1–5, el tratamiento como intervalo es más
+#            discutible. El modelo ordinal::clmm (esquema A simétrico) se
+#            reporta como ROBUSTEZ PRINCIPAL junto al lineal (FE/lmer).
 #
-# Esquema A (simétrico):     1–2 Rechaza | 3 Neutral | 4–5 Justifica
+# VD: idx_vio_control = d3_1 (Carabineros); idx_vio_resguardo = d4_3 (cortes)
+# Esquema A (simétrico):     1–2 Rechaza | 3 Neutral | 4–5 Justifica  [principal]
 # Esquema B (intensidad):     1–2 Rechaza | 3–4 Moderado | 5 Apoya totalmente
 #
 # Input:  data/subset_data.rds
 # Output: output/figuras/fig_likert_*.png
 #         output/tablas/tabla_likert_*.html
+#         output/tablas/tabla_robustez_ordinal.html
 #         data/likert_collapse.rds
 # =============================================================================
 
@@ -76,45 +78,31 @@ factor_ord <- function(x, labels) {
   factor(x, levels = 1:3, labels = labels, ordered = TRUE)
 }
 
-# ── Recodificación (ítem + índice) ────────────────────────────────────────────
+# ── Recodificación: VD = ítem único (d3_1 / d4_3) colapsado ───────────────────
+# Esquema A (simétrico): 1–2 Rechaza | 3 Neutral | 4–5 Justifica  → robustez PRINCIPAL
+# Esquema B (intensidad): comparación lateral
 
 dat <- subset_data |>
   mutate(
-    # Ítems colapsados
-    vio_ctrl_carb_A = collapse_sym_item(vio_ctrl_carb),
-    vio_ctrl_agric_A = collapse_sym_item(vio_ctrl_agric),
-    vio_camb_tierras_A = collapse_sym_item(vio_camb_tierras),
-    vio_camb_cortes_A = collapse_sym_item(vio_camb_cortes),
-    vio_ctrl_carb_B = collapse_int_item(vio_ctrl_carb),
-    vio_ctrl_agric_B = collapse_int_item(vio_ctrl_agric),
-    vio_camb_tierras_B = collapse_int_item(vio_camb_tierras),
-    vio_camb_cortes_B = collapse_int_item(vio_camb_cortes),
-    # Índice: media de ítems colapsados → redondeo a categoría 1–3
-    idx_ctrl_mean_A = rowMeans(
-      cbind(vio_ctrl_carb_A, vio_ctrl_agric_A), na.rm = TRUE
-    ),
-    idx_resg_mean_A = rowMeans(
-      cbind(vio_camb_tierras_A, vio_camb_cortes_A), na.rm = TRUE
-    ),
-    idx_ctrl_mean_B = rowMeans(
-      cbind(vio_ctrl_carb_B, vio_ctrl_agric_B), na.rm = TRUE
-    ),
-    idx_resg_mean_B = rowMeans(
-      cbind(vio_camb_tierras_B, vio_camb_cortes_B), na.rm = TRUE
-    ),
-    idx_vio_control_A = factor_ord(pmax(1L, pmin(3L, round(idx_ctrl_mean_A))), lab_ord_A),
-    idx_vio_resguardo_A = factor_ord(pmax(1L, pmin(3L, round(idx_resg_mean_A))), lab_ord_A),
-    idx_vio_control_B = factor_ord(pmax(1L, pmin(3L, round(idx_ctrl_mean_B))), lab_ord_B),
-    idx_vio_resguardo_B = factor_ord(pmax(1L, pmin(3L, round(idx_resg_mean_B))), lab_ord_B),
-    # Colapso directo sobre media continua 1–5 (sensibilidad)
-    idx_vio_control_A_idx = factor_ord(collapse_sym_idx(idx_vio_control), lab_ord_A),
-    idx_vio_resguardo_A_idx = factor_ord(collapse_sym_idx(idx_vio_resguardo), lab_ord_A),
-    idx_vio_control_B_idx = factor_ord(collapse_int_idx(idx_vio_control), lab_ord_B),
-    idx_vio_resguardo_B_idx = factor_ord(collapse_int_idx(idx_vio_resguardo), lab_ord_B)
+    # Ítems de sensibilidad (apéndice; no entran a VD)
+    vio_priv_agric_A   = collapse_sym_item(vio_priv_agric),
+    vio_ocup_tierras_A = collapse_sym_item(vio_ocup_tierras),
+    vio_priv_agric_B   = collapse_int_item(vio_priv_agric),
+    vio_ocup_tierras_B = collapse_int_item(vio_ocup_tierras),
+    # VD principales = colapso del ítem único
+    idx_vio_control_A   = factor_ord(collapse_sym_item(idx_vio_control), lab_ord_A),
+    idx_vio_resguardo_A = factor_ord(collapse_sym_item(idx_vio_resguardo), lab_ord_A),
+    idx_vio_control_B   = factor_ord(collapse_int_item(idx_vio_control), lab_ord_B),
+    idx_vio_resguardo_B = factor_ord(collapse_int_item(idx_vio_resguardo), lab_ord_B),
+    # Alias (misma construcción: colapso del ítem único 1–5)
+    idx_vio_control_A_idx   = idx_vio_control_A,
+    idx_vio_resguardo_A_idx = idx_vio_resguardo_A,
+    idx_vio_control_B_idx   = idx_vio_control_B,
+    idx_vio_resguardo_B_idx = idx_vio_resguardo_B
   )
 
 cat("\n", strrep("=", 60), "\n")
-cat("COLAPSO LIKERT — distribución esquema A vs B (índice redondeado)\n")
+cat("COLAPSO LIKERT — VD ítem único (d3_1 Carabineros / d4_3 cortes)\n")
 cat(strrep("=", 60), "\n\n")
 
 tab_ctrl_A <- dat |>
@@ -532,6 +520,86 @@ p_conc <- ggplot(conc_plot2, aes(x = cat_A, y = cat_B, fill = pct)) +
 
 ggsave("output/figuras/fig_likert_concordancia.png", p_conc,
        width = 9, height = 4.5, dpi = 300)
+
+# ── ROBUSTEZ ORDINAL PRINCIPAL (reportada junto al lineal) ────────────────────
+#
+# Con VD de ítem único 1–5, el tratamiento intervalar es más discutible.
+# clmm (esquema A) = robustez PRINCIPAL reportada para AMBAS VD, no lateral.
+#
+# Criterio: si DiD triple (Ola4 × indi × zona) converge en signo/sig entre
+# lineal y clmm → conclusión robusta a la escala. Coef. clmm = log-odds (PO).
+
+cat("\n", strrep("=", 60), "\n")
+cat("ROBUSTEZ ORDINAL PRINCIPAL — clmm (esquema A) vs lineal\n")
+cat("VD: d3_1 Carabineros | d4_3 cortes de camino (ítems únicos)\n")
+cat(strrep("=", 60), "\n\n")
+
+# Extraer coeficientes DiD del clmm (esquema A, simétrico)
+clmm_ctrl_row <- resumen_modelos |>
+  dplyr::filter(spec == "Ordinal A (simétrico)", vd == "Control social") |>
+  dplyr::select(spec, vd, estimate, std.error, p.value)
+
+clmm_resg_row <- resumen_modelos |>
+  dplyr::filter(spec == "Ordinal A (simétrico)", vd == "Cambio social") |>
+  dplyr::select(spec, vd, estimate, std.error, p.value)
+
+lmer_ctrl_row <- resumen_modelos |>
+  dplyr::filter(spec == "Continuo 1–5", vd == "Control social") |>
+  dplyr::select(spec, vd, estimate, std.error, p.value)
+
+lmer_resg_row <- resumen_modelos |>
+  dplyr::filter(spec == "Continuo 1–5", vd == "Cambio social") |>
+  dplyr::select(spec, vd, estimate, std.error, p.value)
+
+rob_ord_tabla <- dplyr::bind_rows(
+  lmer_ctrl_row, clmm_ctrl_row,
+  lmer_resg_row, clmm_resg_row
+) |>
+  dplyr::mutate(
+    Modelo = dplyr::case_when(
+      stringr::str_detect(spec, "Continuo")       ~ "Lineal (lmer, 1–5)",
+      stringr::str_detect(spec, "Ordinal A")       ~ "Ordinal acum. (clmm, esquema A)",
+      TRUE ~ spec
+    ),
+    VD = vd,  # ya es "Control social" / "Cambio social"
+    β  = round(estimate, 3),
+    SE = round(std.error, 3),
+    p  = round(p.value, 4),
+    Sig = dplyr::case_when(
+      is.na(p.value) ~ "",
+      p.value < .001 ~ "***", p.value < .01 ~ "**",
+      p.value < .05  ~ "*",  p.value < .1  ~ "+", TRUE ~ ""
+    )
+  ) |>
+  dplyr::select(VD, Modelo, β, SE, p, Sig)
+
+cat("Coeficiente DiD decreto (Ola4 × indi × zona) — lineal vs clmm:\n\n")
+print(rob_ord_tabla)
+cat("\nInterpretación: el coeficiente clmm es log-odds (proporcionales).\n")
+cat("Convergencia en signo y significancia → resultados robustos a escala.\n\n")
+
+rob_ord_tabla |>
+  gt(groupname_col = "VD") |>
+  tab_header(
+    title    = "Robustez ordinal — clmm vs lmer (Modelo C, tres períodos)",
+    subtitle = paste0(
+      "DiD triple: Ola4 × Indígena × Zona excepción (D.S. 418, 12 oct 2021). ",
+      "Coeficiente lmer = puntos en escala 1–5; clmm = log-odds acumulado."
+    )
+  ) |>
+  tab_footnote(
+    footnote = paste0(
+      "Esquema A (simétrico): 1–2 Rechaza | 3 Neutral | 4–5 Justifica. ",
+      "+ p<.1 * p<.05 ** p<.01 *** p<.001"
+    )
+  ) |>
+  tab_options(
+    table.border.top.style = "solid",
+    table.border.bottom.style = "solid",
+    table.font.size = px(11)
+  ) |>
+  gtsave("output/tablas/tabla_robustez_ordinal.html")
+cat("✓ Tabla robustez ordinal guardada: output/tablas/tabla_robustez_ordinal.html\n\n")
 
 # ── Guardar objetos ───────────────────────────────────────────────────────────
 

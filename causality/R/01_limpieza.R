@@ -4,7 +4,7 @@
 # Timeline:
 #   Ola 1 (2016): baseline pre-todo → solo placebo
 #   Ola 2 (2018): baseline pre-estallido → REFERENCIA DiD
-#   Ola 3 (dic 2020 – may 2021): resabio estallido social → TRATAMIENTO 1
+#   Ola 3 (dic 2020 – may 2021): proceso de politización (2019–2021) → TRATAMIENTO 1
 #   Ola 4 (2023): decreto prolongado + derrota Apruebo → TRATAMIENTO 2
 #
 # Decreto D.S. N°418/2021 (12 oct 2021): 53 comunas en 4 provincias
@@ -18,14 +18,49 @@
 #   data/subset_data.rds
 #   data/subset_placebo_pre.rds
 #   data/analysis_metadata.rds
+#   output/tablas/tabla_na_variables.html
 # =============================================================================
 
 set.seed(2024)
 
 if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
-pacman::p_load(dplyr, tidyverse, stringr, haven)
+pacman::p_load(dplyr, tidyverse, stringr, haven, gt)
 
 if (!dir.exists("data")) dir.create("data", recursive = TRUE)
+if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
+
+# ── 0. CONFIG (parámetros tuneables) ──────────────────────────────────────────
+#
+# NA_THRESHOLD: umbral para descartar covariables del pool (eliminación de
+# COLUMNAS, no de filas). PROTEGIDAS nunca se descartan.
+# set.seed(2024) se vuelve a fijar justo antes de matchit/weightit en 04.
+
+NA_THRESHOLD <- 0.05
+
+PROTEGIDAS <- c(
+  "folio", "ola", "ola_num", "periodo", "tratamiento",
+  "T1_estallido", "T2_decreto", "post_decreto",
+  "indigeneous", "cat_indi",
+  "cerca_conflicto", "zona_decreto", "comuna", "comuna_cod",
+  "idx_vio_control", "idx_vio_resguardo",
+  "vio_ctrl_carb", "vio_priv_agric", "vio_ocup_tierras", "vio_camb_cortes",
+  "just_proc_ingroup", "just_proc_outgroup", "brecha_just_proc",
+  # Demandas indígenas (VD adicionales; NO usar como controles de violencia)
+  "e3_4", "e3_5", "e4_2", "e4_3", "e4_4", "e4_5",
+  "e5_1", "e5_2", "e5_3", "e5_4",
+  "idx_dem_redistrib", "idx_dem_reconoc", "idx_dem_redistrib_sinescaduplic"
+  # OJO: voto_participa y voto_opcion eliminados del proyecto (FASE 2)
+)
+
+COVARIABLES_CANDIDATAS <- c(
+  "mujer", "edad", "urbano_rural",
+  "id_chile", "id_causa",
+  "perc_desigualdad", "malestar_diferen", "apoyo_movil"
+)
+
+cat("CONFIG: NA_THRESHOLD =", NA_THRESHOLD, "\n")
+cat("CONFIG: n PROTEGIDAS =", length(PROTEGIDAS), "\n")
+cat("CONFIG: n COVARIABLES_CANDIDATAS =", length(COVARIABLES_CANDIDATAS), "\n\n")
 
 # ── 1. Cargar datos ────────────────────────────────────────────────────────────
 
@@ -93,7 +128,11 @@ vars_sustantivas <- c(
   "d1_1", "d1_2", "d1_3", "d2_1", "d2_3",
   "d3_1", "d3_2", "d4_2", "d4_3",
   "d5_1", "d5_2", "d6_1",
-  "d13", "d14"
+  "d13", "d14",
+  # Módulo E — demandas indígenas (longitudinales olas 1–4)
+  "e3_4", "e3_5",
+  "e4_2", "e4_3", "e4_4", "e4_5",
+  "e5_1", "e5_2", "e5_3", "e5_4"
 )
 
 recode_missing <- function(x) {
@@ -235,14 +274,17 @@ panel_completo <- panel |>
     id_chile         = as.numeric(a6),
     id_causa         = as.numeric(d6_1),
 
-    # Índices continuos 1–5
-    # Represión estatal: ítem único d3_1 (Carabineros repriman); d3_2 excluido (vigilantismo)
+    # ── Variables dependientes PRINCIPALES (ítem único, no índices) ───────────
+    # Control social estatal = SOLO Carabineros (coerción estatal): d3_1
+    # Cambio social          = SOLO cortes de camino (protesta disruptiva): d4_3
+    # Decisión de medición: validez de contenido — no contaminar coerción estatal
+    # con vigilantismo privado (d3_2) ni protesta disruptiva con ocupación (d4_2).
+    # Ítem único → NO alfa de Cronbach / NO correlación inter-ítem para estas VD.
+    idx_vio_control   = as.numeric(d3_1),  # fuerza de Carabineros
+    idx_vio_resguardo = as.numeric(d4_3),  # cortes de camino
+    # Alias histórico (igual a d3_1; no es índice compuesto)
     idx_represion_estatal = as.numeric(d3_1),
-    idx_vio_control       = as.numeric(d3_1),  # alias para scripts/paper
-    # Exigir ambos ítems (na.rm=FALSE): índice incompleto → NA
-    idx_vio_resguardo     = rowMeans(cbind(as.numeric(d4_2), as.numeric(d4_3)), na.rm = FALSE),
-    # Solo apéndice A7 — índice dual d3_1 + d3_2 (sensibilidad)
-    idx_vio_control_dual  = rowMeans(cbind(as.numeric(d3_1), as.numeric(d3_2)), na.rm = FALSE),
+
     # Identidad (canónico en 01; scripts 08/08b no recomputan desde raw)
     a5_num = as.numeric(a5),
     idx_id_etnica = rowMeans(cbind(as.numeric(a4), as.numeric(a5)), na.rm = FALSE),
@@ -286,11 +328,11 @@ panel_completo <- panel |>
     d4_2_ord = likert_sym_item(d4_2),
     d4_3_ord = likert_sym_item(d4_3),
 
-    # Índices ordinales (1–3); control = ítem único d3_1
+    # Ordinales (1–3) = colapso del ÍTEM ÚNICO correspondiente (esquema A)
     idx_vio_control_ord   = as.numeric(d3_1_ord),
-    idx_vio_resguardo_ord = rowMeans(cbind(as.numeric(d4_2_ord), as.numeric(d4_3_ord)), na.rm = FALSE),
+    idx_vio_resguardo_ord = as.numeric(d4_3_ord),
 
-    # Categorías ordenadas (redondeo post-ítem)
+    # Categorías ordenadas del ítem único
     justifica_control_cat   = factor_ord_A(idx_vio_control_ord),
     justifica_resguardo_cat = factor_ord_A(idx_vio_resguardo_ord),
 
@@ -340,16 +382,20 @@ panel_completo <- panel |>
     zona_decreto, zona_decreto_ampliada,
     cerca_conflicto, nucleo_conflicto, region_conflicto,
     id_chile, id_indi = a4, a5, a5_num, idx_id_etnica, predominancia_id,
-    vio_ctrl_carb = d3_1, vio_ctrl_agric = d3_2,
-    vio_camb_tierras = d4_2, vio_camb_cortes = d4_3,
+    # VD principales (ítem único) + ítems de sensibilidad/apéndice
+    vio_ctrl_carb    = d3_1,  # = idx_vio_control (Carabineros)
+    vio_priv_agric   = d3_2,  # sensibilidad: vigilantismo privado (NO en VD principal)
+    vio_ocup_tierras = d4_2,  # sensibilidad: ocupación territorial (NO en VD principal)
+    vio_camb_cortes  = d4_3,  # = idx_vio_resguardo (cortes de camino)
     d3_1_ord, d3_2_ord, d4_2_ord, d4_3_ord,
+    # Módulo E — demandas (ítems crudos; índices z en 08c_demandas.R)
+    e3_4, e3_5, e4_2, e4_3, e4_4, e4_5,
+    e5_1, e5_2, e5_3, e5_4,
     just_proc_indi = d5_1, just_proc_noindi = d5_2,
     just_proc_ingroup, just_proc_outgroup, brecha_just_proc,
     id_causa = d6_1,
-    voto_participa = d13, voto_opcion = d14,
     perc_desigualdad, malestar_diferen, apoyo_movil,
-    idx_represion_estatal, idx_vio_control, idx_vio_control_dual,
-    idx_vio_resguardo, idx_just_proc,
+    idx_represion_estatal, idx_vio_control, idx_vio_resguardo, idx_just_proc,
     idx_vio_control_ord, idx_vio_resguardo_ord,
     justifica_control_cat, justifica_resguardo_cat,
     justifica_control_cont, justifica_resguardo_cont
@@ -373,26 +419,154 @@ subset_data <- panel_completo |>
   filter(!is.na(indigeneous)) |>
   distinct(folio, ola, .keep_all = TRUE)
 
-# Colinealidad urbano_rural × zona (usa cerca_conflicto = alias decreto)
-cor_ur_zd <- cor(
-  as.numeric(subset_data$urbano_rural),
-  as.numeric(subset_data$cerca_conflicto),
-  use = "complete.obs"
-)
-incluir_urbano_rural <- abs(cor_ur_zd) <= 0.5
+n_obs_pre_na_rule <- nrow(subset_data)
+n_folios_pre_na_rule <- dplyr::n_distinct(subset_data$folio)
 
-controles_base <- if (incluir_urbano_rural) {
-  "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
-} else {
-  "mujer + edad + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+# ── 8b. Regla NA: descartar COLUMNAS del pool con % NA > umbral ───────────────
+# No es listwise deletion: el N de individuos no cambia.
+
+vars_na_check <- unique(c(
+  intersect(COVARIABLES_CANDIDATAS, names(subset_data)),
+  intersect(PROTEGIDAS, names(subset_data))
+))
+
+tabla_na <- purrr::map_dfr(vars_na_check, function(v) {
+  pct <- mean(is.na(subset_data[[v]]))
+  en_pool <- v %in% COVARIABLES_CANDIDATAS
+  protegida <- v %in% PROTEGIDAS
+  decision <- dplyr::case_when(
+    protegida & pct > NA_THRESHOLD ~ "protegida (warning)",
+    protegida                      ~ "protegida",
+    en_pool & pct > NA_THRESHOLD   ~ "descarta",
+    en_pool                        ~ "mantiene",
+    TRUE                           ~ "fuera_pool"
+  )
+  tibble::tibble(
+    variable = v,
+    pct_na = pct,
+    en_pool_candidatas = en_pool,
+    protegida = protegida,
+    decision = decision
+  )
+}) |>
+  dplyr::arrange(dplyr::desc(.data$pct_na), .data$variable)
+
+# Warnings para protegidas con NA alto (NO se borran)
+protegidas_alto_na <- tabla_na |>
+  dplyr::filter(.data$protegida, .data$pct_na > NA_THRESHOLD)
+if (nrow(protegidas_alto_na) > 0) {
+  for (i in seq_len(nrow(protegidas_alto_na))) {
+    warning(
+      sprintf(
+        "Variable PROTEGIDA '%s' tiene %.1f%% NA (> %.0f%%). NO se descarta.",
+        protegidas_alto_na$variable[i],
+        100 * protegidas_alto_na$pct_na[i],
+        100 * NA_THRESHOLD
+      ),
+      call. = FALSE
+    )
+  }
 }
+
+covariables_descartadas <- tabla_na |>
+  dplyr::filter(.data$decision == "descarta") |>
+  dplyr::pull(.data$variable)
+
+covariables_retenidas <- setdiff(
+  intersect(COVARIABLES_CANDIDATAS, names(subset_data)),
+  covariables_descartadas
+)
+
+cat("\n--- Regla NA (umbral =", NA_THRESHOLD, ") ---\n")
+print(tabla_na |> dplyr::mutate(pct_na = round(.data$pct_na * 100, 2)))
+cat("\nCovariables descartadas:", paste(covariables_descartadas, collapse = ", "), "\n")
+cat("Covariables retenidas:", paste(covariables_retenidas, collapse = ", "), "\n")
+cat("N obs (sin cambio por regla NA):", n_obs_pre_na_rule, "\n")
+cat("N folios (sin cambio por regla NA):", n_folios_pre_na_rule, "\n")
+
+# Tabla HTML
+tabla_na |>
+  dplyr::mutate(pct_na = round(.data$pct_na * 100, 2)) |>
+  gt::gt() |>
+  gt::tab_header(
+    title = "Regla de NA en covariables candidatas",
+    subtitle = paste0(
+      "Umbral = ", NA_THRESHOLD * 100, "% · subset olas 2–4 · eliminación de COLUMNAS"
+    )
+  ) |>
+  gt::cols_label(
+    variable = "Variable",
+    pct_na = "% NA",
+    en_pool_candidatas = "En pool",
+    protegida = "Protegida",
+    decision = "Decisión"
+  ) |>
+  gt::tab_source_note(
+    "PROTEGIDAS nunca se descartan. Solo COVARIABLES_CANDIDATAS con % NA > umbral salen del pool."
+  ) |>
+  gt::gtsave("output/tablas/tabla_na_variables.html")
+cat("✓ Tabla NA: output/tablas/tabla_na_variables.html\n")
+
+# Colinealidad urbano_rural × zona (solo si urbano_rural sobrevive)
+incluir_urbano_rural <- FALSE
+cor_ur_zd <- NA_real_
+if ("urbano_rural" %in% covariables_retenidas) {
+  cor_ur_zd <- cor(
+    as.numeric(subset_data$urbano_rural),
+    as.numeric(subset_data$cerca_conflicto),
+    use = "complete.obs"
+  )
+  incluir_urbano_rural <- abs(cor_ur_zd) <= 0.5
+  if (!incluir_urbano_rural) {
+    cat(
+      "⚠ urbano_rural retenida por NA pero excluida por colinealidad |r|=",
+      round(abs(cor_ur_zd), 3), "> 0.5\n"
+    )
+    covariables_retenidas <- setdiff(covariables_retenidas, "urbano_rural")
+  }
+}
+
+# Orden preferido de controles (solo las que sobrevivieron)
+orden_controles <- c(
+  "mujer", "edad", "urbano_rural",
+  "id_chile", "id_causa",
+  "perc_desigualdad", "malestar_diferen", "apoyo_movil"
+)
+controles_finales <- intersect(orden_controles, covariables_retenidas)
+controles_base <- paste(controles_finales, collapse = " + ")
 
 cat("\nCorrelación urbano_rural × zona_decreto:", round(cor_ur_zd, 3), "\n")
 cat("Incluir urbano_rural en modelos:", incluir_urbano_rural, "\n")
-cat("Controles base:", controles_base, "\n")
+cat("Controles base (dinámicos):", controles_base, "\n")
+
+stopifnot(nrow(subset_data) == n_obs_pre_na_rule)
+stopifnot(dplyr::n_distinct(subset_data$folio) == n_folios_pre_na_rule)
 
 saveRDS(subset_data, "data/subset_data.rds")
 cat("✓ Subset analítico guardado:", nrow(subset_data), "obs\n")
+
+# ── Verificación VD ítem único ────────────────────────────────────────────────
+stopifnot(
+  is.numeric(subset_data$idx_vio_control),
+  is.numeric(subset_data$idx_vio_resguardo),
+  !"idx_vio_control_dual" %in% names(subset_data),
+  "vio_priv_agric" %in% names(subset_data),
+  "vio_ocup_tierras" %in% names(subset_data)
+)
+
+cat("\n--- VD principales (ítem único) — media / SD / %NA ---\n")
+for (vd in c("idx_vio_control", "idx_vio_resguardo")) {
+  x <- subset_data[[vd]]
+  cat(sprintf(
+    "  %s: media=%.3f  SD=%.3f  %%NA=%.2f  (n=%d)\n",
+    vd, mean(x, na.rm = TRUE), sd(x, na.rm = TRUE),
+    100 * mean(is.na(x)), sum(!is.na(x))
+  ))
+}
+cat("  idx_vio_control   = d3_1 (fuerza de Carabineros / coerción estatal)\n")
+cat("  idx_vio_resguardo = d4_3 (cortes de camino / protesta disruptiva)\n")
+cat("  Sensibilidad: vio_priv_agric=d3_2; vio_ocup_tierras=d4_2 (solo apéndice)\n")
+cat("  NOTA: ítem único → no alfa de Cronbach\n")
 
 # ── 9. Subset placebo: olas 1–2 ───────────────────────────────────────────────
 
@@ -416,7 +590,9 @@ subset_placebo_pre <- panel_completo |>
     justifica_control_cat, justifica_resguardo_cat,
     just_proc_ingroup, just_proc_outgroup, brecha_just_proc,
     id_chile, id_causa,
-    perc_desigualdad, malestar_diferen, apoyo_movil
+    perc_desigualdad, malestar_diferen, apoyo_movil,
+    e3_4, e3_5, e4_2, e4_3, e4_4, e4_5,
+    e5_1, e5_2, e5_3, e5_4
   )
 
 saveRDS(subset_placebo_pre, "data/subset_placebo_pre.rds")
@@ -426,7 +602,22 @@ cat("✓ Placebo pre guardado:", nrow(subset_placebo_pre), "obs\n")
 
 analysis_metadata <- list(
   controles_base         = controles_base,
+  controles_finales      = controles_finales,
   incluir_urbano_rural   = incluir_urbano_rural,
+  cor_urbano_rural_zona  = cor_ur_zd,
+  na_threshold           = NA_THRESHOLD,
+  covariables_candidatas = COVARIABLES_CANDIDATAS,
+  covariables_descartadas = covariables_descartadas,
+  covariables_retenidas  = covariables_retenidas,
+  variables_protegidas   = PROTEGIDAS,
+  variables_protegidas_con_na_alto = if (nrow(protegidas_alto_na)) {
+    protegidas_alto_na$variable
+  } else {
+    character(0)
+  },
+  tabla_na_variables     = tabla_na,
+  n_obs_subset           = n_obs_pre_na_rule,
+  n_folios_subset        = n_folios_pre_na_rule,
   comunas_decreto        = comunas_decreto,
   comunas_decreto_ampliada = comunas_decreto_ampliada,
   comunas_nucleo         = comunas_nucleo,
@@ -436,11 +627,42 @@ analysis_metadata <- list(
   referencia_zona        = "fuera",
   referencia_cerca       = "lejos",
   esquema_ordinal        = "A_simetrico_1-2_3_4-5",
+  decreto_fecha          = "2021-10-12",
+  decreto_ds             = "D.S. N°418/2021",
+  # Missing codes centralizados (recode_missing): 66,77,88,99,8888,9999
+  # Incluye módulo E (olas 1–3: 8888/9999; ola 4: 88/99)
+  missing_codes          = c(66L, 77L, 88L, 99L, 8888L, 9999L),
+  items_demandas_e       = c(
+    "e3_4", "e3_5", "e4_2", "e4_3", "e4_4", "e4_5",
+    "e5_1", "e5_2", "e5_3", "e5_4"
+  ),
+  # Nota de medición VD (ítem único — validez de contenido)
+  vd_definicion = list(
+    idx_vio_control = list(
+      item = "d3_1",
+      label = "Fuerza de Carabineros (coerción estatal)",
+      tipo = "item_unico",
+      excluido = "d3_2 (vio_priv_agric: vigilantismo privado)"
+    ),
+    idx_vio_resguardo = list(
+      item = "d4_3",
+      label = "Cortes de camino (protesta disruptiva)",
+      tipo = "item_unico",
+      excluido = "d4_2 (vio_ocup_tierras: ocupación territorial)"
+    ),
+    nota_medicion = paste0(
+      "Ambas VD son ítems únicos elegidos por VALIDEZ DE CONTENIDO: ",
+      "no contaminar coerción estatal con vigilantismo privado (d3_2), ",
+      "ni protesta disruptiva con ocupación territorial (d4_2). ",
+      "Ítem único → no alfa de Cronbach ni correlación inter-ítem."
+    ),
+    sensibilidad_apendice = c("vio_priv_agric", "vio_ocup_tierras")
+  ),
   timeline = tibble::tribble(
     ~ola, ~ano_campo,              ~rol,
     1,    "2016",                  "Placebo pre-todo",
     2,    "2018",                  "Baseline DiD [REF]",
-    3,    "dic2020–may2021",       "Resabio estallido",
+    3,    "dic2020–may2021",       "Proceso de politización (2019–2021)",
     4,    "2023",                  "Decreto + derrota Apruebo"
   )
 )
@@ -460,7 +682,7 @@ cat("Ola 1 (2016):          N =",
 cat("Ola 2 (2018):          N =",
     sum(subset_data$ola == 2), "— Baseline pre-estallido [REF]\n")
 cat("Ola 3 (dic2020-may21): N =",
-    sum(subset_data$ola == 3), "— Resabio estallido social\n")
+    sum(subset_data$ola == 3), "— Proceso de politización (2019–2021)\n")
 cat("Ola 4 (2023):          N =",
     sum(subset_data$ola == 4), "— Decreto + derrota Apruebo\n")
 

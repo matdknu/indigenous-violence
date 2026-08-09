@@ -329,16 +329,8 @@ build_paper_results <- function(
       dplyr::pull(m)
   }
 
+  # Modelos electorales eliminados — FASE 2
   or_rechazo_zona <- p_or_zona <- NA_real_
-  if (!is.null(modelos$m_rechazo)) {
-    cf <- coef(modelos$m_rechazo)
-    if ("cerca_conflictocerca" %in% names(cf)) {
-      or_rechazo_zona <- as.numeric(exp(cf["cerca_conflictocerca"]))
-      p_or_zona <- summary(modelos$m_rechazo)$coefficients[
-        "cerca_conflictocerca", "Pr(>|z|)"
-      ]
-    }
-  }
 
   med_ctrl_pct <- if (!is.na(ate_ctrl)) ate_ctrl else NA_real_
   sup_resg_pct <- if (!is.na(ate_resg)) abs(ate_resg) else NA_real_

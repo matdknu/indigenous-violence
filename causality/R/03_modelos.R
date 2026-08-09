@@ -1,13 +1,14 @@
 # =============================================================================
-# 03_modelos.R — Modelos multinivel DiD y plebiscito 2022
+# 03_modelos.R — Modelos multinivel DiD (cuasi-experimental exploratorio)
 #
-# Propósito: estimar modelos DiD multinivel, modelos logísticos de voto
-#            y exportar tablas/figuras para el paper.
+# Propósito: estimar modelos DiD para las dos VD de ÍTEM ÚNICO del proyecto:
+#            idx_vio_control = d3_1 (fuerza de Carabineros / coerción estatal)
+#            idx_vio_resguardo = d4_3 (cortes de camino / protesta disruptiva)
+#            Modelo PRINCIPAL: feols FE individuo (magro) + cluster por comuna.
+#            Sensibilidad: lmer RE. El análisis electoral fue eliminado — FASE 2.
 # Input:     data/subset_data.rds
 # Output:    output/tablas/tabla_modelos.html
-#            output/tablas/tabla_plebiscito.html
 #            output/figuras/fig_coeficientes.png
-#            output/figuras/fig_prob_rechazo.png
 #
 # Modelos DiD (dos shocks secuenciales):
 #   A — transición estallido (ola 2→3): T1_estallido
@@ -21,7 +22,7 @@ set.seed(2024)
 if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
 pacman::p_load(
   dplyr, tidyverse, lme4, lmerTest, performance,
-  broom.mixed, modelsummary, marginaleffects, ggplot2, stringr
+  broom.mixed, modelsummary, marginaleffects, ggplot2, stringr, fixest
 )
 
 if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
@@ -79,9 +80,9 @@ TERM_DID_B         <- "T2_decreto:indigeneousindi:cerca_conflictocerca"
 
 coef_rename_did <- c(
   "(Intercept)"          = "Intercepto",
-  "periodoestallido"     = "Ola 3 — Resabio estallido",
-  "periododecreto"         = "Ola 4 — Decreto + Apruebo",
-  "T1_estallido"         = "Transición estallido (ola 2→3)",
+  "periodoestallido"     = "Ola 3 — Proceso de politización (2019–2021)",
+  "periododecreto"         = "Ola 4 — Decreto + cierre institucional",
+  "T1_estallido"         = "Transición proceso politización (ola 2→3)",
   "T2_decreto"           = "Transición decreto (ola 3→4)",
   "indigeneousindi"      = "Indígena",
   "cerca_conflictocerca" = "Zona excepción (decreto)",
@@ -96,21 +97,21 @@ coef_rename_did <- c(
   "id_chile"             = "Id. con Chile",
   "id_causa"             = "Id. causa indígena",
   "perc_desigualdad"     = "Perc. desigualdad",
-  "periodoestallido:indigeneousindi"      = "Ola 3 × Indígena",
-  "periododecreto:indigeneousindi"          = "Ola 4 × Indígena",
-  "periodoestallido:cerca_conflictocerca" = "Ola 3 × Zona excepción",
-  "periododecreto:cerca_conflictocerca"     = "Ola 4 × Zona excepción",
+  "periodoestallido:indigeneousindi"      = "Ola 3 (proceso) × Indígena",
+  "periododecreto:indigeneousindi"          = "Ola 4 (decreto) × Indígena",
+  "periodoestallido:cerca_conflictocerca" = "Ola 3 (proceso) × Zona excepción",
+  "periododecreto:cerca_conflictocerca"     = "Ola 4 (decreto) × Zona excepción",
   "indigeneousindi:cerca_conflictocerca"  = "Indígena × Zona excepción",
-  "T1_estallido:indigeneousindi"          = "Estallido × Indígena",
+  "T1_estallido:indigeneousindi"          = "Proceso × Indígena",
   "T2_decreto:indigeneousindi"            = "Decreto × Indígena",
-  "T1_estallido:cerca_conflictocerca"     = "Estallido × Zona excepción",
+  "T1_estallido:cerca_conflictocerca"     = "Proceso × Zona excepción",
   "T2_decreto:cerca_conflictocerca"       = "Decreto × Zona excepción",
   "periodoestallido:indigeneousindi:cerca_conflictocerca" =
-    "Ola 3 × Indígena × Zona [DiD estallido]",
+    "Ola 3 × Indígena × Zona [DiD proceso]",
   "periododecreto:indigeneousindi:cerca_conflictocerca" =
     "Ola 4 × Indígena × Zona [DiD decreto]",
   "T1_estallido:indigeneousindi:cerca_conflictocerca" =
-    "Estallido × Indígena × Zona [DiD]",
+    "Proceso × Indígena × Zona [DiD]",
   "T2_decreto:indigeneousindi:cerca_conflictocerca" =
     "Decreto × Indígena × Zona [DiD]"
 )
@@ -119,15 +120,170 @@ print_did <- function(model, label) {
   cat(label, "— coeficientes DiD:\n")
   print(
     broom.mixed::tidy(model, effects = "fixed") |>
-      filter(str_detect(term, "indi.*zona|zona.*indi")) |>
+      filter(str_detect(term, "indigeneous") & str_detect(term, "cerca_conflicto")) |>
       filter(str_detect(term, "estallido|decreto|T1|T2|periodo"))
   )
   cat("\n")
 }
 
-# ── Modelo A: transición estallido (ola 2 → ola 3) ────────────────────────────
+# ── MODELO PRINCIPAL: FE individuo (magro) + clúster por comuna ───────────────
+#
+# Interpretación: con FE de individuo (folio) dejamos de comparar indígenas
+# vs. no indígenas (nivel confundido por factores estructurales) y pasamos a
+# comparar el CAMBIO INTRA-PERSONA alrededor del decreto. La identificación
+# descansa en el timing del D.S. 418 (12 oct 2021), plausiblemente exógeno
+# a las actitudes individuales. El estimando es un EFECTO TERRITORIAL/
+# CONTEXTUAL de vivir en territorio militarizado.
+#
+# NO se incluyen controles: los términos invariantes se absorben por FE;
+# los actitudinales variables (apoyo_movil, id_causa, etc.) son potencialmente
+# post-tratamiento y su inclusión introduciría sesgo (bad controls).
+#
+# Términos omitidos por colinealidad con el FE (se esperan warnings):
+#   indigeneous, cerca_conflicto, indigeneous:cerca_conflicto
 
-cat("--- Modelo A: Transición estallido (ola 2 → ola 3) ---\n\n")
+cat("\n", strrep("=", 60), "\n")
+cat("MODELO PRINCIPAL: FE individuo + clúster por comuna\n")
+cat(strrep("=", 60), "\n\n")
+
+# ── Verificación de movers (individuo en >1 comuna) ──────────────────────────
+movers <- subset_data |>
+  dplyr::group_by(.data$folio) |>
+  dplyr::summarise(n_comunas = dplyr::n_distinct(.data$comuna_cod), .groups = "drop") |>
+  dplyr::filter(.data$n_comunas > 1)
+
+n_movers <- nrow(movers)
+cat("Movers (folio con >1 comuna entre olas):", n_movers, "\n")
+
+# Si hay movers, añadir FE de comuna; si no, | folio basta (comuna anidada en folio)
+fe_spec <- if (n_movers > 0) {
+  cat("→ FE spec: | folio + comuna_cod (hay movers)\n\n")
+  "folio + comuna_cod"
+} else {
+  cat("→ FE spec: | folio  (sin movers; cluster comuna cubre Moulton)\n\n")
+  "folio"
+}
+
+n_comunas_tratadas_03 <- subset_data |>
+  dplyr::filter(.data$ola == 4, .data$indigeneous == "indi",
+                .data$cerca_conflicto == "cerca") |>
+  dplyr::summarise(n = dplyr::n_distinct(.data$comuna_cod)) |>
+  dplyr::pull(.data$n)
+cat("Comunas en celda tratada (indi×cerca×ola4):", n_comunas_tratadas_03, "\n")
+if (n_comunas_tratadas_03 < 30) {
+  cat("⚠  Comunas tratadas <30 — SE cluster pueden ser imprecisos;\n")
+  cat("   considerar wild cluster bootstrap (ver 04_robustez.R).\n")
+}
+cat("\n")
+
+# ── Modelo FE tres períodos (principal) ───────────────────────────────────────
+
+mFE_ctrl <- tryCatch(
+  feols(
+    as.formula(paste0(
+      "idx_vio_control ~ periodo * indigeneous * cerca_conflicto | ", fe_spec
+    )),
+    data    = subset_data,
+    cluster = ~comuna_cod
+  ),
+  error = function(e) {
+    cat("⚠ feols FE ctrl:", conditionMessage(e), "\n"); NULL
+  }
+)
+
+mFE_resg <- tryCatch(
+  feols(
+    as.formula(paste0(
+      "idx_vio_resguardo ~ periodo * indigeneous * cerca_conflicto | ", fe_spec
+    )),
+    data    = subset_data,
+    cluster = ~comuna_cod
+  ),
+  error = function(e) {
+    cat("⚠ feols FE resg:", conditionMessage(e), "\n"); NULL
+  }
+)
+
+# ── Coeficientes DiD del modelo FE ───────────────────────────────────────────
+
+print_did_fe <- function(model, label, pattern_tiempo = "periodo") {
+  if (is.null(model)) { cat(label, "— modelo no disponible\n\n"); return(invisible(NULL)) }
+  cat(label, "— coeficientes DiD (FE folio + cluster comuna):\n")
+  td <- broom::tidy(model, conf.int = TRUE)
+  print(
+    td |> dplyr::filter(
+      stringr::str_detect(term, "indigeneous") &
+      stringr::str_detect(term, "cerca_conflicto") &
+      stringr::str_detect(term, pattern_tiempo)
+    )
+  )
+  cat("\n")
+}
+
+print_did_fe(mFE_ctrl, "Control social (status quo)")
+print_did_fe(mFE_resg, "Cambio social")
+
+# ── Tabla FE (principal) ──────────────────────────────────────────────────────
+
+if (!is.null(mFE_ctrl) && !is.null(mFE_resg)) {
+  modelsummary(
+    list(
+      "Control social — FE magro" = mFE_ctrl,
+      "Cambio social — FE magro"  = mFE_resg
+    ),
+    statistic = "({std.error})",
+    stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+    fmt = 3,
+    coef_rename = coef_rename_did,
+    coef_omit = "Intercept",
+    gof_map = c("nobs", "r.squared"),
+    notes = paste0(
+      "Modelo principal: FE individuo (folio) + clúster por comuna (", fe_spec, "). ",
+      "D.S. 418, 12 oct 2021. ",
+      "Estimando: cambio diferencial compatible con efecto territorial del decreto. ",
+      "Términos invariantes absorbidos por FE (indigeneous, zona omitidos)."
+    ),
+    output = "output/tablas/tabla_fe_principal.html"
+  )
+  cat("✓ Tabla FE principal guardada: output/tablas/tabla_fe_principal.html\n\n")
+}
+
+# ── Modelo FE transición decreto (ola 3 → 4, especificación B) ────────────────
+
+mFE_B_ctrl <- tryCatch(
+  feols(
+    as.formula(paste0(
+      "idx_vio_control ~ T2_decreto * indigeneous * cerca_conflicto | ", fe_spec
+    )),
+    data    = subset_data |> dplyr::filter(ola %in% c(3, 4)),
+    cluster = ~comuna_cod
+  ),
+  error = function(e) { cat("⚠ feols FE-B ctrl:", conditionMessage(e), "\n"); NULL }
+)
+
+mFE_B_resg <- tryCatch(
+  feols(
+    as.formula(paste0(
+      "idx_vio_resguardo ~ T2_decreto * indigeneous * cerca_conflicto | ", fe_spec
+    )),
+    data    = subset_data |> dplyr::filter(ola %in% c(3, 4)),
+    cluster = ~comuna_cod
+  ),
+  error = function(e) { cat("⚠ feols FE-B resg:", conditionMessage(e), "\n"); NULL }
+)
+
+cat("FE-B (solo transición decreto ola 3→4):\n")
+print_did_fe(mFE_B_ctrl, "Control social", pattern_tiempo = "T2_decreto")
+print_did_fe(mFE_B_resg, "Cambio social",  pattern_tiempo = "T2_decreto")
+
+# ── Modelo A: transición proceso de politización (ola 2 → ola 3) ──────────────
+
+cat("\n", strrep("=", 60), "\n")
+cat("SENSIBILIDAD: Efectos aleatorios por individuo (lmer)\n")
+cat(strrep("=", 60), "\n")
+cat("(Nota: RE como sensibilidad al FE principal; sin cluster en lmer — ver 04_robustez.R)\n\n")
+
+cat("--- Modelo A: Proceso de politización (ola 2 → ola 3) ---\n\n")
 
 datos_A <- subset_data |> filter(ola %in% c(2, 3))
 
@@ -156,7 +312,7 @@ print_did(mA_resg, "Cambio social")
 
 # ── Modelo B: transición decreto/Apruebo (ola 3 → ola 4) ──────────────────────
 
-cat("--- Modelo B: Transición decreto/Apruebo (ola 3 → ola 4) ---\n\n")
+cat("--- Modelo B: Transición decreto/cierre institucional (ola 3 → ola 4) ---\n\n")
 
 datos_B <- subset_data |> filter(ola %in% c(3, 4))
 
@@ -273,7 +429,6 @@ PERIODO_LABELS <- c(
   "estallido" = "Ola 3\n(2021)",
   "decreto"   = "Ola 4\n(2023)"
 )
-
 pred_grupo <- function(model, vd_label, periodo_levels) {
   marginaleffects::predictions(
     model,
@@ -316,7 +471,7 @@ p_medias_C <- ggplot(pred_C,
   annotate("rect",
            xmin = 2.5, xmax = 3.5, ymin = -Inf, ymax = Inf,
            fill = "#FFE0E0", alpha = 0.4) +
-  annotate("text", x = 3, y = Inf, label = "Decreto +\nApruebo",
+  annotate("text", x = 3, y = Inf, label = "Decreto +\nCierre inst.",
            vjust = 1.4, size = 3, color = "#B22222") +
   geom_line(linewidth = 0.9, show.legend = TRUE) +
   geom_point(size = 2.5, show.legend = FALSE) +
@@ -333,8 +488,8 @@ p_medias_C <- ggplot(pred_C,
   labs(
     title    = "Medias predichas por grupo — Modelo C (tres períodos)",
     subtitle = paste0(
-      "Ola 2 = baseline (2018) · Ola 3 = resabio estallido (2021) · ",
-      "Ola 4 = decreto + derrota Apruebo (2023)\n",
+      "Ola 2 = baseline (2018) · Ola 3 = proceso de politización (2019–2021) · ",
+      "Ola 4 = decreto + cierre institucional (2023)\n",
       "Zona sombreada = post-decreto · IC 95%"
     ),
     x = NULL, y = "Media predicha (escala 1–5)",
@@ -395,201 +550,23 @@ ggsave("output/figuras/fig_coeficientes.png", p_coef,
        width = 13, height = 9, dpi = 300)
 cat("✓ Figura coeficientes guardada: output/figuras/fig_coeficientes.png\n")
 
-# ── Modelos plebiscito 2022 (ola 4) ───────────────────────────────────────────
-
-cat("\n", strrep("=", 60), "\n")
-cat("MOVILIZACIÓN Y VOTO RECHAZO — PLEBISCITO 2022 (ola 4)\n")
-cat(strrep("=", 60), "\n\n")
-
-subset_ola4 <- subset_data |>
-  filter(ola == 4) |>
-  mutate(
-    voto_si = case_when(
-      voto_participa == 1 ~ 1L,
-      voto_participa == 2 ~ 0L,
-      TRUE                ~ NA_integer_
-    ),
-    voto_rechazo = case_when(
-      voto_opcion == 2 ~ 1L,
-      voto_opcion == 1 ~ 0L,
-      voto_opcion == 3 ~ 0L,
-      TRUE             ~ NA_integer_
-    ),
-    voto_rechazo_strict = case_when(
-      voto_opcion == 2 ~ 1L,
-      voto_opcion == 1 ~ 0L,
-      TRUE             ~ NA_integer_
-    )
-  )
-
-cat("--- Distribución del voto en ola 4 ---\n")
-cat("¿Votó?\n")
-print(table(subset_ola4$voto_si, subset_ola4$indigeneous, useNA = "ifany"))
-cat("\nOpción de voto (entre votantes):\n")
-print(table(subset_ola4$voto_opcion, subset_ola4$indigeneous, useNA = "ifany"))
-cat("\nVoto Rechazo × zona × identidad:\n")
-print(table(
-  subset_ola4$voto_rechazo, subset_ola4$cerca_conflicto,
-  subset_ola4$indigeneous, useNA = "ifany"
-))
-
-# ── M_movil: participación electoral ──────────────────────────────────────────
-
-cat("\n--- M_movil: Predicción de participación electoral ---\n")
-
-m_movil <- glm(
-  voto_si ~ indigeneous * cerca_conflicto + mujer + edad +
-    idx_vio_control + idx_vio_resguardo + idx_just_proc +
-    apoyo_movil + id_chile + id_causa,
-  data   = subset_ola4,
-  family = binomial(link = "logit")
-)
-
-cat("\nOdds ratios — Movilización:\n")
-# Wald CI (más estable que perfil); modelos asociacionales (ola 4, predictores post)
-print(round(exp(cbind(
-  OR = coef(m_movil),
-  confint.default(m_movil)
-)), 3))
-
-# ── M_rechazo: voto Rechazo entre votantes ────────────────────────────────────
-
-cat("\n--- M_rechazo: Predicción de voto Rechazo (entre votantes) ---\n")
-
-m_rechazo <- glm(
-  voto_rechazo ~ indigeneous * cerca_conflicto + mujer + edad +
-    idx_vio_control + idx_vio_resguardo + idx_just_proc +
-    apoyo_movil + id_chile + id_causa,
-  data   = subset_ola4 |> filter(voto_si == 1),
-  family = binomial(link = "logit")
-)
-
-cat("\nOdds ratios — Voto Rechazo:\n")
-cat("(Asociacional: predictores post-tratamiento en ola 4)\n")
-print(round(exp(cbind(
-  OR = coef(m_rechazo),
-  confint.default(m_rechazo)
-)), 3))
-
-# ── M_rechazo_strict: Rechazo vs Apruebo ──────────────────────────────────────
-
-cat("\n--- M_rechazo_strict: Rechazo vs Apruebo (excluye nulos/blancos) ---\n")
-
-m_rechazo_strict <- glm(
-  voto_rechazo_strict ~ indigeneous * cerca_conflicto + mujer + edad +
-    idx_vio_control + idx_vio_resguardo + idx_just_proc +
-    apoyo_movil + id_chile + id_causa,
-  data   = subset_ola4 |> filter(!is.na(voto_rechazo_strict)),
-  family = binomial(link = "logit")
-)
-
-cat("\nOdds ratios — Rechazo vs Apruebo (estricto):\n")
-print(round(exp(cbind(
-  OR = coef(m_rechazo_strict),
-  confint.default(m_rechazo_strict)
-)), 3))
-
-# ── Tabla 4 — Modelos plebiscito ──────────────────────────────────────────────
-
-coef_rename_pleb <- c(
-  "(Intercept)"          = "Intercepto",
-  "indigeneousindi"      = "Indígena",
-  "cerca_conflictocerca" = "Zona excepción",
-  "mujermujer"           = "Mujer",
-  "edad25_34"            = "Edad 25–34",
-  "edad35_44"            = "Edad 35–44",
-  "edad45_54"            = "Edad 45–54",
-  "edad55_64"            = "Edad 55–64",
-  "edad65+"              = "Edad 65+",
-  "idx_vio_control"      = "Justif. represión estatal",
-  "idx_vio_resguardo"    = "Justif. vio. cambio social",
-  "idx_just_proc"        = "Justicia procedimental",
-  "apoyo_movil"          = "Apoyo movilizaciones",
-  "id_chile"             = "Id. con Chile",
-  "id_causa"             = "Id. causa indígena",
-  "indigeneousindi:cerca_conflictocerca" = "Indígena × Zona excepción"
-)
-
-modelsummary(
-  list(
-    "Participó (votó)"   = m_movil,
-    "Voto Rechazo"       = m_rechazo,
-    "Rechazo vs Apruebo" = m_rechazo_strict
-  ),
-  exponentiate = TRUE,
-  statistic = "({std.error})",
-  stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
-  fmt = 3,
-  coef_rename = coef_rename_pleb,
-  gof_map = c("nobs", "aic"),
-  output = "output/tablas/tabla_plebiscito.html"
-)
-cat("✓ Tabla 4 guardada: output/tablas/tabla_plebiscito.html\n")
-
-# ── Figura 4 — Probabilidades predichas de voto Rechazo ────────────────────────
-
-pred_rechazo <- marginaleffects::predictions(
-  m_rechazo,
-  newdata = datagrid(
-    indigeneous     = c("no_indi", "indi"),
-    cerca_conflicto = c("lejos", "cerca")
-  )
-) |>
-  as_tibble() |>
-  mutate(
-    grupo = factor(
-      paste0(indigeneous, " / ", cerca_conflicto),
-      levels = c("no_indi / lejos", "no_indi / cerca", "indi / lejos", "indi / cerca"),
-      labels = c(
-        "No indígena / lejos", "No indígena / zona excepción",
-        "Indígena / lejos",    "Indígena / zona excepción"
-      )
-    )
-  )
-
-p_pred <- ggplot(pred_rechazo,
-                 aes(x = grupo, y = estimate,
-                     ymin = conf.low, ymax = conf.high,
-                     color = indigeneous)) +
-  geom_pointrange(size = 0.8, linewidth = 1) +
-  scale_color_manual(
-    values = c("no_indi" = "#4575B4", "indi" = "#D73027"),
-    guide  = "none"
-  ) +
-  scale_y_continuous(
-    labels = scales::percent_format(accuracy = 1),
-    limits = c(0, 1)
-  ) +
-  labs(
-    title    = "Probabilidad predicha de voto Rechazo",
-    subtitle = "Plebiscito 4 de septiembre 2022 — ELRI ola 4",
-    x = NULL, y = "P(Rechazo)",
-    caption  = "IC 95% · Resto de variables en sus medias"
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    plot.title       = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
-
-ggsave("output/figuras/fig_prob_rechazo.png", p_pred,
-       width = 7, height = 5, dpi = 300)
-cat("✓ Figura 4 guardada: output/figuras/fig_prob_rechazo.png\n")
-
 cat("\n✓ 03_modelos.R ejecutado correctamente.\n")
 
 saveRDS(
   list(
+    # Modelo principal: FE magro + cluster por comuna
+    mFE_ctrl   = mFE_ctrl,   mFE_resg   = mFE_resg,
+    mFE_B_ctrl = mFE_B_ctrl, mFE_B_resg = mFE_B_resg,
+    fe_spec    = fe_spec,
+    n_comunas_tratadas = n_comunas_tratadas_03,
+    # Sensibilidad: efectos aleatorios por individuo (lmer)
     mC_ctrl = mC_ctrl, mC_resg = mC_resg,
     mA_ctrl = mA_ctrl, mA_resg = mA_resg,
     mB_ctrl = mB_ctrl, mB_resg = mB_resg,
     m2_ctrl = mC_ctrl, m2_resg = mC_resg,
-    m_movil = m_movil, m_rechazo = m_rechazo,
-    m_rechazo_strict = m_rechazo_strict,
     controles_base = controles_base,
     incluir_urbano_rural = incluir_urbano_rural,
     coef_rename_did = coef_rename_did,
-    coef_rename_pleb = coef_rename_pleb,
     TERM_DID_ESTALLIDO = TERM_DID_ESTALLIDO,
     TERM_DID_DECRETO = TERM_DID_DECRETO,
     TERM_DID_A = TERM_DID_A,
@@ -598,4 +575,3 @@ saveRDS(
   "data/modelos.rds"
 )
 cat("✓ Modelos guardados: data/modelos.rds\n")
-

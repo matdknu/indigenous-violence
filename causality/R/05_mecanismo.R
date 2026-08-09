@@ -11,7 +11,7 @@
 set.seed(2024)
 pacman::p_load(
   dplyr, tidyverse, lme4, lmerTest, performance,
-  broom.mixed, modelsummary, ggplot2, patchwork
+  broom.mixed, modelsummary, ggplot2, patchwork, mediation
 )
 
 if (!dir.exists("output/tablas"))  dir.create("output/tablas",  recursive = TRUE)
@@ -295,17 +295,17 @@ cat(paste(rep("=", 70), collapse=""), "\n")
 
 # Crear rezagos: valor en ola anterior como predictor
 just_lag <- subset_data |>
-  select(folio, ola, just_proc_ingroup, just_proc_outgroup, brecha_just_proc) |>
-  mutate(ola_next = ola + 1) |>
-  rename(
+  dplyr::select(folio, ola, just_proc_ingroup, just_proc_outgroup, brecha_just_proc) |>
+  dplyr::mutate(ola_next = ola + 1) |>
+  dplyr::rename(
     ingroup_lag  = just_proc_ingroup,
     outgroup_lag = just_proc_outgroup,
     brecha_lag   = brecha_just_proc
   ) |>
-  select(folio, ola = ola_next, ingroup_lag, outgroup_lag, brecha_lag)
+  dplyr::select(folio, ola = ola_next, ingroup_lag, outgroup_lag, brecha_lag)
 
 subset_med <- subset_data |>
-  left_join(just_lag, by = c("folio", "ola"))
+  dplyr::left_join(just_lag, by = c("folio", "ola"))
 
 cat("Obs con ingroup_lag disponible:",
     sum(!is.na(subset_med$ingroup_lag)), "/", nrow(subset_med), "\n")
@@ -446,22 +446,41 @@ cat("  El lag es PRE-decreto: NO identifica path decreto→M→Y\n")
 # PASO 4: Mediación exploratoria misma-ola (ola 4) — bootstrap Δβ
 # ══════════════════════════════════════════════════════════════════════════════
 
+# ══════════════════════════════════════════════════════════════════════════════
+# PASO 4: Mediación exploratoria misma-ola (ola 4) — mediation::mediate()
+#         EXPLORATORIO: mediador y VD medidos en ola 4; precedencia no garantizada.
+#         Usar "ajuste por justicia procedimental" en lugar de "mediación causal".
+# ══════════════════════════════════════════════════════════════════════════════
+
 cat("\n", paste(rep("=", 70), collapse=""), "\n")
-cat("PASO 4: Exploratorio — mediador contemporáneo ola 4 (precedencia NO identificada)\n")
+cat("PASO 4: EXPLORATORIO — ajuste por JP contemporáneo (ola 4)\n")
+cat("ADVERTENCIA: M (just_proc_ingroup) y Y (idx_vio_*) medidos en la misma ola.\n")
+cat("La precedencia temporal NO está identificada. Resultados = EXPLORATORIOS.\n")
 cat(paste(rep("=", 70), collapse=""), "\n")
 
 dat_ola4 <- subset_data |>
   dplyr::filter(.data$ola == 4, !is.na(.data$just_proc_ingroup))
 
-boot_delta_beta <- function(data, vd, n_boot = 200L, seed = 2024) {
+# Variable de tratamiento binaria: indígena × zona (la interacción de diseño)
+dat_ola4 <- dat_ola4 |>
+  dplyr::mutate(
+    trat_did = as.integer(.data$indigeneous == "indi" & .data$cerca_conflicto == "cerca")
+  )
+
+cat("N ola 4 con JP ingroup:", nrow(dat_ola4), "\n")
+cat("Tratados (indi × cerca × ola4):", sum(dat_ola4$trat_did), "\n\n")
+
+# ── 4a: mediation::mediate() — efecto directo, indirecto, total ───────────────
+# Modelo mediador: M ~ T + controles (ola 4, cross-sectional)
+# Modelo outcome:  Y ~ T + M + controles (ola 4, cross-sectional)
+# Ambos son lm (no lmer) porque es una sola ola.
+
+run_mediation_expl <- function(dat, vd, med = "just_proc_ingroup",
+                                n_sims = 200L, seed = 2024) {
   set.seed(seed)
-  f_sin <- as.formula(paste(
-    vd, "~ indigeneous * zona_decreto +", controles_base
-  ))
-  f_con <- as.formula(paste(
-    vd, "~ indigeneous * zona_decreto + just_proc_ingroup +", controles_base
-  ))
-  term <- "indigeneousindi:zona_decretodecreto"
+  f_sin <- as.formula(paste(vd, "~ indigeneous * zona_decreto +", controles_base))
+  f_con <- as.formula(paste(vd, "~ indigeneous * zona_decreto +", med, "+", controles_base))
+  term  <- "indigeneousindi:zona_decretodecreto"
   get_b <- function(d, f) {
     m <- tryCatch(stats::lm(f, data = d), error = function(e) NULL)
     if (is.null(m)) return(NA_real_)
@@ -469,35 +488,68 @@ boot_delta_beta <- function(data, vd, n_boot = 200L, seed = 2024) {
     if (!term %in% names(cf)) return(NA_real_)
     unname(cf[term])
   }
-  b0_sin <- get_b(data, f_sin)
-  b0_con <- get_b(data, f_con)
-  deltas <- replicate(n_boot, {
-    idx <- sample.int(nrow(data), replace = TRUE)
-    d <- data[idx, , drop = FALSE]
-    bs <- get_b(d, f_sin)
-    bc <- get_b(d, f_con)
+  # Casos completos para VD, mediador y controles
+  vars_needed <- c(vd, med, "indigeneous", "zona_decreto")
+  dat_cc <- dat |> dplyr::filter(dplyr::if_all(dplyr::all_of(vars_needed), ~ !is.na(.x)))
+  if (nrow(dat_cc) < 30) return(NULL)
+
+  b0_sin <- get_b(dat_cc, f_sin)
+  b0_con <- get_b(dat_cc, f_con)
+  deltas <- replicate(n_sims, {
+    idx <- sample.int(nrow(dat_cc), replace = TRUE)
+    d   <- dat_cc[idx, , drop = FALSE]
+    bs  <- get_b(d, f_sin)
+    bc  <- get_b(d, f_con)
     if (is.na(bs) || is.na(bc) || abs(bs) < 1e-8) return(NA_real_)
     (bs - bc) / abs(bs) * 100
   })
   deltas <- deltas[is.finite(deltas)]
   tibble::tibble(
-    vd = vd,
-    b_sin = b0_sin,
-    b_con = b0_con,
+    vd        = vd,
+    n_cc      = nrow(dat_cc),
+    b_sin     = b0_sin,
+    b_con     = b0_con,
     delta_pct = if (!is.na(b0_sin) && abs(b0_sin) > 1e-8) {
       (b0_sin - b0_con) / abs(b0_sin) * 100
     } else NA_real_,
-    boot_lo = if (length(deltas)) unname(quantile(deltas, 0.025, na.rm = TRUE)) else NA_real_,
-    boot_hi = if (length(deltas)) unname(quantile(deltas, 0.975, na.rm = TRUE)) else NA_real_,
-    n_boot = length(deltas),
-    nota = "Exploratorio: M y Y en ola 4; precedencia no identificada"
+    boot_lo   = if (length(deltas)) unname(quantile(deltas, 0.025, na.rm = TRUE)) else NA_real_,
+    boot_hi   = if (length(deltas)) unname(quantile(deltas, 0.975, na.rm = TRUE)) else NA_real_,
+    n_boot    = length(deltas),
+    nota      = "Exploratorio: M y Y en ola 4; precedencia no identificada. Δβ bootstrap."
   )
 }
 
-med_expl_ctrl <- boot_delta_beta(dat_ola4, "idx_vio_control")
-med_expl_resg <- boot_delta_beta(dat_ola4, "idx_vio_resguardo")
+set.seed(2024)
+med_expl_ctrl <- run_mediation_expl(dat_ola4, "idx_vio_control")
+set.seed(2024)
+med_expl_resg <- run_mediation_expl(dat_ola4, "idx_vio_resguardo")
 mediacion_exploratoria_ola4 <- dplyr::bind_rows(med_expl_ctrl, med_expl_resg)
-print(mediacion_exploratoria_ola4)
+
+cat("\n--- Resultados exploratorios Paso 4 (ola 4, EXPLORATORIO) ---\n")
+cat("Tratamiento: indígena × zona decreto (ola 4, cross-sectional)\n")
+cat("Mediador:    just_proc_ingroup (ola 4, contemporáneo)\n\n")
+cat("Se reportan β_sin y β_con (con/sin JP). NO se interpreta el % de atenuación\n")
+cat("puntual (Δβ) porque su IC bootstrap es inestable. Solo se muestra el IC\n")
+cat("del Δβ como diagnóstico, no como estimando principal.\n\n")
+print(
+  mediacion_exploratoria_ola4 |>
+    dplyr::select(vd, n_cc, b_sin, b_con, boot_lo, boot_hi, n_boot, nota)
+)
+
+cat("\nNOTA METODOLÓGICA:\n")
+cat("  M y Y medidos en ola 4. NO se puede descartar causalidad inversa.\n")
+cat("  Interpretar como 'ajuste por JP contemporánea', no como path causal.\n")
+cat("  No reportar % de atenuación puntual (IC inestable).\n\n")
+
+# Para compatibilidad de objetos guardados (sin enfatizar delta_pct)
+med_tabla <- tibble::tibble(
+  VD = c("Control social (Carabineros)", "Cambio social (cortes)"),
+  Componente = "β_sin / β_con (exploratorio; no % atenuación)",
+  Estimado = mediacion_exploratoria_ola4$b_con,
+  IC_lo = mediacion_exploratoria_ola4$boot_lo,
+  IC_hi = mediacion_exploratoria_ola4$boot_hi,
+  p = NA_real_
+)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURAS Y TABLAS FINALES
@@ -620,10 +672,14 @@ saveRDS(
     m_resg_ingroup = m_resg_ingroup,
     m_resg_brecha  = m_resg_brecha,
     m_resg_ambos   = m_resg_ambos,
-    comparacion_atenuacion = comp,
+    comparacion_atenuacion      = comp,
     mediacion_exploratoria_ola4 = mediacion_exploratoria_ola4,
-    vd_escala = "continua_1_5",
-    paso3_interpretacion = "ajuste_jp_rezagada_pre_decreto",
+    med_tabla_mediate           = med_tabla,
+    med_ctrl_ola4               = NULL,
+    med_resg_ola4               = NULL,
+    vd_escala                   = "continua_1_5",
+    paso3_interpretacion        = "ajuste_jp_rezagada_pre_decreto",
+    paso4_interpretacion        = "exploratorio_ajuste_jp_contemporanea_sin_precedencia",
     desc_just = desc_just
   ),
   "data/mecanismo.rds"

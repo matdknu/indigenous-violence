@@ -238,19 +238,12 @@ subset_data <- data |>
     # 0 = todo lo demás
     tratamiento = as.integer(ola == 3 & cerca_conflicto == "cerca"),
     
-    # ── Índices compuestos ───────────────────────────────────────────────────
-    
-    # Violencia de CONTROL social (Estado/civiles justificando violencia sobre indígenas)
-    # d3_1: uso de fuerza de Carabineros para disolver protestas indígenas
-    # d3_2: agricultores que usan armas para enfrentar grupos indígenas
-    # [d3_3 excluido: allanamiento de comunidades, solo en olas 1-2]
-    idx_vio_control = rowMeans(pick(d3_1, d3_2), na.rm = TRUE),
-    
-    # Violencia de RESGUARDO social (indígenas como agentes de la violencia)
-    # d4_2: tomas de terrenos por grupos indígenas
-    # d4_3: bloqueo o corte de carreteras por grupos indígenas
-    # [d4_1 excluido: ataques incendiarios, solo en olas 1-2]
-    idx_vio_resguardo = rowMeans(pick(d4_2, d4_3), na.rm = TRUE),
+    # ── Variables dependientes PRINCIPALES (ítem único) ───────────────────────
+    # Control social estatal = SOLO Carabineros (d3_1)
+    # Cambio social          = SOLO cortes de camino (d4_3)
+    # d3_2 y d4_2 → sensibilidad/apéndice (NO en VD principales)
+    idx_vio_control   = as.numeric(d3_1),
+    idx_vio_resguardo = as.numeric(d4_3),
     
     # Justicia PROCEDIMENTAL de Carabineros (trato igualitario entre grupos)
     # d5_1: Carabineros tratan con respeto a personas indígenas
@@ -269,9 +262,6 @@ subset_data <- data |>
     # c24 ya está en sentido intuitivo: 1=nada molesto, 5=muy molesto
     # c25 ya está en sentido intuitivo: 1=nada de apoyo, 5=mucho apoyo
     
-    # Justicia procedimental — pasa a ser VI (no VD) en modelo de voto
-    idx_just_proc = rowMeans(pick(d5_1, d5_2), na.rm = TRUE),
-    
     # Número de ola como entero (útil en modelos de tendencia)
     ola_num = as.integer(ola)
     
@@ -285,11 +275,11 @@ subset_data <- data |>
     id_chile = a6,           # identificación con Chile (1=muy poco, 5=mucho)
     id_indi  = a4,           # identificación con pueblo originario
     
-    # Variables clave de violencia (ítems individuales)
-    vio_ctrl_carb    = d3_1, # fuerza Carabineros en protestas indígenas
-    vio_ctrl_agric   = d3_2, # agricultores usan armas contra indígenas
-    vio_camb_tierras = d4_2, # tomas de terrenos
-    vio_camb_cortes  = d4_3, # bloqueo/corte de carreteras
+    # Variables clave de violencia
+    vio_ctrl_carb    = d3_1, # = VD control (Carabineros)
+    vio_priv_agric   = d3_2, # sensibilidad: vigilantismo privado
+    vio_ocup_tierras = d4_2, # sensibilidad: ocupación territorial
+    vio_camb_cortes  = d4_3, # = VD cambio (cortes de camino)
     
     # Justicia procedimental
     # Nota: d5_4 (obediencia institucional) solo existe en olas 1-2,
@@ -388,32 +378,16 @@ cat("\n", strrep("=", 60), "\n")
 cat("CONSISTENCIA INTERNA (alfa de Cronbach)\n")
 cat(strrep("=", 60), "\n\n")
 
-cat("Violencia de CONTROL social (d3_1 + d3_2):\n")
-alpha_ctrl <- psych::alpha(
-  subset_data[, c("vio_ctrl_carb", "vio_ctrl_agric")], check.keys = TRUE
-)
-cat("  alfa =", round(alpha_ctrl$total$raw_alpha, 3), "\n\n")
+cat("NOTA DE MEDICIÓN VD (ítem único — no alfa de Cronbach):\n")
+cat("  Control social estatal = d3_1 (Carabineros) — ítem único\n")
+cat("  Cambio social          = d4_3 (cortes de camino) — ítem único\n")
+cat("  Sensibilidad apéndice: d3_2 (vigilantismo), d4_2 (ocupación)\n\n")
 
-cat("Violencia de RESGUARDO social (d4_2 + d4_3):\n")
-alpha_resg <- psych::alpha(
-  subset_data[, c("vio_camb_tierras", "vio_camb_cortes")], check.keys = TRUE
-)
-cat("  alfa =", round(alpha_resg$total$raw_alpha, 3), "\n\n")
-
-cat("Justicia procedimental (d5_1 + d5_2):\n")
+cat("Justicia procedimental (d5_1 + d5_2) — índice compuesto:\n")
 alpha_just <- psych::alpha(
   subset_data[, c("just_proc_indi", "just_proc_noindi")], check.keys = TRUE
 )
 cat("  alfa =", round(alpha_just$total$raw_alpha, 3), "\n\n")
-
-cat("Nota: Con solo 2 ítems, alfa equivale a la correlación entre ítems.\n")
-cat("Correlaciones entre ítems:\n")
-cat("  Vio. control:   r =",
-    round(cor(subset_data$vio_ctrl_carb, subset_data$vio_ctrl_agric,
-              use = "complete.obs"), 3), "\n")
-cat("  Vio. resguardo: r =",
-    round(cor(subset_data$vio_camb_tierras, subset_data$vio_camb_cortes,
-              use = "complete.obs"), 3), "\n")
 cat("  Just. proc.:    r =",
     round(cor(subset_data$just_proc_indi, subset_data$just_proc_noindi,
               use = "complete.obs"), 3), "\n")

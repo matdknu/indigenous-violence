@@ -764,55 +764,52 @@ cohorte_tray |>
   arrange(trayectoria, iteracion, grupo, metrica) |>
   print(n = Inf)
 
-# ── Figura 2 (apéndice) — Consistencia interna ────────────────────────────────
+# ── Figura 2 (apéndice) — Nota de medición (VD = ítem único) ───────────────────
+# Ambas VD principales son ÍTEMS ÚNICOS (validez de contenido).
+# No aplica alfa de Cronbach ni correlación inter-ítem.
 
-alpha_resg <- psych::alpha(
-  subset_data[, c("vio_camb_tierras", "vio_camb_cortes")], check.keys = TRUE
-)
-r_resg <- cor(subset_data$vio_camb_tierras, subset_data$vio_camb_cortes,
-              use = "complete.obs")
-r_id <- NA_real_
-if (file.exists("data/BBDD_ELRI_LONG.RData")) {
-  load("data/BBDD_ELRI_LONG.RData")
-  r_id <- cor(BBDD_ELRI_LONG$a4, BBDD_ELRI_LONG$a5, use = "pairwise.complete.obs")
-}
+cat("\n--- Nota de medición VD ---\n")
+cat("  Control social estatal (idx_vio_control) = d3_1 (Carabineros) — ítem único\n")
+cat("  Cambio social (idx_vio_resguardo)        = d4_3 (cortes de camino) — ítem único\n")
+cat("  Excluidos de VD (sensibilidad apéndice):\n")
+cat("    vio_priv_agric (d3_2) = vigilantismo privado\n")
+cat("    vio_ocup_tierras (d4_2) = ocupación territorial\n")
+cat("  → No alfa de Cronbach para estas VD.\n")
 
-cat("\n--- Consistencia interna ---\n")
-cat("  Represión estatal (d3_1): ítem único — α no aplica\n")
-cat("  Vio. resguardo: α =", round(alpha_resg$total$raw_alpha, 3),
-    "| r =", round(r_resg, 3), "\n")
-
-tabla_consistencia <- tibble(
-  Indice = c(
-    "Represión estatal (status quo)",
-    "Cambio social",
-    "Justicia proc. ingroup",
-    "Justicia proc. outgroup",
-    "Identidad étnica (a4+a5)"
-  ),
-  Items = c("1 (d3_1)", "2 (d4_2+d4_3)", "1", "1", "2 (a4+a5)"),
-  Alpha = c("—", as.character(round(alpha_resg$total$raw_alpha, 3)), "—", "—", "—"),
-  `Correlacion inter-item` = c("—", round(r_resg, 3), "—", "—",
-                               if (!is.na(r_id)) round(r_id, 3) else "—"),
-  Nota = c(
-    "Ítem único",
-    "Adecuado",
-    "Ítem único",
-    "Ítem único",
-    "Alta correlación"
-  )
+tabla_medicion <- tibble::tribble(
+  ~VD, ~Item, ~Contenido, ~Tipo, ~Excluido_del_indice,
+  "Control social estatal", "d3_1", "Fuerza de Carabineros (coerción estatal)", "Ítem único", "d3_2 (vigilantismo privado)",
+  "Cambio social", "d4_3", "Cortes de camino (protesta disruptiva)", "Ítem único", "d4_2 (ocupación territorial)"
 )
 
-gt_consist <- tabla_consistencia |>
+gt_medicion <- tabla_medicion |>
   gt() |>
   tab_header(
-    title = "Consistencia interna de índices",
-    subtitle = "Alfa de Cronbach e intercorrelación ítem (apéndice)"
+    title = "Nota de medición — Variables dependientes",
+    subtitle = paste0(
+      "Ítems únicos elegidos por validez de contenido. ",
+      "No se reporta alfa de Cronbach (un ítem no tiene consistencia interna)."
+    )
+  ) |>
+  cols_label(
+    VD = "Variable dependiente",
+    Item = "Ítem ELRI",
+    Contenido = "Contenido",
+    Tipo = "Tipo",
+    Excluido_del_indice = "Excluido (sensibilidad apéndice)"
+  ) |>
+  tab_footnote(
+    footnote = paste0(
+      "d3_2 (vio_priv_agric) y d4_2 (vio_ocup_tierras) se modelan solo en ",
+      "apéndice/sensibilidad (modelos por ítem), nunca dentro de las VD principales."
+    )
   ) |>
   opt_stylize(style = 1)
 
-gt_consist |> gtsave("output/tablas/tabla_consistencia_interna.html")
-cat("✓ Tabla apéndice guardada: output/tablas/tabla_consistencia_interna.html\n")
+gt_medicion |> gtsave("output/tablas/tabla_consistencia_interna.html")
+gt_medicion |> gtsave("output/tablas/tabla_nota_medicion_vd.html")
+cat("✓ Nota de medición guardada: output/tablas/tabla_nota_medicion_vd.html\n")
+cat("✓ (también como tabla_consistencia_interna.html — reemplazo sin α)\n")
 
 # ── Tabla operacionalización de variables (paper) ───────────────────────────────
 
@@ -823,13 +820,15 @@ alpha_just <- psych::alpha(
 
 tabla_variables <- tibble::tribble(
   ~Variable,              ~Items,                                        ~Escala,       ~Fuente,
-  "Justif. represión estatal", "d3_1 (Carabineros repriman)", "1–5 (ítem único)", "ELRI D",
-  "Cambio social",               "d4_2 + d4_3 (tierras/carreteras)",       "1–5 (α=.75)", "ELRI D",
+  "Control social estatal", "d3_1 (fuerza de Carabineros)", "1–5 (ítem único)", "ELRI D",
+  "Cambio social",          "d4_3 (cortes de camino)",                    "1–5 (ítem único)", "ELRI D",
   "Justicia proc.",       "d5_1 + d5_2 (trato Carabineros)",            "1–5 (α=.83)", "ELRI D",
   "Id. causa indígena",  "d6_1",                                        "1–5",         "ELRI D",
   "Id. con Chile",        "a6",                                          "1–5",         "ELRI A",
   "Perc. desigualdad",    "c22 (invertida)",                             "1–5",         "ELRI C",
-  "Apoyo movilizaciones", "c25",                                         "1–5",         "ELRI C"
+  "Apoyo movilizaciones", "c25",                                         "1–5",         "ELRI C",
+  "Sensib.: vigilantismo", "d3_2 (agricultores armados)", "1–5 (apéndice)", "ELRI D",
+  "Sensib.: ocupación",    "d4_2 (tomas de terrenos)", "1–5 (apéndice)", "ELRI D"
 ) |>
   mutate(
     Escala = case_when(

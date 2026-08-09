@@ -699,14 +699,14 @@ m_nucleo_resg <- tryCatch(
 cat("--- 15.5 Modelos por ítem ---\n\n")
 
 item_vars <- c(
-  "vio_ctrl_carb", "vio_ctrl_agric",
-  "vio_camb_tierras", "vio_camb_cortes"
+  "vio_ctrl_carb", "vio_priv_agric",
+  "vio_ocup_tierras", "vio_camb_cortes"
 )
 item_labels <- c(
-  vio_ctrl_carb    = "Carabineros (d3_1)",
-  vio_ctrl_agric   = "Agricultores armados (d3_2)",
-  vio_camb_tierras = "Tomas de terrenos (d4_2)",
-  vio_camb_cortes  = "Cortes de caminos (d4_3)"
+  vio_ctrl_carb    = "Carabineros / coerción estatal (d3_1 = VD principal)",
+  vio_priv_agric   = "Agricultores armados / vigilantismo (d3_2, sensibilidad)",
+  vio_ocup_tierras = "Tomas de terrenos / ocupación (d4_2, sensibilidad)",
+  vio_camb_cortes  = "Cortes de caminos / protesta (d4_3 = VD principal)"
 )
 
 item_models <- list()
@@ -753,33 +753,32 @@ if (length(item_models) > 0) {
   cat("\n")
 }
 
-# ── 15.5b Modelos de sensibilidad (apéndice) ──────────────────────────────────
-cat("--- 15.5b Sensibilidad: índice dual d3_1+d3_2 ---\n\n")
+# ── 15.5b Sensibilidad apéndice: ítems excluidos de VD (d3_2, d4_2) ───────────
+cat("--- 15.5b Sensibilidad: vigilantismo (d3_2) y ocupación (d4_2) ---\n\n")
 
-m_sensibilidad_control_dual <- tryCatch(
-  lmer(
-    formula_did("idx_vio_control_dual", controles_base),
-    data = subset_data,
-    REML = FALSE
-  ),
-  error = function(e) {
-    cat("⚠ Error modelo sensibilidad índice dual:", conditionMessage(e), "\n")
-    NULL
-  }
+m_sens_priv <- tryCatch(
+  lmer(formula_did("vio_priv_agric", controles_base), data = subset_data, REML = FALSE),
+  error = function(e) { cat("⚠ Error sensibilidad d3_2:", conditionMessage(e), "\n"); NULL }
+)
+m_sens_ocup <- tryCatch(
+  lmer(formula_did("vio_ocup_tierras", controles_base), data = subset_data, REML = FALSE),
+  error = function(e) { cat("⚠ Error sensibilidad d4_2:", conditionMessage(e), "\n"); NULL }
 )
 
-if (!is.null(m_sensibilidad_control_dual)) {
-  cf_dual <- extract_coef(
-    m_sensibilidad_control_dual, TERM_DID_DECRETO,
-    "Sensibilidad índice dual (d3_1+d3_2)", "idx_vio_control_dual"
-  )
-  cat("Índice dual d3_1+d3_2 — DiD decreto:",
-      round(cf_dual$estimate, 3), cf_dual$signif,
-      "(p =", format.pval(cf_dual$p.value, digits = 3), ")\n\n")
+if (!is.null(m_sens_priv)) {
+  cf <- extract_coef(m_sens_priv, TERM_DID_DECRETO, "Sensib. vigilantismo (d3_2)", "vio_priv_agric")
+  cat("Vigilantismo privado (d3_2) — DiD decreto:",
+      round(cf$estimate, 3), cf$signif, "(p =", format.pval(cf$p.value, digits = 3), ")\n")
+}
+if (!is.null(m_sens_ocup)) {
+  cf <- extract_coef(m_sens_ocup, TERM_DID_DECRETO, "Sensib. ocupación (d4_2)", "vio_ocup_tierras")
+  cat("Ocupación territorial (d4_2) — DiD decreto:",
+      round(cf$estimate, 3), cf$signif, "(p =", format.pval(cf$p.value, digits = 3), ")\n\n")
 }
 
 sens_list <- list(
-  "Control índice dual d3_1+d3_2 (A7)" = m_sensibilidad_control_dual
+  "Vigilantismo privado d3_2 (apéndice)" = m_sens_priv,
+  "Ocupación territorial d4_2 (apéndice)" = m_sens_ocup
 )
 sens_named <- sens_list[!vapply(sens_list, is.null, logical(1))]
 
@@ -955,11 +954,11 @@ if (!exists("mA_ctrl")) {
 }
 
 filas_sens <- purrr::compact(list(
-  if (!is.null(m_sensibilidad_control_dual)) {
-    extract_coef(
-      m_sensibilidad_control_dual, TERM_DID_DECRETO,
-      "Sensibilidad índice dual (A7)", "idx_vio_control_dual"
-    )
+  if (!is.null(m_sens_priv)) {
+    extract_coef(m_sens_priv, TERM_DID_DECRETO, "Sensib. vigilantismo (d3_2)", "vio_priv_agric")
+  },
+  if (!is.null(m_sens_ocup)) {
+    extract_coef(m_sens_ocup, TERM_DID_DECRETO, "Sensib. ocupación (d4_2)", "vio_ocup_tierras")
   }
 ))
 
@@ -1279,6 +1278,31 @@ sens_mapuche_compare <- bind_rows(
 
 print(sens_mapuche_compare |> select(modelo, vd_label, estimate, p.value, signif))
 
+# ── 15.8 FASE 3.5: Tratamiento territorial más fino (agenda futura) ───────────
+#
+# OPCIONAL — solo si los datos lo permiten. Con los datos actuales del panel
+# ELRI no hay medidas de intensidad ni de frontera precisa. Se documenta como
+# agenda de investigación futura:
+#
+# (a) INTENSIDAD: construir tratamiento continuo si se dispone de datos de
+#     días bajo decreto / despliegue policial / incidentes por comuna.
+#     Estimar dosis-respuesta en lugar del binario 0/1.
+#     Fuentes posibles: INDH, reportes Ministerio del Interior, datos CIPER.
+#
+# (b) FRONTERA (RDD geográfico): submuestra de comunas justo dentro vs. justo
+#     fuera del límite provincial del decreto (poblaciones similares salvo la
+#     línea administrativa). Permitiría un estimador RDD × DiD.
+#     Requiere: geolocalización precisa de comunas y datos de distancia al
+#     límite del decreto.
+#
+# Ambas estrategias están fuera del alcance de este paper con los datos
+# disponibles. Se reportan como limitación en la sección de discusión.
+
+cat("\n--- 15.8 Tratamiento territorial más fino ---\n")
+cat("(OPCIONAL) Intensidad y frontera geográfica documentados como agenda futura.\n")
+cat("Datos disponibles: binario zona/fuera (cerca_conflicto). Sin datos de\n")
+cat("intensidad por comuna ni geolocalización de límites provinciales.\n\n")
+
 saveRDS(
   list(
     baseline_ola2 = baseline_ola2,
@@ -1300,11 +1324,8 @@ saveRDS(
     m_nucleo_ctrl = m_nucleo_ctrl,
     m_nucleo_resg = m_nucleo_resg,
     item_models = item_models,
-    m_sensibilidad_control_dual = if (exists("m_sensibilidad_control_dual")) {
-      m_sensibilidad_control_dual
-    } else {
-      NULL
-    },
+    m_sens_priv = if (exists("m_sens_priv")) m_sens_priv else NULL,
+    m_sens_ocup = if (exists("m_sens_ocup")) m_sens_ocup else NULL,
     resumen_robustez = resumen_robustez,
     sens_mapuche_compare = sens_mapuche_compare,
     controles_base = controles_base,
