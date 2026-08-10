@@ -1,0 +1,41 @@
+"trayectoria","iteracion","grupo","n","metrica","pct_pct","sig_star","p_vs_prev"
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 1 · Ola 2 (2018)","No indígena / lejos",291,"Justifica (3–5)",21,NA,NA
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","No indígena / lejos",289,"Justifica (3–5)",37,"*",3.46063843640671e-06
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","No indígena / lejos",289,"Intensifica (Δ≥1 o pasa a 3–5)",33.6,"*",1.89396352177762e-22
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","No indígena / lejos",290,"Justifica (3–5)",27.6,"*",0.0104114439628841
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","No indígena / lejos",290,"Intensifica (Δ≥1 o pasa a 3–5)",31.7,"",0.766432716454146
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 1 · Ola 2 (2018)","No indígena / zona excepción",90,"Justifica (3–5)",4.4,NA,NA
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","No indígena / zona excepción",89,"Justifica (3–5)",39.3,"*",1.76686044218784e-07
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","No indígena / zona excepción",89,"Intensifica (Δ≥1 o pasa a 3–5)",48.3,"*",1.50428571598827e-10
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","No indígena / zona excepción",90,"Justifica (3–5)",36.7,"",0.874367061162892
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","No indígena / zona excepción",90,"Intensifica (Δ≥1 o pasa a 3–5)",42.2,"",0.541865595787252
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 1 · Ola 2 (2018)","Indígena / lejos",375,"Justifica (3–5)",28.8,NA,NA
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","Indígena / lejos",370,"Justifica (3–5)",41.9,"*",9.37648903910398e-05
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","Indígena / lejos",370,"Intensifica (Δ≥1 o pasa a 3–5)",37,"*",3.28957330428689e-31
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","Indígena / lejos",372,"Justifica (3–5)",33.1,"*",0.00823901882572465
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","Indígena / lejos",372,"Intensifica (Δ≥1 o pasa a 3–5)",34.4,"",0.450091060995635
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 1 · Ola 2 (2018)","Indígena / zona excepción",103,"Justifica (3–5)",4.9,NA,NA
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","Indígena / zona excepción",103,"Justifica (3–5)",33,"*",4.16105012834749e-06
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 2 · Ola 3 (2021)","Indígena / zona excepción",103,"Intensifica (Δ≥1 o pasa a 3–5)",43.7,"*",5.41216128873261e-11
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","Indígena / zona excepción",102,"Justifica (3–5)",48,"*",0.0327626450788598
+"Si no justificas control (ola 2) → ¿justifican cambio social?","Iteración 3 · Ola 4 (2023)","Indígena / zona excepción",102,"Intensifica (Δ≥1 o pasa a 3–5)",55.9,"",0.112351197690464
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 1 · Ola 2 (2018)","No indígena / lejos",437,"Justifica (3–5)",47.4,NA,NA
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","No indígena / lejos",433,"Justifica (3–5)",47.1,"",0.886114085599552
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","No indígena / lejos",433,"Intensifica (Δ≥1 o pasa a 3–5)",30.5,"*",4.08216679529631e-30
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","No indígena / lejos",432,"Justifica (3–5)",53.7,"*",0.026135094113868
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","No indígena / lejos",432,"Intensifica (Δ≥1 o pasa a 3–5)",39.6,"*",0.00107407329072239
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 1 · Ola 2 (2018)","No indígena / zona excepción",155,"Justifica (3–5)",44.5,NA,NA
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","No indígena / zona excepción",153,"Justifica (3–5)",60.8,"*",0.00766076113517949
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","No indígena / zona excepción",153,"Intensifica (Δ≥1 o pasa a 3–5)",45.1,"*",2.69518463696559e-16
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","No indígena / zona excepción",155,"Justifica (3–5)",78.1,"*",0.00126015313761034
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","No indígena / zona excepción",155,"Intensifica (Δ≥1 o pasa a 3–5)",65.8,"*",2.25014632937147e-05
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 1 · Ola 2 (2018)","Indígena / lejos",437,"Justifica (3–5)",38.9,NA,NA
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","Indígena / lejos",429,"Justifica (3–5)",41.5,"",0.554267836324318
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","Indígena / lejos",429,"Intensifica (Δ≥1 o pasa a 3–5)",33.1,"*",2.65261221715954e-32
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","Indígena / lejos",431,"Justifica (3–5)",47.1,"",0.0569983064105199
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","Indígena / lejos",431,"Intensifica (Δ≥1 o pasa a 3–5)",42,"*",0.00052348964649696
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 1 · Ola 2 (2018)","Indígena / zona excepción",167,"Justifica (3–5)",41.3,NA,NA
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","Indígena / zona excepción",165,"Justifica (3–5)",58.8,"*",0.00223453922614452
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 2 · Ola 3 (2021)","Indígena / zona excepción",165,"Intensifica (Δ≥1 o pasa a 3–5)",46.7,"*",4.67627905150325e-18
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","Indígena / zona excepción",167,"Justifica (3–5)",76.6,"*",0.000211216758035612
+"Si no justifican cambio (ola 2) → ¿justifican control social?","Iteración 3 · Ola 4 (2023)","Indígena / zona excepción",167,"Intensifica (Δ≥1 o pasa a 3–5)",73.7,"*",1.20369297150277e-07
