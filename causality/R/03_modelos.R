@@ -63,12 +63,13 @@ if (file.exists("data/analysis_metadata.rds")) {
   controles_base <- metadata$controles_base
   cat("Controles (desde analysis_metadata.rds):", controles_base, "\n\n")
 } else {
+  # REGLA 3: malestar_diferen excluida por >5% NA. No se incluye en fallback.
   controles_base <- if (incluir_urbano_rural) {
-    "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+    "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + apoyo_movil"
   } else {
-    "mujer + edad + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+    "mujer + edad + id_chile + id_causa + perc_desigualdad + apoyo_movil"
   }
-  cat("Controles en modelos:", controles_base, "\n\n")
+  cat("Controles en modelos (fallback sin malestar_diferen):", controles_base, "\n\n")
 }
 
 # ── Coeficientes de interés (DiD triple) ────────────────────────────────────────
@@ -366,12 +367,40 @@ print_did(mC_resg, "Cambio social")
 m2_ctrl <- mC_ctrl
 m2_resg <- mC_resg
 
-# ── Tabla principal — Modelo C ────────────────────────────────────────────────
+# ── Tabla principal — FE magro (REGLA 2: feols, NO lmer) ─────────────────────
+# tabla_modelos.html = estimador principal feols | folio + cluster comuna
+
+if (!is.null(mFE_ctrl) && !is.null(mFE_resg)) {
+  modelsummary(
+    list(
+      "Control social — FE magro" = mFE_ctrl,
+      "Cambio social — FE magro"  = mFE_resg
+    ),
+    statistic = "({std.error})",
+    stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
+    fmt = 3,
+    coef_rename = coef_rename_did,
+    coef_omit = "Intercept",
+    gof_map = c("nobs", "r.squared"),
+    notes = paste0(
+      "Modelo principal: FE individuo (", fe_spec, ") + SE cluster comunal. ",
+      "D.S. 418/2021. Ref. = ola 2 (2018). ",
+      "Términos invariantes absorbidos (Indígena, Zona, Indígena×Zona omitidos). ",
+      "Num.Obs = persona-olas tras listwise; difiere de 3×N_ind por attrition."
+    ),
+    output = "output/tablas/tabla_modelos.html"
+  )
+  cat("✓ Tabla principal (FE magro) guardada: output/tablas/tabla_modelos.html\n\n")
+} else {
+  cat("⚠ mFE_ctrl o mFE_resg es NULL — tabla_modelos.html NO generada\n")
+}
+
+# ── Tabla sensibilidad — Modelo C (lmer RE, etiquetado como sensibilidad) ─────
 
 modelsummary(
   list(
-    "Control social (status quo)" = mC_ctrl,
-    "Cambio social"               = mC_resg
+    "Control (sensibilidad RE)" = mC_ctrl,
+    "Cambio (sensibilidad RE)"  = mC_resg
   ),
   statistic = "({std.error})",
   stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
@@ -380,13 +409,12 @@ modelsummary(
   coef_omit = "edad|mujer|urbano|id_chile|id_causa|perc_",
   gof_map = c("nobs", "icc", "rmse"),
   notes = paste0(
-    "Modelo C: tres períodos, ref. = ola 2 (2018). ",
-    "Coeficientes de interés: DiD estallido (ola 3) y DiD decreto (ola 4). ",
-    "Efectos aleatorios por individuo (folio)."
+    "SENSIBILIDAD (RE): lmer tres períodos, ref. = ola 2 (2018). ",
+    "Efectos aleatorios por individuo (folio). ICC y RMSE propios del RE."
   ),
-  output = "output/tablas/tabla_modelos.html"
+  output = "output/tablas/tabla_modelos_re_sensibilidad.html"
 )
-cat("✓ Tabla principal guardada: output/tablas/tabla_modelos.html\n")
+cat("✓ Tabla RE sensibilidad guardada: output/tablas/tabla_modelos_re_sensibilidad.html\n")
 
 modelsummary(
   list(
@@ -549,6 +577,50 @@ p_coef <- ggplot(coefs_all,
 ggsave("output/figuras/fig_coeficientes.png", p_coef,
        width = 13, height = 9, dpi = 300)
 cat("✓ Figura coeficientes guardada: output/figuras/fig_coeficientes.png\n")
+
+# ── resumen_principal.rds — FE coefficients for paper inline refs ─────────────
+
+extract_fe_coef <- function(model, term) {
+  if (is.null(model)) return(list(estimate = NA_real_, std.error = NA_real_, p.value = NA_real_))
+  tid <- broom::tidy(model) |> dplyr::filter(.data$term == .env$term)
+  if (nrow(tid) == 0) return(list(estimate = NA_real_, std.error = NA_real_, p.value = NA_real_))
+  list(estimate = tid$estimate[1], std.error = tid$std.error[1], p.value = tid$p.value[1])
+}
+
+resumen_principal <- list(
+  fe_ctrl_decreto   = extract_fe_coef(mFE_ctrl, TERM_DID_DECRETO),
+  fe_resg_decreto   = extract_fe_coef(mFE_resg, TERM_DID_DECRETO),
+  fe_ctrl_estallido = extract_fe_coef(mFE_ctrl, TERM_DID_ESTALLIDO),
+  fe_resg_estallido = extract_fe_coef(mFE_resg, TERM_DID_ESTALLIDO)
+)
+saveRDS(resumen_principal, "data/resumen_principal.rds")
+
+cat("\n=== TRIPLE DiD FE MAGRO (coeficientes titulares) ===\n")
+cat(sprintf(
+  "  Triple DECRETO — control  (d3_1): β = %.3f  SE = %.3f  p = %.3f\n",
+  resumen_principal$fe_ctrl_decreto$estimate,
+  resumen_principal$fe_ctrl_decreto$std.error,
+  resumen_principal$fe_ctrl_decreto$p.value
+))
+cat(sprintf(
+  "  Triple DECRETO — resguardo (d4_3): β = %.3f  SE = %.3f  p = %.3f\n",
+  resumen_principal$fe_resg_decreto$estimate,
+  resumen_principal$fe_resg_decreto$std.error,
+  resumen_principal$fe_resg_decreto$p.value
+))
+cat(sprintf(
+  "  Triple ESTALLIDO — control (d3_1): β = %.3f  SE = %.3f  p = %.3f\n",
+  resumen_principal$fe_ctrl_estallido$estimate,
+  resumen_principal$fe_ctrl_estallido$std.error,
+  resumen_principal$fe_ctrl_estallido$p.value
+))
+cat(sprintf(
+  "  Triple ESTALLIDO — resguardo(d4_3): β = %.3f  SE = %.3f  p = %.3f\n",
+  resumen_principal$fe_resg_estallido$estimate,
+  resumen_principal$fe_resg_estallido$std.error,
+  resumen_principal$fe_resg_estallido$p.value
+))
+cat("✓ resumen_principal.rds guardado: data/resumen_principal.rds\n\n")
 
 cat("\n✓ 03_modelos.R ejecutado correctamente.\n")
 

@@ -149,10 +149,11 @@ incluir_urbano_rural <- abs(cor_ur_cc) <= 0.5
 if (file.exists("data/analysis_metadata.rds")) {
   controles_base <- readRDS("data/analysis_metadata.rds")$controles_base
 } else {
+  # malestar_diferen excluida por >5% NA (REGLA 3)
   controles_base <- if (incluir_urbano_rural) {
-    "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+    "mujer + edad + urbano_rural + id_chile + id_causa + perc_desigualdad + apoyo_movil"
   } else {
-    "mujer + edad + id_chile + id_causa + perc_desigualdad + malestar_diferen + apoyo_movil"
+    "mujer + edad + id_chile + id_causa + perc_desigualdad + apoyo_movil"
   }
 }
 
