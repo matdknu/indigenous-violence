@@ -187,7 +187,11 @@ identidad_ola1 <- panel |>
       if_else(g2 == 2, "mujer", "hombre"),
       levels = c("hombre", "mujer")
     ),
-    urbano_rural = as.factor(as.character(urbano_rural)),
+    urbano_rural = factor(
+      as.character(urbano_rural),
+      levels = c("1", "2"),
+      labels = c("Urbano", "Rural")
+    ),
     comuna_cod = str_pad(as.character(comuna), 5, pad = "0")
   )
 
@@ -264,7 +268,8 @@ panel_completo <- panel |>
         g18 %in% 65:89 ~ "65+",
         TRUE           ~ NA_character_
       ),
-      levels = c("18_24", "25_34", "35_44", "45_54", "55_64", "65+")
+      levels = c("18_24", "25_34", "35_44", "45_54", "55_64", "65+"),
+      labels = c("18–24", "25–34", "35–44", "45–54", "55–64", "65 y más")
     ),
 
     # Controles sustantivos

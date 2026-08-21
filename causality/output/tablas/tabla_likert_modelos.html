@@ -459,10 +459,10 @@
   <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
     <tr class="gt_heading">
-      <td colspan="10" class="gt_heading gt_title gt_font_normal" style>Comparación de modelos DiD por codificación</td>
+      <td colspan="13" class="gt_heading gt_title gt_font_normal" style>Comparación de modelos DiD por codificación</td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="10" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Coeficiente de interés: Ola 4 × Indígena × Zona excepción</td>
+      <td colspan="13" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Coeficiente de interés: Ola 4 × Indígena × Zona excepción</td>
     </tr>
     <tr class="gt_col_headings">
       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="spec">spec</th>
@@ -474,6 +474,9 @@
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="AIC">AIC</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="BIC">BIC</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="logLik">logLik</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="cond_H">cond_H</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="max_grad">max_grad</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Conv">Conv</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="sig">sig</th>
     </tr>
   </thead>
@@ -487,6 +490,9 @@
 <td headers="AIC" class="gt_row gt_right">14754.6</td>
 <td headers="BIC" class="gt_row gt_right">14914.8</td>
 <td headers="logLik" class="gt_row gt_right">-7352.294</td>
+<td headers="cond_H" class="gt_row gt_right">—</td>
+<td headers="max_grad" class="gt_row gt_right">—</td>
+<td headers="Conv" class="gt_row gt_left">—</td>
 <td headers="sig" class="gt_row gt_right"></td></tr>
     <tr><td headers="spec" class="gt_row gt_left gt_striped">Continuo 1–5</td>
 <td headers="vd" class="gt_row gt_left gt_striped">Cambio social</td>
@@ -497,6 +503,9 @@
 <td headers="AIC" class="gt_row gt_right gt_striped">14025.8</td>
 <td headers="BIC" class="gt_row gt_right gt_striped">14186.0</td>
 <td headers="logLik" class="gt_row gt_right gt_striped">-6987.886</td>
+<td headers="cond_H" class="gt_row gt_right gt_striped">—</td>
+<td headers="max_grad" class="gt_row gt_right gt_striped">—</td>
+<td headers="Conv" class="gt_row gt_left gt_striped">—</td>
 <td headers="sig" class="gt_row gt_right gt_striped">**</td></tr>
     <tr><td headers="spec" class="gt_row gt_left">Ordinal A (simétrico)</td>
 <td headers="vd" class="gt_row gt_left">Control social</td>
@@ -504,9 +513,12 @@
 <td headers="estimate" class="gt_row gt_right">0.430</td>
 <td headers="std.error" class="gt_row gt_right">0.355</td>
 <td headers="p.value" class="gt_row gt_right">0.2263</td>
-<td headers="AIC" class="gt_row gt_right">8501.1</td>
-<td headers="BIC" class="gt_row gt_right">8661.3</td>
-<td headers="logLik" class="gt_row gt_right">-4225.528</td>
+<td headers="AIC" class="gt_row gt_right">8501.0</td>
+<td headers="BIC" class="gt_row gt_right">8661.2</td>
+<td headers="logLik" class="gt_row gt_right">-4225.500</td>
+<td headers="cond_H" class="gt_row gt_right">—</td>
+<td headers="max_grad" class="gt_row gt_right">0.0050</td>
+<td headers="Conv" class="gt_row gt_left">⚠ no converge</td>
 <td headers="sig" class="gt_row gt_right"></td></tr>
     <tr><td headers="spec" class="gt_row gt_left gt_striped">Ordinal A (simétrico)</td>
 <td headers="vd" class="gt_row gt_left gt_striped">Cambio social</td>
@@ -517,16 +529,22 @@
 <td headers="AIC" class="gt_row gt_right gt_striped">6787.5</td>
 <td headers="BIC" class="gt_row gt_right gt_striped">6947.7</td>
 <td headers="logLik" class="gt_row gt_right gt_striped">-3368.729</td>
+<td headers="cond_H" class="gt_row gt_right gt_striped">—</td>
+<td headers="max_grad" class="gt_row gt_right gt_striped">0.0309</td>
+<td headers="Conv" class="gt_row gt_left gt_striped">⚠ no converge</td>
 <td headers="sig" class="gt_row gt_right gt_striped"></td></tr>
     <tr><td headers="spec" class="gt_row gt_left">Ordinal B (intensidad)</td>
 <td headers="vd" class="gt_row gt_left">Control social</td>
 <td headers="family" class="gt_row gt_left">CLMM</td>
-<td headers="estimate" class="gt_row gt_right">0.401</td>
-<td headers="std.error" class="gt_row gt_right">0.339</td>
-<td headers="p.value" class="gt_row gt_right">0.2374</td>
-<td headers="AIC" class="gt_row gt_right">7819.3</td>
-<td headers="BIC" class="gt_row gt_right">7979.5</td>
-<td headers="logLik" class="gt_row gt_right">-3884.661</td>
+<td headers="estimate" class="gt_row gt_right">0.384</td>
+<td headers="std.error" class="gt_row gt_right">0.360</td>
+<td headers="p.value" class="gt_row gt_right">0.2856</td>
+<td headers="AIC" class="gt_row gt_right">7818.0</td>
+<td headers="BIC" class="gt_row gt_right">7978.2</td>
+<td headers="logLik" class="gt_row gt_right">-3883.999</td>
+<td headers="cond_H" class="gt_row gt_right">—</td>
+<td headers="max_grad" class="gt_row gt_right">0.0042</td>
+<td headers="Conv" class="gt_row gt_left">⚠ no converge</td>
 <td headers="sig" class="gt_row gt_right"></td></tr>
     <tr><td headers="spec" class="gt_row gt_left gt_striped">Ordinal B (intensidad)</td>
 <td headers="vd" class="gt_row gt_left gt_striped">Cambio social</td>
@@ -537,6 +555,9 @@
 <td headers="AIC" class="gt_row gt_right gt_striped">6261.3</td>
 <td headers="BIC" class="gt_row gt_right gt_striped">6421.5</td>
 <td headers="logLik" class="gt_row gt_right gt_striped">-3105.628</td>
+<td headers="cond_H" class="gt_row gt_right gt_striped">—</td>
+<td headers="max_grad" class="gt_row gt_right gt_striped">0.0083</td>
+<td headers="Conv" class="gt_row gt_left gt_striped">⚠ no converge</td>
 <td headers="sig" class="gt_row gt_right gt_striped"></td></tr>
     <tr><td headers="spec" class="gt_row gt_left">Lineal cód. A</td>
 <td headers="vd" class="gt_row gt_left">Control social</td>
@@ -547,6 +568,9 @@
 <td headers="AIC" class="gt_row gt_right">9818.6</td>
 <td headers="BIC" class="gt_row gt_right">9978.8</td>
 <td headers="logLik" class="gt_row gt_right">-4884.325</td>
+<td headers="cond_H" class="gt_row gt_right">—</td>
+<td headers="max_grad" class="gt_row gt_right">—</td>
+<td headers="Conv" class="gt_row gt_left">—</td>
 <td headers="sig" class="gt_row gt_right"></td></tr>
     <tr><td headers="spec" class="gt_row gt_left gt_striped">Lineal cód. A</td>
 <td headers="vd" class="gt_row gt_left gt_striped">Cambio social</td>
@@ -557,6 +581,9 @@
 <td headers="AIC" class="gt_row gt_right gt_striped">8984.5</td>
 <td headers="BIC" class="gt_row gt_right gt_striped">9144.7</td>
 <td headers="logLik" class="gt_row gt_right gt_striped">-4467.241</td>
+<td headers="cond_H" class="gt_row gt_right gt_striped">—</td>
+<td headers="max_grad" class="gt_row gt_right gt_striped">—</td>
+<td headers="Conv" class="gt_row gt_left gt_striped">—</td>
 <td headers="sig" class="gt_row gt_right gt_striped">*</td></tr>
     <tr><td headers="spec" class="gt_row gt_left">Lineal cód. B</td>
 <td headers="vd" class="gt_row gt_left">Control social</td>
@@ -567,6 +594,9 @@
 <td headers="AIC" class="gt_row gt_right">8470.7</td>
 <td headers="BIC" class="gt_row gt_right">8630.9</td>
 <td headers="logLik" class="gt_row gt_right">-4210.375</td>
+<td headers="cond_H" class="gt_row gt_right">—</td>
+<td headers="max_grad" class="gt_row gt_right">—</td>
+<td headers="Conv" class="gt_row gt_left">—</td>
 <td headers="sig" class="gt_row gt_right"></td></tr>
     <tr><td headers="spec" class="gt_row gt_left gt_striped">Lineal cód. B</td>
 <td headers="vd" class="gt_row gt_left gt_striped">Cambio social</td>
@@ -577,6 +607,9 @@
 <td headers="AIC" class="gt_row gt_right gt_striped">7382.2</td>
 <td headers="BIC" class="gt_row gt_right gt_striped">7542.4</td>
 <td headers="logLik" class="gt_row gt_right gt_striped">-3666.079</td>
+<td headers="cond_H" class="gt_row gt_right gt_striped">—</td>
+<td headers="max_grad" class="gt_row gt_right gt_striped">—</td>
+<td headers="Conv" class="gt_row gt_left gt_striped">—</td>
 <td headers="sig" class="gt_row gt_right gt_striped">*</td></tr>
   </tbody>
   

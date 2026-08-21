@@ -180,6 +180,14 @@ likert_line <- function(spec, vd) {
   fmt_beta_stars(row$estimate[1], row$p.value[1])
 }
 
+likert_conv <- function(spec, vd) {
+  if (is.null(likert_resumen)) return("—")
+  row <- likert_resumen |>
+    dplyr::filter(.data$spec == .env$spec, .data$vd == .env$vd)
+  if (nrow(row) == 0 || is.na(row$Conv[1]) || !nzchar(row$Conv[1])) return("—")
+  row$Conv[1]
+}
+
 # Aliases para chunks que usan m2_* / mA_* / mB_* / mFE_*
 m2_ctrl <- modelos$mC_ctrl %||% modelos$m2_ctrl
 m2_resg <- modelos$mC_resg %||% modelos$m2_resg
@@ -426,12 +434,16 @@ tbl_socdem <- subset_data |>
   tbl_summary(
     by = indigeneous,
     label = list(
-      mujer           ~ "Sexo (mujer)",
+      mujer           ~ "Sexo",
       edad            ~ "Grupo etario",
-      urbano_rural    ~ "Zona (rural)",
+      urbano_rural    ~ "Zona urbano-rural",
       cerca_conflicto ~ "Zona de excepción",
-      id_chile        ~ "Identificación con Chile",
-      id_causa        ~ "Identificación con la causa indígena"
+      id_chile        ~ "Identificación con Chile (1–5)",
+      id_causa        ~ "Identificación con la causa indígena (1–5)"
+    ),
+    type = list(
+      id_chile ~ "continuous",
+      id_causa ~ "continuous"
     ),
     statistic = list(
       all_continuous()  ~ "{mean} ({sd})",
@@ -488,7 +500,7 @@ subset_data |>
   pivot_wider(names_from = stat, values_from = value) |>
   mutate(variable = recode(
     variable,
-    idx_vio_control = "Represión estatal (status quo)",
+    idx_vio_control = "Control social",
     idx_vio_resguardo = "Cambio social",
     perc_desigualdad  = "Perc. desigualdad",
     apoyo_movil       = "Apoyo movilizaciones",
@@ -508,7 +520,7 @@ subset_data |>
   publish_gt()
 ```
 
-En baseline (ola 2), la estructura ingroup/outgroup de justicia procedimental muestra el patrón esperado teóricamente: los indígenas perciben mejor trato al outgroup que al ingroup (brecha = `r fmt_es(paper$brecha_baseline_indi, 2)`), indicando agravio percibido, mientras que los no indígenas perciben mejor trato a su propio grupo (brecha = `r fmt_es(paper$brecha_baseline_noindi, 2)`), indicando privilegio percibido. En baseline (ola 2), los indígenas en zona de excepción muestran *menor* justificación de la violencia de cambio social que los de fuera (`r fmt_beta_p(paper$baseline_zona_resg$estimate, paper$baseline_zona_resg$p.value)`), patrón opuesto al efecto post-tratamiento, consistente con plausibilidad del supuesto de tendencias paralelas.
+En baseline (ola 2), la estructura ingroup/outgroup de justicia procedimental muestra el patrón esperado teóricamente: los indígenas perciben mejor trato al outgroup que al ingroup (brecha = `r fmt_es(paper$brecha_baseline_indi, 2)`), indicando agravio percibido, mientras que los no indígenas perciben mejor trato a su propio grupo (brecha = `r fmt_es(paper$brecha_baseline_noindi, 2)`), indicando privilegio percibido. En baseline (ola 2), los indígenas en zona de excepción muestran *menor* justificación de la violencia de cambio social que los de fuera (`r fmt_beta_p(paper$baseline_zona_indi_resg$estimate, paper$baseline_zona_indi_resg$p.value)`; suma Zona + Indígena×Zona en Modelo C), patrón opuesto al efecto post-tratamiento, consistente con plausibilidad del supuesto de tendencias paralelas.
 
 # Resultados I — Apertura nacional (ola 2→3) {#sec-resultados-apertura}
 
@@ -530,11 +542,11 @@ include_figura("fig_trayectorias_justifica.png")
 
 ## El efecto territorial es fuerte y común a ambos grupos {#sec-res-efecto-territorial}
 
-El estimador doblemente robusto revela que residir en la zona de excepción se asocia con un aumento sustancial de la justificación de la violencia para *ambos* grupos étnicos: para control estatal, ATT = 1,571 (indígenas) y 1,241 (no indígenas); para resguardo, 1,150 y 0,830 (todos p < .001). Sobre esa base común se estima el componente diferencial ($\Delta$ATT), que es de segundo orden: 0,330 (control, p = ,235) y 0,320 (resguardo, p = ,129). La lectura central es que la principal huella actitudinal del decreto es **territorial** —afecta a quienes viven en el territorio militarizado con independencia de su identidad— y que el componente propiamente étnico es un efecto secundario.
+El estimador doblemente robusto revela que residir en la zona de excepción se asocia con un aumento sustancial de la justificación de la violencia para *ambos* grupos étnicos: para control social, ATT = `r fmt_es(paper$drdid_decreto_ctrl$att_indi, 3)` (indígenas) y `r fmt_es(paper$drdid_decreto_ctrl$att_noni, 3)` (no indígenas); para cambio social, `r fmt_es(paper$drdid_decreto_resg$att_indi, 3)` y `r fmt_es(paper$drdid_decreto_resg$att_noni, 3)` (todos p < ,001). Sobre esa base común se estima el componente diferencial ($\Delta$ATT ≈ τ₄): `r fmt_es(paper$drdid_decreto_ctrl$diff_att, 3)` (control, p = `r fmt_p_inline(paper$drdid_decreto_ctrl$p_diff)`) y `r fmt_es(paper$drdid_decreto_resg$diff_att, 3)` (cambio, p = `r fmt_p_inline(paper$drdid_decreto_resg$p_diff)`). La lectura central es que la principal huella actitudinal del decreto es **territorial** —afecta a quienes viven en el territorio militarizado con independencia de su identidad— y que el componente propiamente étnico es un efecto secundario.
 
 ## El diferencial étnico: robusto en resistencia, frágil en coerción {#sec-res-diferencial}
 
-En la especificación principal de efectos fijos, la interacción triple del decreto es positiva en ambas dimensiones, con una asimetría clara. Para cambio social/resguardo (resultado titular): `r paper$tau4_resg$beta_p`. Para control estatal: `r paper$tau4_ctrl$beta_p`, de la misma dirección pero solo marginal. El decreto endurece de forma diferencial, entre personas indígenas de la zona, sobre todo la justificación de la resistencia, y de manera más débil la de la coerción estatal.
+En la especificación principal de efectos fijos, la interacción triple del decreto es positiva en ambas dimensiones, con una asimetría clara. Para cambio social (resultado titular): `r paper$tau4_resg$beta_p`. Para control social: `r paper$tau4_ctrl$beta_p`, de la misma dirección pero solo marginalmente significativo (+ al 10 %). El decreto endurece de forma diferencial, entre personas indígenas de la zona, sobre todo la justificación de la resistencia, y de manera más débil la de la coerción estatal.
 
 @fig-medias ilustra este contraste: el grupo indígena/zona es el que más se despega tras el decreto en la dimensión de resguardo.
 
@@ -575,13 +587,13 @@ modelsummary(
 
 ## Especificidad temporal {#sec-res-temporal}
 
-El efecto es específico del período del decreto. La interacción triple es nula en el proceso de politización (@sec-resultados-apertura), y el placebo pretratamiento (ola 1→2) es nulo en ambas dimensiones (control `r paper$plcb_ctrl$beta_p`; resguardo `r paper$plcb_resg$beta_p`; efectos fijos). Ni el pico constituyente ni un período falso reproducen el patrón. El ATT intra-grupo de resguardo en el placebo es no nulo para indígenas (0,352), pero la diferencia entre grupos —el estimando— es no significativa (0,193, p = ,208), consistente con ausencia de divergencia diferencial pretratamiento.
+El efecto es específico del período del decreto. La interacción triple es nula en el proceso de politización (@sec-resultados-apertura), y el placebo pretratamiento (ola 1→2) es nulo en ambas dimensiones (control `r paper$plcb_ctrl$beta_p`; cambio social `r paper$plcb_resg$beta_p`; efectos fijos). Ni el pico constituyente ni un período falso reproducen el patrón. El ATT intra-grupo de cambio social en el placebo es no nulo para indígenas (`r fmt_es(paper$drdid_plcb_resg$att_indi, 3)`), pero la diferencia entre grupos —el estimando τ— es no significativa (`r fmt_es(paper$drdid_plcb_resg$diff_att, 3)`, p = `r fmt_p_inline(paper$drdid_plcb_resg$p_diff)`), consistente con ausencia de divergencia diferencial pretratamiento.
 
 ## Robustez y sus límites {#sec-res-robustez}
 
-El resultado titular de cambio social se sostiene en la familia de estimadores con ajuste por covariables: multinivel de interceptos aleatorios (0,494; p = ,009), MCO con clúster comunal (0,497; p = ,006), IPW (`r paper$ipw_595_resg$beta_p`) y PSM (`r paper$psm_resg$beta_p`). Se atenúa bajo el estimador doblemente robusto (p = ,129) y bajo la recodificación ordinal (clmm; p = ,919), lo que aconseja cautela sobre la magnitud aunque no sobre la dirección. El resultado de control estatal es sistemáticamente positivo pero de significancia inestable y debe interpretarse como sugerente. El ítem de ocupación de tierras (d4_2) presenta un efecto más fuerte (0,690; p = ,001) que el ítem de cortes, lo que refuerza —no contradice— la lectura de un endurecimiento de la resistencia; se prefirió d4_3 por validez de contenido. El detalle completo figura en @sec-apendice-a4.
+El resultado titular de cambio social se sostiene en la familia de estimadores con ajuste por covariables: FE magro principal (`r paper$tau4_resg$beta_p`), Modelo C con RE + controles (`r paper$tau4_C_resg$beta_p`), FE + controles (`r paper$fe_resg_controles$beta_p`), OLS cluster (`r paper$ols_resg$beta_p`), IPW trim 5–95 % (`r paper$ipw_595_resg$beta_p`) y PSM (`r paper$psm_resg$beta_p`). Se atenúa bajo el estimador doblemente robusto (Δ ATT: `r fmt_es(paper$drdid_decreto_resg$diff_att, 3)`, p = `r fmt_p_inline(paper$drdid_decreto_resg$p_diff)`). La recodificación ordinal (CLMM esquema A) no converge de forma fiable en cambio social (Conv = `r likert_conv("Ordinal A (simétrico)", "Cambio social")`); la versión lineal de la misma recodificación sí muestra efecto positivo (`r likert_line("Lineal cód. A", "Cambio social")`), por lo que **no** se interpreta el p alto del CLMM como evidencia de atenuación. El resultado de control social es sistemáticamente positivo pero de significancia inestable y debe interpretarse como sugerente. El ítem de ocupación de tierras (d4_2) presenta un efecto más fuerte que d4_3 en sensibilidad (Apéndice A-SENS); se prefirió d4_3 por validez de contenido. El detalle completo figura en @sec-apendice-a4.
 
-Conviene precisar por qué el diferencial de resguardo, robusto bajo efectos fijos y matching, se atenúa bajo el estimador doblemente robusto y la recodificación ordinal. El estimador doblemente robusto calcula la diferencia entre ATT de submuestras (indígena y no indígena) más pequeñas, con la consiguiente pérdida de potencia —el ATT territorial dentro de cada grupo es fuerte y altamente significativo (≈1,2–1,5); lo que se vuelve impreciso es su diferencia—. La recodificación ordinal colapsa la escala 1–5 a tres categorías y descarta variación informativa del ítem. Ninguna atenuación invierte el signo ni contradice la convergencia del resto de estimadores: señalan cautela sobre la magnitud puntual, no sobre la existencia del efecto.
+Conviene precisar por qué el diferencial de cambio social, robusto bajo FE magro y matching, se atenúa bajo el estimador doblemente robusto. El DR-DiD calcula la diferencia entre ATT de submuestras (indígena y no indígena) más pequeñas, con la consiguiente pérdida de potencia —el ATT territorial dentro de cada grupo es fuerte y altamente significativo; lo que se vuelve impreciso es su diferencia—. En la recodificación ordinal, el CLMM no converge de forma fiable en cambio social (Conv = `r likert_conv("Ordinal A (simétrico)", "Cambio social")`); un ajuste no identificado no es evidencia de efecto nulo. Ninguna atenuación invierte el signo ni contradice la convergencia del resto de estimadores: señalan cautela sobre la magnitud puntual, no sobre la existencia del efecto.
 
 # Resultados III — Reconfiguración procedimental {#sec-resultados-mecanismo}
 
@@ -613,7 +625,7 @@ include_figura("fig_trayectorias_justproc_inout.png")
 |----------|---|-----|----------------|
 | Just. proc. ingroup | `r fmt_es(paper$med_ingroup_did$estimate, 3)` | `r fmt_p_inline(paper$med_ingroup_did$p.value)` | Mejora percibida del trato al propio grupo |
 | Just. proc. outgroup | `r fmt_es(paper$med_outgroup_did$estimate, 3)` | `r fmt_p_inline(paper$med_outgroup_did$p.value)` | Sin efecto significativo |
-| Brecha just. proc. | `r fmt_es(paper$med_brecha_did$estimate, 3)` | `r fmt_p_inline(paper$med_brecha_did$p.value)` | Reducción marginal de la brecha |
+| Brecha just. proc. | `r fmt_es(paper$med_brecha_did$estimate, 3)` | `r fmt_p_inline(paper$med_brecha_did$p.value)` | Reducción de la brecha percibida |
 
 : Efecto del decreto sobre mediadores {#tbl-paso1-mediadores}
 
@@ -665,9 +677,15 @@ El estado de excepción sobre el territorio mapuche produjo coerción sin desmov
 #| label: tbl-apendice-operacionalizacion
 #| tbl-cap: "Operacionalización de variables principales e ítems ELRI."
 
+r_id_lab <- if (!is.na(paper$r_id_a4_a5)) {
+  paste0("1–5 (r≈", gsub(".", ",", sprintf("%.2f", paper$r_id_a4_a5), fixed = TRUE), ")")
+} else {
+  "1–5"
+}
+
 tibble::tribble(
   ~Variable,            ~Ítem,                                      ~Escala,        ~Fuente,
-  "Justif. represión estatal",   "Carabineros repriman (d3_1)",
+  "Control social",              "Carabineros repriman (d3_1)",
                                                                   "1–5 (ítem único)", "ELRI D",
   "Cambio social",               "Cortes de camino (d4_3, protesta disruptiva)",
                                                                 "1–5 (ítem único)",  "ELRI D",
@@ -679,7 +697,7 @@ tibble::tribble(
   "Just. proc. (promedio)", "Promedio d5_1 + d5_2 (comparabilidad)", "1–5",          "ELRI D",
   "Id. causa indígena", "Me identifico con la causa indígena (d6_1)", "1–5",          "ELRI D",
   "Id. con Chile",      "Identificación con Chile (a6)",            "1–5",          "ELRI A",
-  "Id. pueblo originario", "Promedio a4 + a5",                      "1–5 (r≈.82)",  "ELRI A",
+  "Id. pueblo originario", "Promedio a4 + a5",                      r_id_lab,       "ELRI A",
   "Predominancia identitaria", "Id. étnica − id. Chile",            "−4 a +4",      "Calculada",
   "Perc. desigualdad",  "Condiciones de vida indígenas vs. no ind. (c22, invertida)",
                                                                   "1–5",          "ELRI C",
@@ -791,6 +809,30 @@ include_figura("fig_hist_pesos_ipw.png")
 ```
 
 ```{r}
+#| label: tbl-apendice-drdid
+#| tbl-cap: "DR-DiD por grupo étnico: ATT indígena, ATT no indígena y Δ ATT ≈ τ₄."
+
+if (file.exists(file.path(root_dir, "data/drdid.rds"))) {
+  dr <- readRDS(file.path(root_dir, "data/drdid.rds"))
+  dr$tabla_df |>
+    gt(groupname_col = "Transición") |>
+    cols_label(
+      VD = "Variable dependiente",
+      ATT_indígena = "ATT (indi)", SE_indi = "SE",
+      ATT_no_indígena = "ATT (no indi)", SE_noni = "SE",
+      `Δ ATT (i−ni)` = "Δ ATT", `SE(Δ)` = "SE(Δ)",
+      `p(Δ)` = "p", Sig = "", `IC 95% boot` = "IC 95% boot."
+    ) |>
+    fmt_number(columns = c(ATT_indígena, SE_indi, ATT_no_indígena, SE_noni,
+                           `Δ ATT (i−ni)`, `SE(Δ)`, `p(Δ)`), decimals = 3) |>
+    tab_footnote(
+      footnote = "IC 95% por bootstrap de IDs (n=200). El p(Δ) analítico (delta method) puede discrepar del IC bootstrap cuando la distribución es asimétrica."
+    ) |>
+    publish_gt()
+}
+```
+
+```{r}
 #| label: tbl-apendice-robustez
 #| tbl-cap: "Resumen completo de robustez (04_robustez.R)."
 
@@ -799,7 +841,7 @@ paper$resumen_robustez |>
   dplyr::mutate(
     variable_dependiente = dplyr::recode(
       variable_dependiente,
-      idx_vio_control = "Represión estatal",
+      idx_vio_control = "Control social",
       idx_vio_resguardo = "Cambio social",
       idx_vio_control_dual = "Represión (índice dual)"
     ),
@@ -837,7 +879,8 @@ if (!is.null(robustez$item_models) && length(robustez$item_models) > 0) {
     statistic = "({std.error})",
     stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
     fmt = 3,
-    coef_omit = "edad|mujer|urbano|id_chile|id_causa|perc_|periodo|indigeneous|cerca",
+    coef_rename = coef_rename_did,
+    coef_omit = "Intercept|edad|mujer|urbano|id_chile|id_causa|perc_|apoyo_movil",
     gof_map = c("nobs", "icc", "rmse"),
     output = ms_out()
   ) |> style_ms()
@@ -850,7 +893,7 @@ if (!is.null(robustez$item_models) && length(robustez$item_models) > 0) {
 
 ### Codificación ordinal {#tbl-apendice-likert}
 
-La especificación **principal** del manuscrito (Modelo C y bloques DiD) usa VD en escala continua 1–5. Como **sensibilidad**, se replicó el mismo DiD recodificando las VD en tres categorías — Rechaza [1–2] / Neutral [3] / Justifica [4–5] (esquema A simétrico) y esquema B de intensidad — estimadas con CLMM (@tbl-apendice-likert). En escala continua, el τ₄ coincide con el Modelo C: cambio social (`r paper$tau4_resg$beta_p`) y control social (`r paper$tau4_ctrl$beta_p`). Las versiones ordinales mantienen **dirección positiva** en cambio social (ordinal A: `r likert_line("Ordinal A (simétrico)", "Cambio social")`; lineal cód. A: `r likert_line("Lineal cód. A", "Cambio social")`), pero con mayor imprecisión que el continuo; en control social los τ₄ ordinales no alcanzan significancia en A (`r likert_line("Ordinal A (simétrico)", "Control social")`). Se interpreta que el hallazgo principal no depende de tratar la VD como ordinal.
+La especificación **principal** del manuscrito (FE magro + cluster comuna) usa VD en escala continua 1–5. Como **sensibilidad**, se replicó el mismo DiD recodificando las VD en tres categorías — Rechaza [1–2] / Neutral [3] / Justifica [4–5] (esquema A simétrico) y esquema B de intensidad — estimadas con CLMM (@tbl-apendice-likert). En escala continua FE magro: cambio social (`r paper$tau4_resg$beta_p`) y control social (`r paper$tau4_ctrl$beta_p`). El CLMM esquema A en cambio social no converge de forma fiable (Conv = `r likert_conv("Ordinal A (simétrico)", "Cambio social")`); la misma recodificación estimada linealmente da `r likert_line("Lineal cód. A", "Cambio social")`. **No** se interpreta el p alto del CLMM como atenuación. En control social los τ₄ ordinales no alcanzan significancia en A (`r likert_line("Ordinal A (simétrico)", "Control social")`).
 
 ```{r}
 #| label: tbl-apendice-likert
@@ -860,16 +903,16 @@ likert_path <- file.path(root_dir, "data/likert_collapse.rds")
 if (file.exists(likert_path)) {
   likert_obj <- readRDS(likert_path)
   likert_obj$resumen_modelos |>
-    dplyr::select(spec, vd, estimate, std.error, p.value, sig) |>
+    dplyr::select(spec, vd, estimate, std.error, p.value, sig, Conv) |>
     gt() |>
     cols_label(
       spec = "Especificación", vd = "VD",
       estimate = "β DiD", std.error = "SE",
-      p.value = "p", sig = ""
+      p.value = "p", sig = "", Conv = "Conv."
     ) |>
     fmt_number(columns = c(estimate, std.error, p.value), decimals = 3) |>
     tab_footnote(
-      footnote = "Coeficiente de interés: triple interacción DiD decreto (ola 4 × indígena × zona)."
+      footnote = "Coeficiente de interés: triple interacción DiD decreto (ola 4 × indígena × zona). Conv = ⚠ indica ajuste no identificado (no interpretar p)."
     ) |>
     publish_gt()
 }
@@ -889,11 +932,10 @@ if (!is.null(paper$sens_mapuche_tbl)) {
     cols_label(
       muestra = "Muestra",
       vd = "Variable dependiente",
-      beta_stars = "β DiD",
-      beta_p = "β, *p*"
+      beta_stars = "β DiD"
     ) |>
     tab_footnote(
-      footnote = "Coeficiente: periododecreto:indigeneousindi:cerca_conflictocerca (Modelo C)."
+      footnote = "Coeficiente: periododecreto:indigeneousindi:cerca_conflictocerca (Modelo C, sensibilidad)."
     ) |>
     publish_gt()
 }
@@ -919,16 +961,25 @@ include_figura("fig_identidad_ingroup_outgroup.png")
 
 if (!is.null(paper$hetero_terciles)) {
   ht <- paper$hetero_terciles
+  eq_row <- ht |> dplyr::filter(.data$tercil == "Equilibrio", .data$vd == "Cambio social")
+  eq_note <- if (nrow(eq_row)) {
+    paste0(
+      "Coeficiente Equilibrio (cambio social): β = ",
+      fmt_es(eq_row$estimate[1], 3),
+      " (p = ", fmt_p_inline(eq_row$p.value[1]),
+      "). Exploratorio; celda pequeña — interpretar con cautela."
+    )
+  } else {
+    "Exploratorio (sin corrección de multiplicidad)."
+  }
   ht |>
     gt() |>
     cols_label(
       vd = "VD", tercil = "Tercil", estimate = "β",
-      std.error = "SE", p.value = "p", beta_p = "Coeficiente"
+      std.error = "SE", p.value = "p"
     ) |>
     fmt_number(columns = c(estimate, std.error, p.value), decimals = 3) |>
-    tab_source_note(
-      source_note = md("**Nota:** Exploratorio (sin corrección de multiplicidad). El coeficiente −2,144 del tercil *Equilibrio* es inestable por tamaño de celda pequeño (n < 30); interpretar con extrema cautela.")
-    ) |>
+    tab_source_note(source_note = md(eq_note)) |>
     publish_gt()
 }
 ```
@@ -949,7 +1000,7 @@ if (file.exists(file.path(root_dir, "data/BBDD_ELRI_LONG.RData"))) {
 
 tibble::tibble(
   Indice = c(
-    "Represión estatal (status quo)",
+    "Control social",
     "Cambio social",
     "Justicia proc. ingroup",
     "Justicia proc. outgroup",
@@ -966,7 +1017,7 @@ tibble::tibble(
     "Ítem único — protesta disruptiva (d4_2 excluido: ocupación territorial)",
     "Ítem único",
     "Ítem único",
-    "Alta correlación"
+    if (!is.na(r_id) && abs(r_id) >= 0.7) "Alta correlación" else "Correlación moderada"
   )
 ) |>
   gt() |>
@@ -1035,6 +1086,7 @@ if (!is.null(mecanismo$m1_ingroup)) {
     coef_omit = "edad|mujer|urbano|id_chile|id_causa|perc_",
     output = ms_out()
   ) |> style_ms()
+  cat("\n*Nota:* Los modelos «+ ingroup» usan mediador rezagado (ola 3); las filas de ola 3 quedan vacías porque el rezago solo existe en ola 4. N cae (~", paper$n_modelo_C, " → ~2.938 persona-olas) por listwise del lag.\n")
 }
 ```
 
@@ -1077,7 +1129,7 @@ include_figura("fig_coeficientes.png")
 
 ## A11 — Especificación de modelos {#sec-apendice-a11}
 
-Presentamos las fórmulas de todas las especificaciones. La principal es el Modelo C (§4.1, @eq-m2); las alternativas se incluyen por transparencia.
+Presentamos las fórmulas de todas las especificaciones. La principal es FE magro (`feols` | folio, cluster comuna; @eq-m2); el Modelo C (RE + controles) es sensibilidad.
 
 ### A11.1 Modelo A: estallido (olas 2→3)
 
@@ -1184,8 +1236,8 @@ r(e3_4, e4_5) = 0,541 en subset_data. e3_5 no diluye α (α con = 0,812; sin = 0
 #| label: tbl-apendice-demandas
 #| tbl-cap: "DiD sobre índices de demandas indígenas. FE magro = principal; sensibilidad sin e3_4; DR-DiD Δ ATT por grupo."
 
-if (file.exists("../data/demandas.rds")) {
-  dem <- readRDS("../data/demandas.rds")
+if (file.exists(file.path(root_dir, "data/demandas.rds"))) {
+  dem <- readRDS(file.path(root_dir, "data/demandas.rds"))
   dem$tabla_demandas |>
     dplyr::select(modelo, vd_label, term, estimate, std.error, p.value, signif, ic95) |>
     gt::gt(groupname_col = "vd_label") |>

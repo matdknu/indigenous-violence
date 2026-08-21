@@ -6,8 +6,50 @@
 
 pacman::p_load(
   dplyr, tidyr, ggplot2, sf, stringr, janitor,
-  chilemapas, rvest, scales, patchwork
+  chilemapas, rvest, scales, patchwork, haven
 )
+
+ISLAND_COMUNAS <- c("05104", "05201", "12202")
+
+clip_mainland <- function(sf_obj) {
+  crs <- st_crs(sf_obj)
+  box <- st_as_sfc(
+    st_bbox(c(xmin = -76.0, ymin = -56.2, xmax = -66.3, ymax = -17.5), crs = crs)
+  )
+  out <- suppressWarnings(st_intersection(st_make_valid(sf_obj), box))
+  out <- st_collection_extract(out, "POLYGON", warn = FALSE)
+  st_as_sf(out)
+}
+
+# Norte a la izquierda, sur a la derecha: (lon, lat) → (-lat, lon)
+coords_horizontal <- function(sf_obj) {
+  m <- st_coordinates(sf_obj)
+  data.frame(
+    lon = m[, "X"],
+    lat = m[, "Y"],
+    poly_id = m[, "L1"],
+    ring = if ("L2" %in% colnames(m)) m[, "L2"] else 1L,
+    part = if ("L3" %in% colnames(m)) m[, "L3"] else 1L,
+    hx = -m[, "Y"],
+    hy = m[, "X"],
+    stringsAsFactors = FALSE
+  )
+}
+
+resolve_ump_path <- function() {
+  candidates <- c(
+    "data/UMP.dta",
+    Sys.getenv("ELRI_UMP_PATH", unset = ""),
+    "../../../social-data-science/ai_simultation/ELRI/data/UMP.dta",
+    "../../../CIIR/ELRI/BBDD/UMP.dta"
+  )
+  hit <- candidates[nzchar(candidates) & file.exists(candidates)]
+  if (length(hit)) return(normalizePath(hit[[1]]))
+  stop(
+    "No se encontró UMP.dta. Coloque el archivo en data/UMP.dta ",
+    "o defina ELRI_UMP_PATH."
+  )
+}
 
 # ── 1. Comunas del estado de excepción ───────────────────────────────────────
 
@@ -356,4 +398,175 @@ tabla_comunas <- chilemapas::codigos_territoriales |>
 
 cat("\n--- Comunas en zona de excepción ---\n")
 print(tabla_comunas, n = 30)
+
+# ── 8. Mapa horizontal UMP + muestra ELRI (estilo ELRI/05) ───────────────────
+# Réplica de mapa_ump_puntos_horizontal: Chile rotado 90° (norte ← sur →),
+# polígonos comunales + puntos en centroide (tamaño = N UMP, color = composición).
+
+if (file.exists("data/subset_data.rds")) {
+  subset_data <- readRDS("data/subset_data.rds")
+
+  ump_path <- resolve_ump_path()
+  cat("✓ UMP:", ump_path, "\n")
+
+  ump_lookup <- read_dta(ump_path) |>
+    transmute(
+      folio_pad = as.character(folio),
+      ump = as.integer(ump),
+      manzana = as.integer(substr(as.character(folio), 5, 7))
+    ) |>
+    distinct(folio_pad, .keep_all = TRUE)
+
+  resumen_folio <- subset_data |>
+    filter(ola == 2) |>
+    distinct(folio, .keep_all = TRUE) |>
+    mutate(
+      folio_pad = sprintf("%010d", as.integer(folio)),
+      comuna_pad = str_pad(as.character(comuna_cod), 5, pad = "0"),
+      es_indigena = as.integer(indigeneous == "indi")
+    ) |>
+    left_join(ump_lookup, by = "folio_pad")
+
+  pct_ump <- round(100 * mean(!is.na(resumen_folio$ump)), 1)
+  if (pct_ump < 95) {
+    warning("Solo ", pct_ump, "% de folios con UMP pegado.")
+  }
+
+  comuna_stats_ump <- resumen_folio |>
+    group_by(comuna_pad) |>
+    summarise(
+      n_folios = n(),
+      n_indigena = sum(es_indigena),
+      pct_indigena = round(100 * mean(es_indigena), 1),
+      n_ump = n_distinct(ump, na.rm = TRUE),
+      n_manzanas = n_distinct(manzana, na.rm = TRUE),
+      en_zona_excepcion = any(comuna_pad %in% comunas_excepcion),
+      .groups = "drop"
+    )
+
+  mapa_ump_base <- chilemapas::mapa_comunas |>
+    st_as_sf() |>
+    mutate(codigo_comuna = str_pad(as.character(codigo_comuna), 5, pad = "0")) |>
+    filter(!codigo_comuna %in% ISLAND_COMUNAS) |>
+    mutate(cx = st_coordinates(st_centroid(geometry))[, 1]) |>
+    filter(cx > -76.5) |>
+    left_join(comuna_stats_ump, by = c("codigo_comuna" = "comuna_pad")) |>
+    mutate(
+      en_muestra = !is.na(n_folios) & n_folios > 0,
+      n_folios = replace_na(n_folios, 0L),
+      en_zona_excepcion = replace_na(en_zona_excepcion, FALSE),
+      fill_zona = if_else(
+        en_zona_excepcion,
+        "Zona decreto D.S. 418",
+        if_else(en_muestra, "Muestra ELRI", "Sin muestra")
+      ),
+      fill_zona = factor(
+        fill_zona,
+        levels = c("Zona decreto D.S. 418", "Muestra ELRI", "Sin muestra")
+      )
+    )
+
+  mapa_ump_main <- clip_mainland(mapa_ump_base)
+
+  centroides_ump <- mapa_ump_main |>
+    filter(en_muestra) |>
+    mutate(
+      grupo_dom = case_when(
+        pct_indigena >= 60 ~ "Mayoría indígena",
+        pct_indigena <= 40 ~ "Mayoría no indígena",
+        TRUE ~ "Mixta"
+      ),
+      pt = st_point_on_surface(geometry)
+    ) |>
+    mutate(
+      lon = st_coordinates(pt)[, 1],
+      lat = st_coordinates(pt)[, 2],
+      hx = -lat,
+      hy = lon
+    )
+
+  mapa_poly_h <- coords_horizontal(mapa_ump_main) |>
+    left_join(
+      st_drop_geometry(mapa_ump_main) |> mutate(poly_id = seq_len(n())),
+      by = "poly_id"
+    )
+
+  mapa_poly_h <- mapa_poly_h |>
+    mutate(
+      fill_zona = factor(
+        fill_zona,
+        levels = c("Zona decreto D.S. 418", "Muestra ELRI", "Sin muestra")
+      )
+    )
+
+  map_theme_h <- theme_void(base_size = 11) +
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5, size = 12),
+      plot.subtitle = element_text(hjust = 0.5, size = 10, color = "grey40"),
+      plot.caption = element_text(size = 8, color = "grey50", hjust = 0),
+      legend.position = "right",
+      axis.text.x = element_text(size = 9, color = "grey50")
+    )
+
+  p_ump_h <- ggplot() +
+    geom_polygon(
+      data = mapa_poly_h,
+      aes(
+        x = hx, y = hy,
+        group = interaction(poly_id, ring, part),
+        fill = fill_zona
+      ),
+      color = "grey85", linewidth = 0.1
+    ) +
+    geom_point(
+      data = centroides_ump,
+      aes(x = hx, y = hy, size = n_ump, color = grupo_dom),
+      alpha = 0.78
+    ) +
+    scale_fill_manual(
+      values = c(
+        "Zona decreto D.S. 418" = "#fcbba1",
+        "Muestra ELRI"          = "#fafafa",
+        "Sin muestra"           = "#f0f0f0"
+      ),
+      name = "Territorio"
+    ) +
+    scale_size_continuous(range = c(2, 10), name = "N UMP") +
+    scale_color_manual(
+      values = c(
+        "Mayoría indígena"     = "#2a9d8f",
+        "Mayoría no indígena"  = "#e76f51",
+        "Mixta"                = "#9b59b6"
+      ),
+      name = "Composición\nmuestra"
+    ) +
+    coord_fixed(ratio = 1, expand = FALSE) +
+    labs(
+      title = "Muestra ELRI y clusters UMP — Macrozona Sur",
+      subtitle = paste0(
+        "Orientación horizontal · Norte (izq.) → Sur (der.) · ",
+        nrow(resumen_folio), " folios · ", n_distinct(resumen_folio$ump), " UMP"
+      ),
+      caption = paste0(
+        "Puntos en centroide comunal. Tamaño = N UMP. ",
+        "Sombreado = 53 comunas D.S. N°418/2021. Baseline ola 2 (2018)."
+      ),
+      x = "← Norte · Sur →",
+      y = NULL
+    ) +
+    map_theme_h
+
+  if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
+
+  ggsave(
+    "output/figuras/fig_mapa_ump_puntos_horizontal.png",
+    p_ump_h, width = 14, height = 6, dpi = 300
+  )
+  ggsave(
+    "output/figuras/fig_mapa_ump_puntos_horizontal.svg",
+    p_ump_h, width = 14, height = 6
+  )
+
+  cat("✓ Mapa UMP horizontal → output/figuras/fig_mapa_ump_puntos_horizontal.png\n")
+}
 

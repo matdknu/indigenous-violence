@@ -176,9 +176,12 @@ if (file.exists("data/modelos.rds")) {
   mA_resg <- modelos$mA_resg
   mB_ctrl <- modelos$mB_ctrl
   mB_resg <- modelos$mB_resg
+  mFE_ctrl <- modelos$mFE_ctrl
+  mFE_resg <- modelos$mFE_resg
+  coef_rename_did <- modelos$coef_rename_did
   m2_ctrl <- mC_ctrl
   m2_resg <- mC_resg
-  cat("✓ Modelos A/B/C cargados desde data/modelos.rds\n")
+  cat("✓ Modelos A/B/C + FE magro cargados desde data/modelos.rds\n")
 } else {
   cat("⚠ data/modelos.rds no encontrado; re-estimando modelos principales...\n")
   m2_ctrl <- lmer(
@@ -736,11 +739,14 @@ if (length(item_models) > 0) {
     item_models,
     unname(item_labels[names(item_models)])
   )
+  coef_ren_item <- if (exists("coef_rename_did")) coef_rename_did else NULL
   modelsummary(
     item_named,
     statistic = "({std.error})",
     stars = c("+" = .1, "*" = .05, "**" = .01, "***" = .001),
     fmt = 3,
+    coef_rename = coef_ren_item,
+    coef_omit = "Intercept|edad|mujer|urbano|id_chile|id_causa|perc_|apoyo_movil",
     gof_map = c("nobs", "icc", "rmse"),
     output = "output/tablas/tabla_modelos_por_item.html"
   )
@@ -809,6 +815,7 @@ n_comunas_tratadas <- subset_data |>
   dplyr::pull(.data$n_comunas)
 cat("Comunas en celda tratado (indi × cerca × ola 4):", n_comunas_tratadas, "\n")
 
+# FE con controles (sensibilidad; distinto del FE magro principal en 03_modelos.R)
 f_fe_ctrl <- as.formula(paste(
   "idx_vio_control ~ periodo * indigeneous * cerca_conflicto +", controles_base, "| folio"
 ))
@@ -862,40 +869,76 @@ m_re_cl_resg <- tryCatch(
 )
 
 # DRDID en submuestra indígena: tratado = zona, post = ola 4 (panel balanceado)
+# Covariables congeladas en ola 2 (mismo patrón que 03b_drdid.R)
+COVARS_DRDID <- c(
+  "mujer", "edad", "urbano_rural",
+  "id_chile", "id_causa", "perc_desigualdad", "apoyo_movil"
+)
+LABEL_DRDID_ATT   <- "DR-DiD ATT (solo indi — NO es τ₄)"
+LABEL_DRDID_DELTA <- "DR-DiD Δ ATT (indi − no indi) ≈ τ₄"
+
 m_drdid_ctrl <- m_drdid_resg <- NULL
-drdid_resumen <- NULL
-if (has_drdid) {
-  prep_drdid <- function(vd) {
-    d <- subset_data |>
-      dplyr::filter(.data$indigeneous == "indi", .data$ola %in% c(2L, 4L)) |>
-      dplyr::mutate(
-        id = as.integer(factor(.data$folio)),
-        year = as.integer(.data$ola),
-        treat = as.integer(.data$cerca_conflicto == "cerca"),
-        y = as.numeric(.data[[vd]]),
-        id_chile_n = as.numeric(.data$id_chile),
-        id_causa_n = as.numeric(.data$id_causa)
-      ) |>
-      dplyr::filter(
-        !is.na(.data$y), !is.na(.data$treat),
-        !is.na(.data$id_chile_n), !is.na(.data$id_causa_n)
-      ) |>
-      dplyr::distinct(.data$id, .data$year, .keep_all = TRUE)
-    # Solo IDs con ambas olas (requisito panel DRDID)
-    ids_ok <- d |>
-      dplyr::count(.data$id) |>
-      dplyr::filter(.data$n == 2L) |>
-      dplyr::pull(.data$id)
-    d |> dplyr::filter(.data$id %in% ids_ok)
+drdid_resumen <- drdid_delta_resumen <- NULL
+
+prep_drdid <- function(vd, ola_pre = 2L, ola_post = 4L) {
+  covar_cols_raw <- COVARS_DRDID[COVARS_DRDID %in% names(subset_data)]
+
+  d <- subset_data |>
+    dplyr::filter(.data$indigeneous == "indi", .data$ola %in% c(ola_pre, ola_post)) |>
+    dplyr::mutate(
+      id    = as.integer(factor(.data$folio)),
+      year  = as.integer(.data$ola),
+      treat = as.integer(.data$cerca_conflicto == "cerca"),
+      y     = as.numeric(.data[[vd]])
+    )
+
+  for (cv in covar_cols_raw) {
+    d[[paste0(cv, "_n")]] <- as.numeric(d[[cv]])
   }
+  covar_n <- paste0(covar_cols_raw, "_n")
+
+  # CLAVE: covariables INVARIANTES en el tiempo (baseline ola_pre)
+  baseline_covs <- d |>
+    dplyr::filter(.data$year == ola_pre) |>
+    dplyr::select(dplyr::all_of(c("id", covar_n)))
+
+  d <- d |>
+    dplyr::select(-dplyr::all_of(covar_n)) |>
+    dplyr::left_join(baseline_covs, by = "id") |>
+    dplyr::filter(
+      !is.na(.data$y), !is.na(.data$treat),
+      dplyr::if_all(dplyr::all_of(covar_n), ~ !is.na(.x))
+    ) |>
+    dplyr::distinct(.data$id, .data$year, .keep_all = TRUE)
+
+  ids_ok <- d |>
+    dplyr::count(.data$id) |>
+    dplyr::filter(.data$n == 2L) |>
+    dplyr::pull(.data$id)
+
+  d |> dplyr::filter(.data$id %in% ids_ok)
+}
+
+if (has_drdid) {
   run_drdid <- function(vd) {
     d <- prep_drdid(vd)
     if (nrow(d) < 50) return(NULL)
-    # Covariables numéricas estables pre/post; fallback ~1
-    out <- tryCatch(
+
+    covar_n <- paste0(COVARS_DRDID[COVARS_DRDID %in% names(subset_data)], "_n")
+    covar_n <- covar_n[vapply(covar_n, function(v) {
+      v %in% names(d) && stats::var(d[[v]], na.rm = TRUE) > 0
+    }, logical(1))]
+
+    xf <- if (length(covar_n) > 0) {
+      as.formula(paste("~", paste(covar_n, collapse = " + ")))
+    } else {
+      ~ 1
+    }
+
+    tryCatch(
       DRDID::drdid(
         yname = "y", tname = "year", idname = "id",
-        dname = "treat", xformla = ~ id_chile_n + id_causa_n,
+        dname = "treat", xformla = xf,
         data = as.data.frame(d), panel = TRUE, boot = FALSE
       ),
       error = function(e) {
@@ -913,31 +956,93 @@ if (has_drdid) {
         )
       }
     )
-    out
   }
+
   m_drdid_ctrl <- run_drdid("idx_vio_control")
   m_drdid_resg <- run_drdid("idx_vio_resguardo")
-  extract_drdid <- function(obj, vd, label) {
+
+  extract_drdid <- function(obj, vd, label, term = "ATT_DRDID") {
     if (is.null(obj)) {
       return(tibble(
-        modelo = label, variable_dependiente = vd, term = "ATT_DRDID",
+        modelo = label, variable_dependiente = vd, term = term,
         estimate = NA_real_, std.error = NA_real_, p.value = NA_real_, signif = ""
       ))
     }
     att <- as.numeric(obj$ATT)
-    se <- as.numeric(obj$se)
-    z <- if (is.finite(se) && se > 0) att / se else NA_real_
-    p <- if (is.finite(z)) 2 * stats::pnorm(-abs(z)) else NA_real_
+    se  <- as.numeric(obj$se)
+    z   <- if (is.finite(se) && se > 0) att / se else NA_real_
+    p   <- if (is.finite(z)) 2 * stats::pnorm(-abs(z)) else NA_real_
     tibble(
-      modelo = label, variable_dependiente = vd, term = "ATT_DRDID",
+      modelo = label, variable_dependiente = vd, term = term,
       estimate = att, std.error = se, p.value = p, signif = signif_stars(p)
     )
   }
+
   drdid_resumen <- bind_rows(
-    extract_drdid(m_drdid_ctrl, "idx_vio_control", "DRDID (indi, zona)"),
-    extract_drdid(m_drdid_resg, "idx_vio_resguardo", "DRDID (indi, zona)")
+    extract_drdid(m_drdid_ctrl, "idx_vio_control", LABEL_DRDID_ATT),
+    extract_drdid(m_drdid_resg, "idx_vio_resguardo", LABEL_DRDID_ATT)
   )
   print(drdid_resumen)
+
+  # Verificación: ATT 04 debe coincidir (±0.02) con ATT_indi de 03b (Decreto 2→4)
+  if (file.exists("data/drdid.rds")) {
+    drdid_ref <- readRDS("data/drdid.rds")
+    ref_keys <- c(
+      idx_vio_control   = "decreto__ola_2_4___idx_vio_control",
+      idx_vio_resguardo = "decreto__ola_2_4___idx_vio_resguardo"
+    )
+    for (vd in names(ref_keys)) {
+      ref <- drdid_ref$resultados[[ref_keys[[vd]]]]
+      live <- drdid_resumen$estimate[drdid_resumen$variable_dependiente == vd]
+      if (!is.null(ref) && length(live) == 1L && is.finite(live)) {
+        diff_att <- abs(live - ref$att_indi)
+        cat(sprintf(
+          "  Verif ATT 04 vs 03b (%s): live=%.3f ref=%.3f Δ=%.3f %s\n",
+          vd, live, ref$att_indi, diff_att,
+          if (diff_att <= 0.02) "✓" else "⚠ REVISAR"
+        ))
+      }
+    }
+    d_ctrl <- prep_drdid("idx_vio_control")
+    d_resg <- prep_drdid("idx_vio_resguardo")
+    cat(sprintf(
+      "  Panel 04 indi 2→4: ctrl nrow=%d n_id=%d | resg nrow=%d n_id=%d\n",
+      nrow(d_ctrl), dplyr::n_distinct(d_ctrl$id),
+      nrow(d_resg), dplyr::n_distinct(d_resg$id)
+    ))
+  } else {
+    warning(
+      "data/drdid.rds no existe — ejecute R/03b_drdid.R antes que R/04_robustez.R ",
+      "para verificación ATT y filas Δ ATT en resumen_robustez.",
+      call. = FALSE
+    )
+  }
+
+  # Δ ATT (indi − no indi) desde 03b — estimando ≈ τ₄
+  if (file.exists("data/drdid.rds")) {
+    drdid_ref <- readRDS("data/drdid.rds")
+    delta_keys <- c(
+      idx_vio_control   = "decreto__ola_2_4___idx_vio_control",
+      idx_vio_resguardo = "decreto__ola_2_4___idx_vio_resguardo"
+    )
+    drdid_delta_resumen <- purrr::imap_dfr(delta_keys, function(key, vd) {
+      x <- drdid_ref$resultados[[key]]
+      if (is.null(x)) {
+        return(tibble(
+          modelo = LABEL_DRDID_DELTA, variable_dependiente = vd,
+          term = "DELTA_ATT", estimate = NA_real_, std.error = NA_real_,
+          p.value = NA_real_, signif = ""
+        ))
+      }
+      tibble(
+        modelo = LABEL_DRDID_DELTA, variable_dependiente = vd,
+        term = "DELTA_ATT",
+        estimate = x$diff_att, std.error = x$se_diff, p.value = x$p_diff,
+        signif = signif_stars(x$p_diff)
+      )
+    })
+    print(drdid_delta_resumen)
+  }
 } else {
   cat("⚠ Paquete DRDID no disponible; omitido.\n")
 }
@@ -954,16 +1059,48 @@ if (!exists("mA_ctrl")) {
   mA_ctrl <- mA_resg <- mB_ctrl <- mB_resg <- NULL
 }
 
-filas_sens <- purrr::compact(list(
-  if (!is.null(m_sens_priv)) {
-    extract_coef(m_sens_priv, TERM_DID_DECRETO, "Sensib. vigilantismo (d3_2)", "vio_priv_agric")
-  },
-  if (!is.null(m_sens_ocup)) {
-    extract_coef(m_sens_ocup, TERM_DID_DECRETO, "Sensib. ocupación (d4_2)", "vio_ocup_tierras")
+# Índice dual d3_1+d3_2 (sensibilidad Tabla 15)
+m_sensibilidad_control_dual <- NULL
+if (all(c("vio_ctrl_carb", "vio_priv_agric") %in% names(subset_data))) {
+  subset_data <- subset_data |>
+    mutate(
+      idx_vio_control_dual = rowMeans(
+        cbind(as.numeric(vio_ctrl_carb), as.numeric(vio_priv_agric)),
+        na.rm = TRUE
+      )
+    )
+  m_sensibilidad_control_dual <- tryCatch(
+    lmer(
+      formula_did("idx_vio_control_dual", controles_base),
+      data = subset_data, REML = FALSE
+    ),
+    error = function(e) {
+      cat("⚠ Error índice dual control:", conditionMessage(e), "\n")
+      NULL
+    }
+  )
+}
+
+if (!exists("mFE_ctrl") || is.null(mFE_ctrl)) {
+  if (exists("modelos") && !is.null(modelos$mFE_ctrl)) {
+    mFE_ctrl <- modelos$mFE_ctrl
+    mFE_resg <- modelos$mFE_resg
   }
-))
+}
 
 resumen_robustez <- bind_rows(
+  if (!is.null(mFE_ctrl)) {
+    extract_coef(mFE_ctrl, TERM_DID_ESTALLIDO, "Principal FE magro", "idx_vio_control")
+  },
+  if (!is.null(mFE_ctrl)) {
+    extract_coef(mFE_ctrl, TERM_DID_DECRETO, "Principal FE magro", "idx_vio_control")
+  },
+  if (!is.null(mFE_resg)) {
+    extract_coef(mFE_resg, TERM_DID_ESTALLIDO, "Principal FE magro", "idx_vio_resguardo")
+  },
+  if (!is.null(mFE_resg)) {
+    extract_coef(mFE_resg, TERM_DID_DECRETO, "Principal FE magro", "idx_vio_resguardo")
+  },
   extract_coef(mC_ctrl, TERM_DID_ESTALLIDO, "C — DiD estallido", "idx_vio_control"),
   extract_coef(mC_ctrl, TERM_DID_DECRETO, "C — DiD decreto", "idx_vio_control"),
   extract_coef(mC_resg, TERM_DID_ESTALLIDO, "C — DiD estallido", "idx_vio_resguardo"),
@@ -980,13 +1117,14 @@ resumen_robustez <- bind_rows(
   extract_coef(m2_resg_ipw_trim_1_99, TERM_DID_DECRETO, "IPW trim 1–99%", "idx_vio_resguardo"),
   extract_coef(m2_ctrl_ipw_trim_5_95, TERM_DID_DECRETO, "IPW trim 5–95%", "idx_vio_control"),
   extract_coef(m2_resg_ipw_trim_5_95, TERM_DID_DECRETO, "IPW trim 5–95%", "idx_vio_resguardo"),
-  extract_coef(m_fe_ctrl, TERM_DID_DECRETO, "FE folio + cluster comuna", "idx_vio_control"),
-  extract_coef(m_fe_resg, TERM_DID_DECRETO, "FE folio + cluster comuna", "idx_vio_resguardo"),
+  extract_coef(m_fe_ctrl, TERM_DID_DECRETO, "FE + controles (fixest)", "idx_vio_control"),
+  extract_coef(m_fe_resg, TERM_DID_DECRETO, "FE + controles (fixest)", "idx_vio_resguardo"),
   extract_coef(m_cl_ctrl, TERM_DID_DECRETO, "OLS cluster comuna", "idx_vio_control"),
   extract_coef(m_cl_resg, TERM_DID_DECRETO, "OLS cluster comuna", "idx_vio_resguardo"),
   extract_coef(m_re_cl_ctrl, TERM_DID_DECRETO, "RE folio+comuna", "idx_vio_control"),
   extract_coef(m_re_cl_resg, TERM_DID_DECRETO, "RE folio+comuna", "idx_vio_resguardo"),
   if (!is.null(drdid_resumen)) drdid_resumen else NULL,
+  if (!is.null(drdid_delta_resumen)) drdid_delta_resumen else NULL,
   extract_coef(m_placebo_ctrl_real, TERM_PLACEBO_REAL,
                "Placebo real (ola1→2)", "idx_vio_control"),
   extract_coef(m_placebo_resg_real, TERM_PLACEBO_REAL,
@@ -998,11 +1136,8 @@ resumen_robustez <- bind_rows(
   ))
 )
 
-if (length(filas_sens) > 0) {
-  resumen_robustez <- bind_rows(resumen_robustez, bind_rows(filas_sens))
-}
-
 resumen_robustez <- resumen_robustez |>
+  distinct(modelo, variable_dependiente, term, .keep_all = TRUE) |>
   mutate(
     ci_lo = estimate - 1.96 * std.error,
     ci_hi = estimate + 1.96 * std.error,
@@ -1046,17 +1181,25 @@ p_robustez <- resumen_robustez |>
   filter(
     !is.na(estimate),
     !str_starts(modelo, "Ítem:"),
+    term == TERM_DID_DECRETO,
     modelo %in% c(
-      "C — DiD estallido", "C — DiD decreto",
-      "A — Estallido (2→3)", "B — Decreto (3→4)",
+      "Principal FE magro", "C — DiD decreto",
+      "FE + controles (fixest)", "OLS cluster comuna", "RE folio+comuna",
       "PSM", "IPW original", "IPW trim 1–99%", "IPW trim 5–95%",
+      LABEL_DRDID_DELTA,
       "Placebo real (ola1→2)", "Núcleo histórico"
     )
   ) |>
   mutate(
+    variable_dependiente = recode(
+      variable_dependiente,
+      idx_vio_control = "Control social",
+      idx_vio_resguardo = "Cambio social"
+    ),
     modelo = factor(modelo, levels = rev(c(
-      "C — DiD estallido", "C — DiD decreto",
-      "A — Estallido (2→3)", "B — Decreto (3→4)",
+      "Principal FE magro", "C — DiD decreto",
+      "FE + controles (fixest)", "OLS cluster comuna", "RE folio+comuna",
+      LABEL_DRDID_DELTA,
       "IPW original", "IPW trim 1–99%", "IPW trim 5–95%",
       "PSM", "Placebo real (ola1→2)", "Núcleo histórico"
     ))),
@@ -1076,11 +1219,7 @@ p_robustez <- resumen_robustez |>
     name = NULL
   ) +
   scale_color_manual(
-    values = c("idx_vio_control" = "#4575B4", "idx_vio_resguardo" = "#D73027"),
-    labels = c(
-      "idx_vio_control"   = "Control social (status quo)",
-      "idx_vio_resguardo" = "Cambio social"
-    ),
+    values = c("Control social" = "#4575B4", "Cambio social" = "#D73027"),
     name = NULL
   ) +
   labs(
@@ -1327,6 +1466,13 @@ saveRDS(
     item_models = item_models,
     m_sens_priv = if (exists("m_sens_priv")) m_sens_priv else NULL,
     m_sens_ocup = if (exists("m_sens_ocup")) m_sens_ocup else NULL,
+    m2_ctrl_d32 = if (exists("m_sens_priv")) m_sens_priv else NULL,
+    m2_resg_d42 = if (exists("m_sens_ocup")) m_sens_ocup else NULL,
+    m_sensibilidad_control_dual = if (exists("m_sensibilidad_control_dual")) {
+      m_sensibilidad_control_dual
+    } else {
+      NULL
+    },
     resumen_robustez = resumen_robustez,
     sens_mapuche_compare = sens_mapuche_compare,
     controles_base = controles_base,

@@ -478,6 +478,46 @@
     </tr>
   </thead>
   <tbody class="gt_table_body">
+    <tr><td headers="modelo" class="gt_row gt_left">Principal FE magro</td>
+<td headers="variable_dependiente" class="gt_row gt_left">idx_vio_control</td>
+<td headers="term" class="gt_row gt_left">periodoestallido:indigeneousindi:cerca_conflictocerca</td>
+<td headers="estimate" class="gt_row gt_right">0.050</td>
+<td headers="std.error" class="gt_row gt_right">0.199</td>
+<td headers="p.value" class="gt_row gt_right">0.8027</td>
+<td headers="signif" class="gt_row gt_right"></td>
+<td headers="ci_lo" class="gt_row gt_right">-0.34092324</td>
+<td headers="ci_hi" class="gt_row gt_right">0.4408044</td>
+<td headers="ic95" class="gt_row gt_left">[-0.341, 0.441]</td></tr>
+    <tr><td headers="modelo" class="gt_row gt_left">Principal FE magro</td>
+<td headers="variable_dependiente" class="gt_row gt_left">idx_vio_control</td>
+<td headers="term" class="gt_row gt_left">periododecreto:indigeneousindi:cerca_conflictocerca</td>
+<td headers="estimate" class="gt_row gt_right">0.313</td>
+<td headers="std.error" class="gt_row gt_right">0.166</td>
+<td headers="p.value" class="gt_row gt_right">0.0618</td>
+<td headers="signif" class="gt_row gt_right">+</td>
+<td headers="ci_lo" class="gt_row gt_right">-0.01210033</td>
+<td headers="ci_hi" class="gt_row gt_right">0.6378094</td>
+<td headers="ic95" class="gt_row gt_left">[-0.012, 0.638]</td></tr>
+    <tr><td headers="modelo" class="gt_row gt_left">Principal FE magro</td>
+<td headers="variable_dependiente" class="gt_row gt_left">idx_vio_resguardo</td>
+<td headers="term" class="gt_row gt_left">periodoestallido:indigeneousindi:cerca_conflictocerca</td>
+<td headers="estimate" class="gt_row gt_right">0.093</td>
+<td headers="std.error" class="gt_row gt_right">0.166</td>
+<td headers="p.value" class="gt_row gt_right">0.5752</td>
+<td headers="signif" class="gt_row gt_right"></td>
+<td headers="ci_lo" class="gt_row gt_right">-0.23208691</td>
+<td headers="ci_hi" class="gt_row gt_right">0.4186986</td>
+<td headers="ic95" class="gt_row gt_left">[-0.232, 0.419]</td></tr>
+    <tr><td headers="modelo" class="gt_row gt_left">Principal FE magro</td>
+<td headers="variable_dependiente" class="gt_row gt_left">idx_vio_resguardo</td>
+<td headers="term" class="gt_row gt_left">periododecreto:indigeneousindi:cerca_conflictocerca</td>
+<td headers="estimate" class="gt_row gt_right">0.413</td>
+<td headers="std.error" class="gt_row gt_right">0.155</td>
+<td headers="p.value" class="gt_row gt_right">0.0089</td>
+<td headers="signif" class="gt_row gt_right">**</td>
+<td headers="ci_lo" class="gt_row gt_right">0.10906479</td>
+<td headers="ci_hi" class="gt_row gt_right">0.7164551</td>
+<td headers="ic95" class="gt_row gt_left">[0.109, 0.716]</td></tr>
     <tr><td headers="modelo" class="gt_row gt_left">C — DiD estallido</td>
 <td headers="variable_dependiente" class="gt_row gt_left">idx_vio_control</td>
 <td headers="term" class="gt_row gt_left">periodoestallido:indigeneousindi:cerca_conflictocerca</td>
@@ -638,7 +678,7 @@
 <td headers="ci_lo" class="gt_row gt_right">0.06286574</td>
 <td headers="ci_hi" class="gt_row gt_right">0.7428381</td>
 <td headers="ic95" class="gt_row gt_left">[0.063, 0.743]</td></tr>
-    <tr><td headers="modelo" class="gt_row gt_left">FE folio + cluster comuna</td>
+    <tr><td headers="modelo" class="gt_row gt_left">FE + controles (fixest)</td>
 <td headers="variable_dependiente" class="gt_row gt_left">idx_vio_control</td>
 <td headers="term" class="gt_row gt_left">periododecreto:indigeneousindi:cerca_conflictocerca</td>
 <td headers="estimate" class="gt_row gt_right">0.375</td>
@@ -648,7 +688,7 @@
 <td headers="ci_lo" class="gt_row gt_right">0.04726934</td>
 <td headers="ci_hi" class="gt_row gt_right">0.7027617</td>
 <td headers="ic95" class="gt_row gt_left">[0.047, 0.703]</td></tr>
-    <tr><td headers="modelo" class="gt_row gt_left">FE folio + cluster comuna</td>
+    <tr><td headers="modelo" class="gt_row gt_left">FE + controles (fixest)</td>
 <td headers="variable_dependiente" class="gt_row gt_left">idx_vio_resguardo</td>
 <td headers="term" class="gt_row gt_left">periododecreto:indigeneousindi:cerca_conflictocerca</td>
 <td headers="estimate" class="gt_row gt_right">0.488</td>
@@ -698,26 +738,46 @@
 <td headers="ci_lo" class="gt_row gt_right">0.12313428</td>
 <td headers="ci_hi" class="gt_row gt_right">0.8680686</td>
 <td headers="ic95" class="gt_row gt_left">[0.123, 0.868]</td></tr>
-    <tr><td headers="modelo" class="gt_row gt_left">DRDID (indi, zona)</td>
+    <tr><td headers="modelo" class="gt_row gt_left">DR-DiD ATT (solo indi — NO es τ₄)</td>
 <td headers="variable_dependiente" class="gt_row gt_left">idx_vio_control</td>
 <td headers="term" class="gt_row gt_left">ATT_DRDID</td>
-<td headers="estimate" class="gt_row gt_right">1.547</td>
-<td headers="std.error" class="gt_row gt_right">0.160</td>
+<td headers="estimate" class="gt_row gt_right">1.571</td>
+<td headers="std.error" class="gt_row gt_right">0.195</td>
 <td headers="p.value" class="gt_row gt_right">0.0000</td>
 <td headers="signif" class="gt_row gt_right">***</td>
-<td headers="ci_lo" class="gt_row gt_right">1.23391495</td>
-<td headers="ci_hi" class="gt_row gt_right">1.8595000</td>
-<td headers="ic95" class="gt_row gt_left">[1.234, 1.86]</td></tr>
-    <tr><td headers="modelo" class="gt_row gt_left">DRDID (indi, zona)</td>
+<td headers="ci_lo" class="gt_row gt_right">1.18861219</td>
+<td headers="ci_hi" class="gt_row gt_right">1.9540405</td>
+<td headers="ic95" class="gt_row gt_left">[1.189, 1.954]</td></tr>
+    <tr><td headers="modelo" class="gt_row gt_left">DR-DiD ATT (solo indi — NO es τ₄)</td>
 <td headers="variable_dependiente" class="gt_row gt_left">idx_vio_resguardo</td>
 <td headers="term" class="gt_row gt_left">ATT_DRDID</td>
-<td headers="estimate" class="gt_row gt_right">1.321</td>
-<td headers="std.error" class="gt_row gt_right">0.144</td>
+<td headers="estimate" class="gt_row gt_right">1.150</td>
+<td headers="std.error" class="gt_row gt_right">0.156</td>
 <td headers="p.value" class="gt_row gt_right">0.0000</td>
 <td headers="signif" class="gt_row gt_right">***</td>
-<td headers="ci_lo" class="gt_row gt_right">1.03870567</td>
-<td headers="ci_hi" class="gt_row gt_right">1.6034258</td>
-<td headers="ic95" class="gt_row gt_left">[1.039, 1.603]</td></tr>
+<td headers="ci_lo" class="gt_row gt_right">0.84351236</td>
+<td headers="ci_hi" class="gt_row gt_right">1.4556456</td>
+<td headers="ic95" class="gt_row gt_left">[0.844, 1.456]</td></tr>
+    <tr><td headers="modelo" class="gt_row gt_left">DR-DiD Δ ATT (indi − no indi) ≈ τ₄</td>
+<td headers="variable_dependiente" class="gt_row gt_left">idx_vio_control</td>
+<td headers="term" class="gt_row gt_left">DELTA_ATT</td>
+<td headers="estimate" class="gt_row gt_right">0.330</td>
+<td headers="std.error" class="gt_row gt_right">0.278</td>
+<td headers="p.value" class="gt_row gt_right">0.2351</td>
+<td headers="signif" class="gt_row gt_right"></td>
+<td headers="ci_lo" class="gt_row gt_right">-0.21485973</td>
+<td headers="ci_hi" class="gt_row gt_right">0.8750444</td>
+<td headers="ic95" class="gt_row gt_left">[-0.215, 0.875]</td></tr>
+    <tr><td headers="modelo" class="gt_row gt_left">DR-DiD Δ ATT (indi − no indi) ≈ τ₄</td>
+<td headers="variable_dependiente" class="gt_row gt_left">idx_vio_resguardo</td>
+<td headers="term" class="gt_row gt_left">DELTA_ATT</td>
+<td headers="estimate" class="gt_row gt_right">0.320</td>
+<td headers="std.error" class="gt_row gt_right">0.211</td>
+<td headers="p.value" class="gt_row gt_right">0.1288</td>
+<td headers="signif" class="gt_row gt_right"></td>
+<td headers="ci_lo" class="gt_row gt_right">-0.09292469</td>
+<td headers="ci_hi" class="gt_row gt_right">0.7325031</td>
+<td headers="ic95" class="gt_row gt_left">[-0.093, 0.733]</td></tr>
     <tr><td headers="modelo" class="gt_row gt_left">Placebo real (ola1→2)</td>
 <td headers="variable_dependiente" class="gt_row gt_left">idx_vio_control</td>
 <td headers="term" class="gt_row gt_left">T_placebo:indigeneousindi:cerca_conflictocerca</td>
@@ -798,26 +858,6 @@
 <td headers="ci_lo" class="gt_row gt_right">0.12198360</td>
 <td headers="ci_hi" class="gt_row gt_right">0.8669255</td>
 <td headers="ic95" class="gt_row gt_left">[0.122, 0.867]</td></tr>
-    <tr><td headers="modelo" class="gt_row gt_left">Sensib. vigilantismo (d3_2)</td>
-<td headers="variable_dependiente" class="gt_row gt_left">vio_priv_agric</td>
-<td headers="term" class="gt_row gt_left">periododecreto:indigeneousindi:cerca_conflictocerca</td>
-<td headers="estimate" class="gt_row gt_right">0.354</td>
-<td headers="std.error" class="gt_row gt_right">0.186</td>
-<td headers="p.value" class="gt_row gt_right">0.0573</td>
-<td headers="signif" class="gt_row gt_right">+</td>
-<td headers="ci_lo" class="gt_row gt_right">-0.01080431</td>
-<td headers="ci_hi" class="gt_row gt_right">0.7192548</td>
-<td headers="ic95" class="gt_row gt_left">[-0.011, 0.719]</td></tr>
-    <tr><td headers="modelo" class="gt_row gt_left">Sensib. ocupación (d4_2)</td>
-<td headers="variable_dependiente" class="gt_row gt_left">vio_ocup_tierras</td>
-<td headers="term" class="gt_row gt_left">periododecreto:indigeneousindi:cerca_conflictocerca</td>
-<td headers="estimate" class="gt_row gt_right">0.690</td>
-<td headers="std.error" class="gt_row gt_right">0.216</td>
-<td headers="p.value" class="gt_row gt_right">0.0014</td>
-<td headers="signif" class="gt_row gt_right">**</td>
-<td headers="ci_lo" class="gt_row gt_right">0.26683254</td>
-<td headers="ci_hi" class="gt_row gt_right">1.1131453</td>
-<td headers="ic95" class="gt_row gt_left">[0.267, 1.113]</td></tr>
   </tbody>
   
   

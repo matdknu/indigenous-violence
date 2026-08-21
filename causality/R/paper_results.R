@@ -18,7 +18,7 @@ fmt_p_inline <- function(p) {
     p,
     function(val) {
       if (is.na(val)) return("—")
-      if (val < 0.001) return("< .001")
+      if (val < 0.001) return("< ,001")
       txt <- format(round(val, 3), nsmall = 3, trim = TRUE)
       txt <- sub("^0", "", txt)
       gsub(".", ",", txt, fixed = TRUE)
@@ -29,7 +29,7 @@ fmt_p_inline <- function(p) {
 }
 
 fmt_beta_p <- function(estimate, p.value, digits = 3) {
-  paste0("β = ", fmt_es(estimate, digits), ", *p* = ", fmt_p_inline(p.value))
+  paste0("β = ", fmt_es(estimate, digits), ", p ", fmt_p_inline(p.value))
 }
 
 fmt_beta_stars <- function(estimate, p.value, digits = 3) {
@@ -44,9 +44,12 @@ fmt_beta_stars <- function(estimate, p.value, digits = 3) {
   paste0(fmt_es(estimate, digits), if (nzchar(stars)) paste0(" ", stars) else "")
 }
 
-coef_row <- function(df, modelo, vd = "idx_vio_control") {
+coef_row <- function(df, modelo, vd = "idx_vio_control", term = NULL) {
   row <- df |>
     dplyr::filter(.data$modelo == .env$modelo, .data$variable_dependiente == .env$vd)
+  if (!is.null(term) && "term" %in% names(row)) {
+    row <- row |> dplyr::filter(.data$term == .env$term)
+  }
   if (nrow(row) == 0) {
     return(list(
       estimate = NA_real_, std.error = NA_real_, p.value = NA_real_,
@@ -70,23 +73,59 @@ tidy_term <- function(model, term) {
       estimate = NA_real_, std.error = NA_real_, p.value = NA_real_
     ))
   }
-  broom.mixed::tidy(model, effects = "fixed") |>
-    dplyr::filter(.data$term == .env$term)
+  td <- tryCatch(
+    broom.mixed::tidy(model, effects = "fixed"),
+    error = function(e) broom::tidy(model)
+  )
+  td |> dplyr::filter(.data$term == .env$term)
 }
 
-build_tbl_robustez_paper <- function(resumen_robustez) {
+tidy_term_sum <- function(model, terms) {
+  empty <- list(estimate = NA_real_, std.error = NA_real_, p.value = NA_real_)
+  if (is.null(model) || !length(terms)) return(empty)
+  td <- tidy_term(model, terms[1])
+  if (nrow(td) == 0) return(empty)
+  est <- td$estimate[1]
+  se  <- td$std.error[1]
+  for (t in terms[-1]) {
+    r <- tidy_term(model, t)
+    if (nrow(r) == 0) return(empty)
+    est <- est + r$estimate[1]
+    se  <- sqrt(se^2 + r$std.error[1]^2)
+  }
+  z <- if (is.finite(se) && se > 0) est / se else NA_real_
+  p <- if (is.finite(z)) 2 * stats::pnorm(-abs(z)) else NA_real_
+  list(estimate = est, std.error = se, p.value = p)
+}
+
+drdid_key <- function(trans_slug, vd) {
+  paste0(trans_slug, "__", vd)
+}
+
+build_tbl_robustez_paper <- function(
+    resumen_robustez,
+    term_did = "periododecreto:indigeneousindi:cerca_conflictocerca"
+) {
+  term_for <- function(modelo) {
+    if (grepl("Δ ATT", modelo, fixed = TRUE)) return("DELTA_ATT")
+    if (grepl("solo indi", modelo, fixed = TRUE)) return("ATT_DRDID")
+    term_did
+  }
   map <- c(
-    "C — DiD decreto"        = "Modelo principal M2",
-    "FE folio + cluster comuna" = "FE folio + cluster comuna",
-    "DRDID (indi, zona)"     = "DRDID (indi × zona)",
-    "IPW original"           = "IPW original (feols+cluster)",
-    "IPW trim 5–95%"         = "IPW trim 5–95 %",
-    "PSM"                    = "PSM (caliper 0.2)",
-    "Placebo real (ola1→2)"  = "Placebo ola 1–2"
+    "Principal FE magro"       = "Principal FE magro",
+    "C — DiD decreto"          = "Modelo C (RE + controles)",
+    "FE + controles (fixest)"  = "FE + controles (fixest)",
+    "DR-DiD Δ ATT (indi − no indi) ≈ τ₄" = "DR-DiD Δ ATT ≈ τ₄",
+    "DR-DiD ATT (solo indi — NO es τ₄)" = "DR-DiD ATT (solo indi)",
+    "IPW original"             = "IPW original (feols+cluster)",
+    "IPW trim 5–95%"           = "IPW trim 5–95 %",
+    "PSM"                      = "PSM (caliper 0.2)",
+    "Placebo real (ola1→2)"    = "Placebo ola 1–2"
   )
   purrr::imap_dfr(map, function(label, modelo) {
-    ctrl <- coef_row(resumen_robustez, modelo, "idx_vio_control")
-    resg <- coef_row(resumen_robustez, modelo, "idx_vio_resguardo")
+    trm <- term_for(modelo)
+    ctrl <- coef_row(resumen_robustez, modelo, "idx_vio_control", trm)
+    resg <- coef_row(resumen_robustez, modelo, "idx_vio_resguardo", trm)
     tibble::tibble(
       Especificación = label,
       `Control social` = ctrl$beta_stars,
@@ -109,10 +148,18 @@ build_paper_results <- function(
     stop("robustez$resumen_robustez no encontrado. Ejecute R/04_robustez.R.")
   }
 
-  main_ctrl <- coef_row(resumen, "C — DiD decreto", "idx_vio_control")
-  main_resg <- coef_row(resumen, "C — DiD decreto", "idx_vio_resguardo")
-  est_ctrl  <- coef_row(resumen, "C — DiD estallido", "idx_vio_control")
-  est_resg  <- coef_row(resumen, "C — DiD estallido", "idx_vio_resguardo")
+  main_ctrl <- coef_row(resumen, "Principal FE magro", "idx_vio_control", term_did_decreto)
+  main_resg <- coef_row(resumen, "Principal FE magro", "idx_vio_resguardo", term_did_decreto)
+  tau4_C_ctrl <- coef_row(resumen, "C — DiD decreto", "idx_vio_control", term_did_decreto)
+  tau4_C_resg <- coef_row(resumen, "C — DiD decreto", "idx_vio_resguardo", term_did_decreto)
+  drdid_delta_ctrl <- coef_row(
+    resumen, "DR-DiD Δ ATT (indi − no indi) ≈ τ₄", "idx_vio_control", "DELTA_ATT"
+  )
+  drdid_delta_resg <- coef_row(
+    resumen, "DR-DiD Δ ATT (indi − no indi) ≈ τ₄", "idx_vio_resguardo", "DELTA_ATT"
+  )
+  est_ctrl  <- coef_row(resumen, "Principal FE magro", "idx_vio_control", term_did_estallido)
+  est_resg  <- coef_row(resumen, "Principal FE magro", "idx_vio_resguardo", term_did_estallido)
   psm_ctrl  <- coef_row(resumen, "PSM", "idx_vio_control")
   psm_resg  <- coef_row(resumen, "PSM", "idx_vio_resguardo")
   ipw_o_ctrl <- coef_row(resumen, "IPW original", "idx_vio_control")
@@ -126,9 +173,19 @@ build_paper_results <- function(
 
   mC_ctrl <- modelos$mC_ctrl %||% modelos$m2_ctrl
   mC_resg <- modelos$mC_resg %||% modelos$m2_resg
+  mFE_ctrl <- modelos$mFE_ctrl
+  mFE_resg <- modelos$mFE_resg
 
-  tau3_ctrl <- tidy_term(mC_ctrl, term_did_estallido)
-  tau3_resg <- tidy_term(mC_resg, term_did_estallido)
+  tau3_ctrl <- if (!is.null(mFE_ctrl)) {
+    tidy_term(mFE_ctrl, term_did_estallido)
+  } else {
+    tidy_term(mC_ctrl, term_did_estallido)
+  }
+  tau3_resg <- if (!is.null(mFE_resg)) {
+    tidy_term(mFE_resg, term_did_estallido)
+  } else {
+    tidy_term(mC_resg, term_did_estallido)
+  }
   tau3_sig <- any(c(tau3_ctrl$p.value, tau3_resg$p.value) < 0.05, na.rm = TRUE)
 
   # ── Mediación: extraer desde comparacion_atenuacion o modelos directos ──────
@@ -231,12 +288,40 @@ build_paper_results <- function(
   placebo_ns <- all(c(plcb_ctrl$p.value, plcb_resg$p.value) >= 0.05, na.rm = TRUE)
 
   # ── Efectos de período (Modelo C) y transición (Modelo B) ───────────────────
-  period_estallido_ctrl <- tidy_term(mC_ctrl, "periodoestallido")
-  period_estallido_resg <- tidy_term(mC_resg, "periodoestallido")
-  period_decreto_ctrl   <- tidy_term(mC_ctrl, "periododecreto")
-  period_decreto_resg   <- tidy_term(mC_resg, "periododecreto")
+  period_estallido_ctrl <- if (!is.null(mFE_ctrl)) {
+    tidy_term(mFE_ctrl, "periodoestallido")
+  } else {
+    tidy_term(mC_ctrl, "periodoestallido")
+  }
+  period_estallido_resg <- if (!is.null(mFE_resg)) {
+    tidy_term(mFE_resg, "periodoestallido")
+  } else {
+    tidy_term(mC_resg, "periodoestallido")
+  }
+  period_decreto_ctrl   <- if (!is.null(mFE_ctrl)) {
+    tidy_term(mFE_ctrl, "periododecreto")
+  } else {
+    tidy_term(mC_ctrl, "periododecreto")
+  }
+  period_decreto_resg   <- if (!is.null(mFE_resg)) {
+    tidy_term(mFE_resg, "periododecreto")
+  } else {
+    tidy_term(mC_resg, "periododecreto")
+  }
   zona_ola3_resg        <- tidy_term(mC_resg, "periodoestallido:cerca_conflictocerca")
-  baseline_zona_resg    <- tidy_term(mC_resg, "cerca_conflictocerca")
+  baseline_zona_noindi_resg <- tidy_term(mC_resg, "cerca_conflictocerca")
+  baseline_zona_indi_resg <- tidy_term_sum(
+    mC_resg,
+    c("cerca_conflictocerca", "indigeneousindi:cerca_conflictocerca")
+  )
+  fe_ctrl_controles <- coef_row(
+    resumen, "FE + controles (fixest)", "idx_vio_control", term_did_decreto
+  )
+  fe_resg_controles <- coef_row(
+    resumen, "FE + controles (fixest)", "idx_vio_resguardo", term_did_decreto
+  )
+  ols_ctrl <- coef_row(resumen, "OLS cluster comuna", "idx_vio_control", term_did_decreto)
+  ols_resg <- coef_row(resumen, "OLS cluster comuna", "idx_vio_resguardo", term_did_decreto)
 
   mB_ctrl <- modelos$mB_ctrl
   mB_resg <- modelos$mB_resg
@@ -363,6 +448,45 @@ build_paper_results <- function(
   }
 
   n_modelo_C <- if (!is.null(mC_ctrl)) nrow(mC_ctrl@frame) else NA_integer_
+  n_modelo_FE <- if (!is.null(mFE_ctrl)) {
+    tryCatch(stats::nobs(mFE_ctrl), error = function(e) NA_integer_)
+  } else {
+    NA_integer_
+  }
+
+  drdid <- NULL
+  drdid_path <- file.path(".", "data/drdid.rds")
+  if (file.exists(drdid_path)) {
+    drdid <- readRDS(drdid_path)
+  }
+  dr_get <- function(vd, trans_pat, field) {
+    if (is.null(drdid$resultados)) return(NA_real_)
+    nm <- names(drdid$resultados)
+    hit <- nm[grepl(trans_pat, nm, ignore.case = TRUE) & grepl(vd, nm, fixed = TRUE)]
+    if (!length(hit)) return(NA_real_)
+    drdid$resultados[[hit[1]]][[field]]
+  }
+  drdid_decreto_ctrl <- list(
+    att_indi   = dr_get("idx_vio_control", "decreto.*ola_2_4", "att_indi"),
+    att_noni   = dr_get("idx_vio_control", "decreto.*ola_2_4", "att_noni"),
+    diff_att   = dr_get("idx_vio_control", "decreto.*ola_2_4", "diff_att"),
+    p_diff     = dr_get("idx_vio_control", "decreto.*ola_2_4", "p_diff"),
+    ci_boot_lo = dr_get("idx_vio_control", "decreto.*ola_2_4", "ci_boot_lo"),
+    ci_boot_hi = dr_get("idx_vio_control", "decreto.*ola_2_4", "ci_boot_hi")
+  )
+  drdid_decreto_resg <- list(
+    att_indi   = dr_get("idx_vio_resguardo", "decreto.*ola_2_4", "att_indi"),
+    att_noni   = dr_get("idx_vio_resguardo", "decreto.*ola_2_4", "att_noni"),
+    diff_att   = dr_get("idx_vio_resguardo", "decreto.*ola_2_4", "diff_att"),
+    p_diff     = dr_get("idx_vio_resguardo", "decreto.*ola_2_4", "p_diff"),
+    ci_boot_lo = dr_get("idx_vio_resguardo", "decreto.*ola_2_4", "ci_boot_lo"),
+    ci_boot_hi = dr_get("idx_vio_resguardo", "decreto.*ola_2_4", "ci_boot_hi")
+  )
+  drdid_plcb_resg <- list(
+    att_indi = dr_get("idx_vio_resguardo", "placebo.*ola_1_2", "att_indi"),
+    diff_att = dr_get("idx_vio_resguardo", "placebo.*ola_1_2", "diff_att"),
+    p_diff   = dr_get("idx_vio_resguardo", "placebo.*ola_1_2", "p_diff")
+  )
 
   sens_mapuche_tbl <- if (!is.null(robustez$sens_mapuche_compare)) {
     robustez$sens_mapuche_compare |>
@@ -386,12 +510,20 @@ build_paper_results <- function(
 
   list(
     resumen_robustez = resumen,
-    tbl_robustez = build_tbl_robustez_paper(resumen),
+    tbl_robustez = build_tbl_robustez_paper(resumen, term_did_decreto),
     n_panel = n_panel,
     n_psm = n_psm,
     tau3_sig = tau3_sig,
     tau4_ctrl = main_ctrl,
     tau4_resg = main_resg,
+    tau4_C_ctrl = tau4_C_ctrl,
+    tau4_C_resg = tau4_C_resg,
+    drdid_delta_ctrl = drdid_delta_ctrl,
+    drdid_delta_resg = drdid_delta_resg,
+    fe_ctrl_controles = fe_ctrl_controles,
+    fe_resg_controles = fe_resg_controles,
+    ols_ctrl = ols_ctrl,
+    ols_resg = ols_resg,
     tau3_ctrl = as.list(tau3_ctrl),
     tau3_resg = as.list(tau3_resg),
     psm_ctrl = psm_ctrl,
@@ -421,7 +553,16 @@ build_paper_results <- function(
     period_decreto_ctrl = as.list(period_decreto_ctrl),
     period_decreto_resg = as.list(period_decreto_resg),
     zona_ola3_resg = as.list(zona_ola3_resg),
-    baseline_zona_resg = as.list(baseline_zona_resg),
+    baseline_zona_noindi_resg = as.list(baseline_zona_noindi_resg),
+    baseline_zona_indi_resg = as.list(baseline_zona_indi_resg),
+    r_id_a4_a5 = if (!is.null(subset_data) && all(c("a4", "a5") %in% names(subset_data))) {
+      stats::cor(subset_data$a4, subset_data$a5, use = "pairwise.complete.obs")
+    } else {
+      NA_real_
+    },
+    drdid_decreto_ctrl = drdid_decreto_ctrl,
+    drdid_decreto_resg = drdid_decreto_resg,
+    drdid_plcb_resg = drdid_plcb_resg,
     t2_resg = as.list(t2_resg),
     t2_ctrl = as.list(t2_ctrl),
     brecha_baseline_indi = brecha_baseline_indi,
@@ -466,6 +607,7 @@ build_paper_results <- function(
     med_resg_brecha_med = med_resg_brecha_med,
     sup_resg_pct = sup_resg_pct,
     n_modelo_C = n_modelo_C,
+    n_modelo_FE = n_modelo_FE,
     ipw_595_ctrl = ipw_595_ctrl,
     ipw_595_resg = ipw_595_resg,
     or_rechazo_zona = or_rechazo_zona,

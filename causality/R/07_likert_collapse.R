@@ -28,6 +28,8 @@ pacman::p_load(
 
 source("R/plot_helpers.R")
 
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
 if (!dir.exists("output/figuras")) dir.create("output/figuras", recursive = TRUE)
 if (!dir.exists("output/tablas")) dir.create("output/tablas", recursive = TRUE)
 
@@ -166,7 +168,68 @@ form_did <- function(y) {
 
 TERM_DID_DECRETO <- "periododecreto:indigeneousindi:cerca_conflictocerca"
 
-extract_did <- function(model, term = TERM_DID_DECRETO, spec, vd, family) {
+# ── CLMM con diagnóstico de convergencia ─────────────────────────────────────
+
+fit_clmm_safe <- function(formula, data, spec_name) {
+  ctrl <- clmm.control(maxIter = 200, gradTol = 1e-5)
+  fit <- tryCatch(
+    clmm(formula, data = data, control = ctrl),
+    error = function(e) {
+      cat("⚠ clmm falló (", spec_name, "):", conditionMessage(e), "\n")
+      NULL
+    }
+  )
+  if (is.null(fit)) {
+    return(list(
+      model = NULL,
+      conv = tibble(
+        ok = FALSE, cond_H = NA_real_, max_grad = NA_real_,
+        conv_note = "fit failed"
+      )
+    ))
+  }
+  cond_H <- tryCatch(as.numeric(fit$cond.H)[1], error = function(e) NA_real_)
+  grad_vec <- tryCatch(abs(fit$gradient), error = function(e) NA_real_)
+  max_grad <- if (all(is.finite(grad_vec))) max(grad_vec, na.rm = TRUE) else NA_real_
+  ok <- is.finite(cond_H) && is.finite(max_grad) &&
+    length(cond_H) == 1L && cond_H < 1e6 && max_grad < 1e-3
+  list(
+    model = fit,
+    conv = tibble(
+      ok = ok,
+      cond_H = cond_H,
+      max_grad = max_grad,
+      conv_note = if (isTRUE(ok)) "ok" else "⚠ no converge"
+    )
+  )
+}
+
+print_ordinal_cell_counts <- function(data, var, label) {
+  cat("\n--- Celda tratada (indi × zona × decreto):", label, "---\n")
+  data |>
+    dplyr::filter(
+      .data$indigeneous == "indi",
+      .data$cerca_conflicto == "cerca",
+      .data$periodo == "decreto"
+    ) |>
+    dplyr::count(.data[[var]], name = "n") |>
+    print()
+}
+
+extract_did <- function(model, term = TERM_DID_DECRETO, spec, vd, family,
+                        conv = NULL) {
+  conv_ok <- if (is.null(conv)) NA else conv$ok[[1]] %||% NA
+  conv_note <- if (is.null(conv)) "" else conv$conv_note[[1]] %||% ""
+  if (is.null(model)) {
+    return(tibble(
+      spec = spec, vd = vd, family = family,
+      estimate = NA_real_, std.error = NA_real_, p.value = NA_real_,
+      AIC = NA_real_, BIC = NA_real_, logLik = NA_real_,
+      cond_H = conv$cond_H %||% NA_real_,
+      max_grad = conv$max_grad %||% NA_real_,
+      Conv = conv_note
+    ))
+  }
   if (inherits(model, "clmm")) {
     td <- broom::tidy(model, conf.int = TRUE)
   } else {
@@ -177,7 +240,10 @@ extract_did <- function(model, term = TERM_DID_DECRETO, spec, vd, family) {
     return(tibble(
       spec = spec, vd = vd, family = family,
       estimate = NA_real_, std.error = NA_real_, p.value = NA_real_,
-      AIC = NA_real_, BIC = NA_real_, logLik = NA_real_
+      AIC = NA_real_, BIC = NA_real_, logLik = NA_real_,
+      cond_H = conv$cond_H %||% NA_real_,
+      max_grad = conv$max_grad %||% NA_real_,
+      Conv = conv_note
     ))
   }
   tibble(
@@ -189,7 +255,10 @@ extract_did <- function(model, term = TERM_DID_DECRETO, spec, vd, family) {
     p.value = row$p.value[1],
     AIC = tryCatch(AIC(model), error = function(e) NA_real_),
     BIC = tryCatch(BIC(model), error = function(e) NA_real_),
-    logLik = tryCatch(as.numeric(logLik(model)), error = function(e) NA_real_)
+    logLik = tryCatch(as.numeric(logLik(model)), error = function(e) NA_real_),
+    cond_H = conv$cond_H %||% NA_real_,
+    max_grad = conv$max_grad %||% NA_real_,
+    Conv = if (isTRUE(conv_ok)) "ok" else conv_note
   )
 }
 
@@ -197,7 +266,16 @@ cat("\n", strrep("=", 60), "\n")
 cat("MODELOS DiD — continuo (1–5) vs ordinal A vs ordinal B\n")
 cat(strrep("=", 60), "\n\n")
 
+cat("\n", strrep("=", 60), "\n")
+cat("CONTEO CELDA TRATADA (indi × zona × decreto) — 4 VD ordinales\n")
+cat(strrep("=", 60), "\n")
+print_ordinal_cell_counts(dat, "idx_vio_control_A",   "Control — esquema A")
+print_ordinal_cell_counts(dat, "idx_vio_resguardo_A", "Cambio — esquema A")
+print_ordinal_cell_counts(dat, "idx_vio_control_B",   "Control — esquema B")
+print_ordinal_cell_counts(dat, "idx_vio_resguardo_B", "Cambio — esquema B")
+
 fit_specs <- list()
+clmm_conv <- list()
 
 # Continuo
 fit_specs[["ctrl_cont"]] <- lmer(
@@ -208,20 +286,20 @@ fit_specs[["resg_cont"]] <- lmer(
 )
 
 # Ordinal A (índice redondeado post-ítem)
-fit_specs[["ctrl_ordA"]] <- clmm(
-  form_did("idx_vio_control_A"), data = dat
-)
-fit_specs[["resg_ordA"]] <- clmm(
-  form_did("idx_vio_resguardo_A"), data = dat
-)
+tmp <- fit_clmm_safe(form_did("idx_vio_control_A"), dat, "ctrl_ordA")
+fit_specs[["ctrl_ordA"]] <- tmp$model
+clmm_conv[["ctrl_ordA"]] <- tmp$conv
+tmp <- fit_clmm_safe(form_did("idx_vio_resguardo_A"), dat, "resg_ordA")
+fit_specs[["resg_ordA"]] <- tmp$model
+clmm_conv[["resg_ordA"]] <- tmp$conv
 
 # Ordinal B
-fit_specs[["ctrl_ordB"]] <- clmm(
-  form_did("idx_vio_control_B"), data = dat
-)
-fit_specs[["resg_ordB"]] <- clmm(
-  form_did("idx_vio_resguardo_B"), data = dat
-)
+tmp <- fit_clmm_safe(form_did("idx_vio_control_B"), dat, "ctrl_ordB")
+fit_specs[["ctrl_ordB"]] <- tmp$model
+clmm_conv[["ctrl_ordB"]] <- tmp$conv
+tmp <- fit_clmm_safe(form_did("idx_vio_resguardo_B"), dat, "resg_ordB")
+fit_specs[["resg_ordB"]] <- tmp$model
+clmm_conv[["resg_ordB"]] <- tmp$conv
 
 # Lineal en códigos 1–3 (aprox. robustez)
 dat <- dat |>
@@ -248,10 +326,14 @@ fit_specs[["resg_linB"]] <- lmer(
 resumen_modelos <- bind_rows(
   extract_did(fit_specs$ctrl_cont, spec = "Continuo 1–5", vd = "Control social", family = "Gaussian"),
   extract_did(fit_specs$resg_cont, spec = "Continuo 1–5", vd = "Cambio social", family = "Gaussian"),
-  extract_did(fit_specs$ctrl_ordA, spec = "Ordinal A (simétrico)", vd = "Control social", family = "CLMM"),
-  extract_did(fit_specs$resg_ordA, spec = "Ordinal A (simétrico)", vd = "Cambio social", family = "CLMM"),
-  extract_did(fit_specs$ctrl_ordB, spec = "Ordinal B (intensidad)", vd = "Control social", family = "CLMM"),
-  extract_did(fit_specs$resg_ordB, spec = "Ordinal B (intensidad)", vd = "Cambio social", family = "CLMM"),
+  extract_did(fit_specs$ctrl_ordA, spec = "Ordinal A (simétrico)", vd = "Control social", family = "CLMM",
+              conv = clmm_conv$ctrl_ordA),
+  extract_did(fit_specs$resg_ordA, spec = "Ordinal A (simétrico)", vd = "Cambio social", family = "CLMM",
+              conv = clmm_conv$resg_ordA),
+  extract_did(fit_specs$ctrl_ordB, spec = "Ordinal B (intensidad)", vd = "Control social", family = "CLMM",
+              conv = clmm_conv$ctrl_ordB),
+  extract_did(fit_specs$resg_ordB, spec = "Ordinal B (intensidad)", vd = "Cambio social", family = "CLMM",
+              conv = clmm_conv$resg_ordB),
   extract_did(fit_specs$ctrl_linA, spec = "Lineal cód. A", vd = "Control social", family = "Gaussian (1–3)"),
   extract_did(fit_specs$resg_linA, spec = "Lineal cód. A", vd = "Cambio social", family = "Gaussian (1–3)"),
   extract_did(fit_specs$ctrl_linB, spec = "Lineal cód. B", vd = "Control social", family = "Gaussian (1–3)"),
@@ -265,8 +347,15 @@ resumen_modelos <- bind_rows(
       p.value < 0.05  ~ "*",
       p.value < 0.1   ~ "+",
       TRUE ~ ""
-    )
+    ),
+    Conv = if_else(is.na(Conv) | Conv == "", "—", Conv)
   )
+
+cat("\n--- Diagnóstico convergencia CLMM ---\n")
+resumen_modelos |>
+  dplyr::filter(.data$family == "CLMM") |>
+  dplyr::select(spec, vd, cond_H, max_grad, Conv) |>
+  print()
 
 cat("Coeficiente DiD decreto (ola 4 × indígena × zona):\n")
 print(resumen_modelos |> select(spec, vd, estimate, std.error, p.value, AIC, BIC, sig))
@@ -318,7 +407,9 @@ resumen_modelos |>
     std.error = round(std.error, 3),
     p.value = if_else(is.na(p.value), NA, round(p.value, 4)),
     AIC = round(AIC, 1),
-    BIC = round(BIC, 1)
+    BIC = round(BIC, 1),
+    cond_H = round(cond_H, 1),
+    max_grad = round(max_grad, 4)
   ) |>
   gt() |>
   tab_header(
@@ -538,31 +629,40 @@ cat(strrep("=", 60), "\n\n")
 # Extraer coeficientes DiD del clmm (esquema A, simétrico)
 clmm_ctrl_row <- resumen_modelos |>
   dplyr::filter(spec == "Ordinal A (simétrico)", vd == "Control social") |>
-  dplyr::select(spec, vd, estimate, std.error, p.value)
+  dplyr::select(spec, vd, estimate, std.error, p.value, Conv)
 
 clmm_resg_row <- resumen_modelos |>
   dplyr::filter(spec == "Ordinal A (simétrico)", vd == "Cambio social") |>
-  dplyr::select(spec, vd, estimate, std.error, p.value)
+  dplyr::select(spec, vd, estimate, std.error, p.value, Conv)
 
 lmer_ctrl_row <- resumen_modelos |>
   dplyr::filter(spec == "Continuo 1–5", vd == "Control social") |>
-  dplyr::select(spec, vd, estimate, std.error, p.value)
+  dplyr::select(spec, vd, estimate, std.error, p.value, Conv)
 
 lmer_resg_row <- resumen_modelos |>
   dplyr::filter(spec == "Continuo 1–5", vd == "Cambio social") |>
-  dplyr::select(spec, vd, estimate, std.error, p.value)
+  dplyr::select(spec, vd, estimate, std.error, p.value, Conv)
+
+linA_ctrl_row <- resumen_modelos |>
+  dplyr::filter(spec == "Lineal cód. A", vd == "Control social") |>
+  dplyr::select(spec, vd, estimate, std.error, p.value, Conv)
+
+linA_resg_row <- resumen_modelos |>
+  dplyr::filter(spec == "Lineal cód. A", vd == "Cambio social") |>
+  dplyr::select(spec, vd, estimate, std.error, p.value, Conv)
 
 rob_ord_tabla <- dplyr::bind_rows(
-  lmer_ctrl_row, clmm_ctrl_row,
-  lmer_resg_row, clmm_resg_row
+  lmer_ctrl_row, linA_ctrl_row, clmm_ctrl_row,
+  lmer_resg_row, linA_resg_row, clmm_resg_row
 ) |>
   dplyr::mutate(
     Modelo = dplyr::case_when(
       stringr::str_detect(spec, "Continuo")       ~ "Lineal (lmer, 1–5)",
-      stringr::str_detect(spec, "Ordinal A")       ~ "Ordinal acum. (clmm, esquema A)",
+      stringr::str_detect(spec, "Lineal cód. A") ~ "Lineal cód. A (1–3, misma recod.)",
+      stringr::str_detect(spec, "Ordinal A")     ~ "Ordinal acum. (clmm, esquema A)",
       TRUE ~ spec
     ),
-    VD = vd,  # ya es "Control social" / "Cambio social"
+    VD = vd,
     β  = round(estimate, 3),
     SE = round(std.error, 3),
     p  = round(p.value, 4),
@@ -570,9 +670,10 @@ rob_ord_tabla <- dplyr::bind_rows(
       is.na(p.value) ~ "",
       p.value < .001 ~ "***", p.value < .01 ~ "**",
       p.value < .05  ~ "*",  p.value < .1  ~ "+", TRUE ~ ""
-    )
+    ),
+    Conv = if_else(is.na(Conv) | Conv == "", "—", Conv)
   ) |>
-  dplyr::select(VD, Modelo, β, SE, p, Sig)
+  dplyr::select(VD, Modelo, β, SE, p, Sig, Conv)
 
 cat("Coeficiente DiD decreto (Ola4 × indi × zona) — lineal vs clmm:\n\n")
 print(rob_ord_tabla)
@@ -582,7 +683,7 @@ cat("Convergencia en signo y significancia → resultados robustos a escala.\n\n
 rob_ord_tabla |>
   gt(groupname_col = "VD") |>
   tab_header(
-    title    = "Robustez ordinal — clmm vs lmer (Modelo C, tres períodos)",
+    title    = "Robustez ordinal — clmm vs lineal (Modelo C, tres períodos)",
     subtitle = paste0(
       "DiD triple: Ola4 × Indígena × Zona excepción (D.S. 418, 12 oct 2021). ",
       "Coeficiente lmer = puntos en escala 1–5; clmm = log-odds acumulado."
@@ -591,6 +692,7 @@ rob_ord_tabla |>
   tab_footnote(
     footnote = paste0(
       "Esquema A (simétrico): 1–2 Rechaza | 3 Neutral | 4–5 Justifica. ",
+      "Conv = ⚠ no converge indica ajuste no identificado; NO interpretar como efecto nulo. ",
       "+ p<.1 * p<.05 ** p<.01 *** p<.001"
     )
   ) |>

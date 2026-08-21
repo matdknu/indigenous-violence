@@ -1,0 +1,58 @@
+;; 1 tick = 1 mes. t=0: 2018. t=21: estallido. t=45: decreto. t=56: Rechazo.
+turtles-own [indi? zona? resis control jp dem]
+
+to setup
+  clear-all
+  ask patches [
+    ifelse pxcor > 0 [ set pcolor 58 ] [ set pcolor 8 ]
+  ]
+  create-turtles 200 [
+    setxy random-xcor random-ycor
+    set zona? pxcor > 0
+    set indi? random 2 = 0
+    ifelse indi? [
+      set resis 1.8 set control 2.1 set jp 2.6 set dem 0.3 set shape "circle"
+    ] [
+      set resis 1.5 set control 2.3 set jp 3.2 set dem -0.2 set shape "square"
+    ]
+    if indi? and zona? [ set resis resis - 0.25 ]
+    set color scale-color red resis 1 5
+  ]
+  reset-ticks
+end
+
+to go
+  ask patches [
+    if pxcor > 0 and ticks >= 45 [ set pcolor 43 ]
+  ]
+  ask turtles [
+    if ticks >= 21 and ticks < 45 [          ;; H1: apertura nacional
+      set resis resis + 0.013
+      set jp jp - 0.004
+      set dem dem + 0.015
+    ]
+    if ticks >= 45 and zona? [               ;; H2: decreto territorial
+      set resis resis + 0.038
+      set control control + 0.050
+      if indi? [                             ;; H3 + H4
+        set resis resis + 0.017
+        set jp jp + 0.025
+      ]
+    ]
+    if ticks >= 56 [ set dem dem - 0.022 ]   ;; H5: demandas caen con el Rechazo
+    influir
+    if resis > 5 [ set resis 5 ]
+    if control > 5 [ set control 5 ]
+    if jp > 5 [ set jp 5 ]
+    if jp < 1 [ set jp 1 ]
+    set color scale-color red resis 1 5
+  ]
+  tick
+end
+
+to influir
+  let amigos turtles-on neighbors
+  if any? amigos [
+    set resis resis + 0.08 * (mean [resis] of amigos - resis)
+  ]
+end

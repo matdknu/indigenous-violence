@@ -1,0 +1,107 @@
+;; -----------------------------------------------------------------------------
+;; Friedkin-Johnsen + contacto (Allport/Pettigrew) + identidad (Tajfel)
+;; 1 tick = 1 mes. t=21 estallido | t=45 decreto | t=56 Rechazo
+;; -----------------------------------------------------------------------------
+turtles-own [
+  indi? zona?
+  resis control          ;; d4_3 protesta / d3_1 Carabineros
+  jp-in jp-out           ;; d5 trato al propio / al otro
+  cal-cont               ;; calidad del contacto intergrupal (1–5)
+  id-chile id-causa      ;; a6 / d6_1
+  desig dem              ;; c22 desigualdad / demandas
+  resis0 control0        ;; anclas FJ (actitud inicial)
+]
+
+to setup
+  clear-all
+  ask patches [ ifelse pxcor > 0 [ set pcolor 58 ] [ set pcolor 8 ] ]
+  create-turtles 200 [
+    setxy random-xcor random-ycor
+    set zona? pxcor > 0
+    set indi? random 2 = 0
+    ifelse indi? [
+      set resis 1.8 set control 2.1 set jp-in 2.6 set jp-out 3.0
+      set id-chile 4.4 set id-causa 3.7 set desig 3.1 set dem 0.3
+      set cal-cont 2.8 set shape "circle"
+    ] [
+      set resis 1.5 set control 2.3 set jp-in 3.2 set jp-out 2.9
+      set id-chile 4.5 set id-causa 3.1 set desig 3.0 set dem -0.2
+      set cal-cont 3.1 set shape "square"
+    ]
+    if indi? and zona? [ set resis resis - 0.25 ]
+    set resis0 resis
+    set control0 control
+    set color scale-color red resis 1 5
+    set size 0.5 + cal-cont / 8
+  ]
+  reset-ticks
+end
+
+to go
+  ask patches [ if pxcor > 0 and ticks >= 45 [ set pcolor 43 ] ]
+  ask turtles [
+    actualizar-contacto
+    influir-fj
+    aplicar-shocks
+    acotar
+    set color scale-color red resis 1 5
+    set size 0.5 + cal-cont / 8
+  ]
+  tick
+end
+
+;; Calidad de contacto: sube con exogrupo cercano “no amenazante”;
+;; baja si el otro justifica mucha resistencia o si la zona se militariza
+;; (falla la condición de Allport: apoyo institucional al contacto).
+to actualizar-contacto
+  let exo turtles-on neighbors with [indi? != [indi?] of myself]
+  if any? exo [
+    let amenaza mean [resis] of exo
+    set cal-cont cal-cont + 0.03 * (2.5 - amenaza)
+  ]
+  if zona? and ticks >= 45 [ set cal-cont cal-cont - 0.02 ]
+end
+
+;; Friedkin-Johnsen: mezcla con vecinos (endogrupo siempre; exogrupo
+;; solo en proporción a cal-cont) y tira de vuelta al ancla inicial.
+to influir-fj
+  let vecinos turtles-on neighbors
+  if not any? vecinos [ stop ]
+  let endo vecinos with [indi? = [indi?] of myself]
+  let exo  vecinos with [indi? != [indi?] of myself]
+  let w-exo cal-cont / 5
+  let mezcla resis
+  if any? endo and any? exo [
+    set mezcla (0.7 * mean [resis] of endo) + (0.3 * w-exo * mean [resis] of exo)
+  ]
+  if any? endo and not any? exo [ set mezcla mean [resis] of endo ]
+  set resis   resis   + 0.10 * (mezcla - resis) + 0.04 * (resis0 - resis)
+  set control control + 0.04 * (control0 - control)
+end
+
+to aplicar-shocks
+  if ticks >= 21 and ticks < 45 [            ;; H1 ciclo nacional
+    set resis resis + 0.013
+    set jp-in jp-in - 0.004
+    set dem dem + 0.015
+  ]
+  if ticks >= 45 and zona? [                 ;; H2 zona
+    set resis resis + 0.038
+    set control control + 0.050
+    if indi? [                               ;; H3 + H4
+      set resis resis + 0.017
+      set jp-in jp-in + 0.025
+    ]
+  ]
+  if ticks >= 56 [ set dem dem - 0.022 ]     ;; H5 demandas (todos)
+end
+
+to acotar
+  if resis > 5 [ set resis 5 ]
+  if resis < 1 [ set resis 1 ]
+  if control > 5 [ set control 5 ]
+  if jp-in > 5 [ set jp-in 5 ]
+  if jp-in < 1 [ set jp-in 1 ]
+  if cal-cont > 5 [ set cal-cont 5 ]
+  if cal-cont < 1 [ set cal-cont 1 ]
+end

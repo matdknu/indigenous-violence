@@ -11,7 +11,7 @@
 # =============================================================================
 
 if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
-pacman::p_load(dplyr, broom.mixed, tibble, purrr)
+pacman::p_load(dplyr, broom, broom.mixed, tibble, purrr)
 
 source("R/paper_results.R")
 `%||%` <- function(x, y) if (is.null(x)) y else x
@@ -48,6 +48,22 @@ extraer_coef <- function(model, term) {
   c(r$estimate[1], r$std.error[1], r$p.value[1])
 }
 
+extraer_coef_fe <- function(model, term) {
+  if (is.null(model)) return(c(NA, NA, NA))
+  r <- broom::tidy(model) |> dplyr::filter(.data$term == .env$term)
+  if (nrow(r) == 0) return(c(NA, NA, NA))
+  c(r$estimate[1], r$std.error[1], r$p.value[1])
+}
+
+sig_label <- function(p) {
+  if (is.na(p)) return("ns")
+  if (p < 0.001) return("***")
+  if (p < 0.01)  return("**")
+  if (p < 0.05)  return("*")
+  if (p < 0.1)   return("+")
+  "ns"
+}
+
 verificar_paper_consistencia <- function(root_dir = ".") {
   cat("=== Verificación de consistencia paper ↔ pipeline ===\n\n")
 
@@ -68,12 +84,23 @@ verificar_paper_consistencia <- function(root_dir = ".") {
 
   mC_ctrl <- modelos$mC_ctrl
   mC_resg <- modelos$mC_resg
+  mFE_ctrl <- modelos$mFE_ctrl
+  mFE_resg <- modelos$mFE_resg
 
+  tau4_fe_c <- extraer_coef_fe(mFE_ctrl, term_tau4)
+  tau4_fe_r <- extraer_coef_fe(mFE_resg, term_tau4)
   tau4_c <- extraer_coef(mC_ctrl, term_tau4)
   tau4_r <- extraer_coef(mC_resg, term_tau4)
-  tau3_c <- extraer_coef(mC_ctrl, term_tau3)
-  tau3_r <- extraer_coef(mC_resg, term_tau3)
-  ola3_r <- extraer_coef(mC_resg, "periodoestallido")
+  tau3_c <- extraer_coef_fe(mFE_ctrl, term_tau3)
+  tau3_r <- extraer_coef_fe(mFE_resg, term_tau3)
+  if (any(is.na(tau3_c))) tau3_c <- extraer_coef(mC_ctrl, term_tau3)
+  if (any(is.na(tau3_r))) tau3_r <- extraer_coef(mC_resg, term_tau3)
+  ola3_r <- if (!is.null(mFE_resg)) {
+    extraer_coef_fe(mFE_resg, "periodoestallido")
+  } else {
+    extraer_coef(mC_resg, "periodoestallido")
+  }
+  if (any(is.na(ola3_r))) ola3_r <- extraer_coef(mC_resg, "periodoestallido")
   ola4_c <- extraer_coef(mC_ctrl, "periododecreto")
   ola4_r <- extraer_coef(mC_resg, "periododecreto")
 
@@ -103,8 +130,10 @@ verificar_paper_consistencia <- function(root_dir = ".") {
 
   # ── Chequeos numéricos ──────────────────────────────────────────────────────
   checks <- dplyr::bind_rows(
-    check_num(tau4_c[1], paper$tau4_ctrl$estimate, "τ₄ control (Modelo C)"),
-    check_num(tau4_r[1], paper$tau4_resg$estimate, "τ₄ cambio (Modelo C)"),
+    check_num(tau4_fe_c[1], paper$tau4_ctrl$estimate, "τ₄ control (FE magro principal)"),
+    check_num(tau4_fe_r[1], paper$tau4_resg$estimate, "τ₄ cambio (FE magro principal)"),
+    check_num(tau4_c[1], paper$tau4_C_ctrl$estimate, "τ₄ control (Modelo C sensibilidad)"),
+    check_num(tau4_r[1], paper$tau4_C_resg$estimate, "τ₄ cambio (Modelo C sensibilidad)"),
     check_num(tau3_c[1], paper$tau3_ctrl$estimate, "τ₃ control (estallido DiD)"),
     check_num(tau3_r[1], paper$tau3_resg$estimate, "τ₃ cambio (estallido DiD)"),
     check_num(ola3_r[1], paper$b_ola3_resg, "Efecto período ola 3 — cambio"),
@@ -122,7 +151,11 @@ verificar_paper_consistencia <- function(root_dir = ".") {
       desc4 |> dplyr::filter(.data$indigeneous == "indi", .data$cerca_conflicto == "lejos") |> dplyr::pull(.data$cambio),
       "Baseline indi fuera — cambio social"
     ),
-    check_num(nrow(mC_ctrl@frame), paper$n_modelo_C, "N Modelo C", tol = 0)
+    check_num(nrow(mC_ctrl@frame), paper$n_modelo_C, "N Modelo C", tol = 0),
+    check_num(
+      if (!is.null(mFE_ctrl)) stats::nobs(mFE_ctrl) else NA_real_,
+      paper$n_modelo_FE, "N FE magro", tol = 0
+    )
   )
 
   n_folios <- dplyr::n_distinct(subset_data$folio)
@@ -164,21 +197,57 @@ verificar_paper_consistencia <- function(root_dir = ".") {
     ))
   }
   notes <- character()
-  if (tau4_c[3] >= 0.05) {
+  if (tau4_fe_c[3] >= 0.05) {
     notes <- c(notes, paste0(
-      "τ₄ control n.s. (p = ", fmt_p(tau4_c[3]),
+      "τ₄ control FE n.s. (p = ", fmt_p(tau4_fe_c[3]),
       "): narrativa debe enfatizar regularización (Paso 1), no efecto directo."
     ))
   }
-  if (tau4_r[3] < 0.05) {
+  if (tau4_fe_r[3] < 0.05) {
     notes <- c(notes, paste0(
-      "τ₄ cambio significativo (p = ", fmt_p(tau4_r[3]), "): hallazgo central confirmado."
+      "τ₄ cambio FE significativo (p = ", fmt_p(tau4_fe_r[3]), "): hallazgo central confirmado."
     ))
   }
-  has_fe <- any(grepl("^FE folio", robustez$resumen_robustez$modelo %||% character()))
-  has_dr <- any(grepl("^DRDID", robustez$resumen_robustez$modelo %||% character()))
-  if (!has_fe) notes <- c(notes, "FE folio+cluster no aparece en resumen_robustez.")
-  if (!has_dr) notes <- c(notes, "DRDID no aparece en resumen_robustez (paquete ausente?).")
+  if (sig_label(tau4_r[3]) != sig_label(tau4_fe_r[3])) {
+    issues <- c(issues, paste0(
+      "⚠ Cambio de significancia τ₄ cambio: Modelo C (", sig_label(tau4_r[3]),
+      ", β=", fmt_num(tau4_r[1]), ") vs FE magro (", sig_label(tau4_fe_r[3]),
+      ", β=", fmt_num(tau4_fe_r[1]), "). Reportar ambos explícitamente."
+    ))
+  }
+  has_fe <- any(grepl("Principal FE magro", robustez$resumen_robustez$modelo %||% character()))
+  has_dr <- any(grepl("DR-DiD ATT \\(solo indi", robustez$resumen_robustez$modelo %||% character()))
+  has_dr_delta <- any(grepl("DR-DiD Δ ATT", robustez$resumen_robustez$modelo %||% character()))
+  if (!has_fe) notes <- c(notes, "Principal FE magro no aparece en resumen_robustez.")
+  if (!has_dr) notes <- c(notes, "DR-DiD ATT (solo indi) no aparece en resumen_robustez (paquete ausente?).")
+  if (has_dr && !has_dr_delta) {
+    issues <- c(issues, "resumen_robustez tiene ATT DR-DiD pero falta fila Δ ATT (indi − no indi). Ejecute 03b antes que 04.")
+  }
+
+  # Filas con term != τ₄ cuya etiqueta no es autoexplicativa
+  tau4_term <- "periododecreto:indigeneousindi:cerca_conflictocerca"
+  rob_all <- robustez$resumen_robustez
+  if (!is.null(rob_all) && "term" %in% names(rob_all)) {
+    safe_terms <- c("ATT_DRDID", "DELTA_ATT", "T_placebo", "T1_estallido", "T2_decreto")
+    ambiguas <- rob_all |>
+      dplyr::filter(
+        !is.na(.data$term),
+        !.data$term %in% c(tau4_term, safe_terms),
+        !grepl("NO es τ₄", .data$modelo),
+        !grepl("Δ ATT", .data$modelo),
+        !grepl("Placebo", .data$modelo),
+        !grepl("Principal FE magro", .data$modelo),
+        !grepl("C — DiD", .data$modelo),
+        !grepl("A — Estallido|B — Decreto", .data$modelo),
+        !grepl("Núcleo histórico|Ítem:|Sensib\\.", .data$modelo)
+      )
+    if (nrow(ambiguas) > 0) {
+      issues <- c(issues, paste0(
+        "Etiquetas resumen_robustez ambiguas (term ≠ τ₄): ",
+        paste(unique(ambiguas$modelo), collapse = "; ")
+      ))
+    }
+  }
   if (!is.null(mecanismo$vd_escala) && mecanismo$vd_escala == "continua_1_5") {
     notes <- c(notes, "Mecanismo usa VD continua 1–5 (alineado con Modelo C).")
   }
@@ -187,13 +256,13 @@ verificar_paper_consistencia <- function(root_dir = ".") {
   }
 
   rob <- robustez$resumen_robustez |>
-    dplyr::filter(.data$modelo == "C — DiD decreto")
+    dplyr::filter(.data$modelo == "Principal FE magro", .data$term == term_tau4)
   rob_ok <- all(
-    abs(rob$estimate[rob$variable_dependiente == "idx_vio_control"] - tau4_c[1]) < TOL,
-    abs(rob$estimate[rob$variable_dependiente == "idx_vio_resguardo"] - tau4_r[1]) < TOL
+    abs(rob$estimate[rob$variable_dependiente == "idx_vio_control"] - tau4_fe_c[1]) < TOL,
+    abs(rob$estimate[rob$variable_dependiente == "idx_vio_resguardo"] - tau4_fe_r[1]) < TOL
   )
   if (!rob_ok) {
-    issues <- c(issues, "tabla_resumen_robustez.csv no coincide con modelos$mC_*.")
+    issues <- c(issues, "tabla_resumen_robustez.csv no coincide con modelos$mFE_*.")
   }
   if (any(!checks$ok, na.rm = TRUE)) {
     issues <- c(issues, paste0(
@@ -219,7 +288,7 @@ verificar_paper_consistencia <- function(root_dir = ".") {
     "| Elemento | Valor |",
     "|----------|-------|",
     "| idx_vio_control | d3_1 (ítem único) |",
-    "| idx_vio_resguardo | promedio d4_2 + d4_3 |",
+    "| idx_vio_resguardo | d4_3 (ítem único) |",
     "| indigeneous | a1 ∈ 1–11 vs 12 |",
     "| perc_injusticia | excluida de modelos principales |",
     "",
@@ -232,35 +301,22 @@ verificar_paper_consistencia <- function(root_dir = ".") {
     paste0("| Indígenas baseline (ola 2) | ", paper$n_indi_ola2, " |"),
     paste0("| No indígenas baseline (ola 2) | ", paper$n_noindi_ola2, " |"),
     paste0("| N Modelo C (por VD) | ", paper$n_modelo_C, " |"),
+    paste0("| N FE magro (por VD) | ", paper$n_modelo_FE, " |"),
     paste0("| Duplicados folio×ola | ", n_dup, " |"),
     "",
-    "## 3. Modelo C — coeficientes principales",
+    "## 3. τ₄ decreto — especificaciones",
     "",
-    "| Término | VD | β | SE | p | En paper_results | ✓ |",
-    "|---------|----|---|----|---|------------------|---|",
+    "| Especificación | Control β (p) | Cambio β (p) |",
+    "|----------------|---------------|--------------|",
     sprintf(
-      "| DiD decreto (τ₄) | Control | %s | %s | %s | %s | %s |",
-      fmt_num(tau4_c[1]), fmt_num(tau4_c[2]), fmt_p(tau4_c[3]),
-      fmt_num(paper$tau4_ctrl$estimate),
-      if (checks$ok[checks$chequeo == "τ₄ control (Modelo C)"]) "✓" else "✗"
+      "| FE magro (principal) | %s (%s) | %s (%s) |",
+      fmt_num(tau4_fe_c[1]), fmt_p(tau4_fe_c[3]),
+      fmt_num(tau4_fe_r[1]), fmt_p(tau4_fe_r[3])
     ),
     sprintf(
-      "| DiD decreto (τ₄) | Cambio | %s | %s | %s | %s | %s |",
-      fmt_num(tau4_r[1]), fmt_num(tau4_r[2]), fmt_p(tau4_r[3]),
-      fmt_num(paper$tau4_resg$estimate),
-      if (checks$ok[checks$chequeo == "τ₄ cambio (Modelo C)"]) "✓" else "✗"
-    ),
-    sprintf(
-      "| DiD estallido (τ₃) | Cambio | %s | %s | %s | — | — |",
-      fmt_num(tau3_r[1]), fmt_num(tau3_r[2]), fmt_p(tau3_r[3])
-    ),
-    sprintf(
-      "| periodoestallido | Cambio | %s | %s | %s | %s | ✓ |",
-      fmt_num(ola3_r[1]), fmt_num(ola3_r[2]), fmt_p(ola3_r[3]), fmt_num(paper$b_ola3_resg)
-    ),
-    sprintf(
-      "| periododecreto | Control | %s | %s | %s | %s | ✓ |",
-      fmt_num(ola4_c[1]), fmt_num(ola4_c[2]), fmt_p(ola4_c[3]), fmt_num(paper$b_decreto_ctrl)
+      "| Modelo C (RE + controles) | %s (%s) | %s (%s) |",
+      fmt_num(tau4_c[1]), fmt_p(tau4_c[3]),
+      fmt_num(tau4_r[1]), fmt_p(tau4_r[3])
     ),
     "",
     "## 4. Mediación",
@@ -304,10 +360,14 @@ verificar_paper_consistencia <- function(root_dir = ".") {
   )
 
   rob_tbl <- robustez$resumen_robustez |>
-    dplyr::filter(.data$modelo %in% c(
-      "C — DiD decreto", "B — Decreto (3→4)", "PSM",
-      "IPW original", "IPW trim 5–95%", "Placebo real (ola1→2)"
-    )) |>
+    dplyr::filter(
+      .data$term == term_tau4,
+      .data$modelo %in% c(
+        "Principal FE magro", "C — DiD decreto", "FE + controles (fixest)",
+        "OLS cluster comuna", "DR-DiD Δ ATT (indi − no indi) ≈ τ₄",
+        "PSM", "IPW original", "IPW trim 5–95%", "Placebo real (ola1→2)"
+      )
+    ) |>
     dplyr::select(.data$modelo, .data$variable_dependiente, .data$estimate, .data$signif)
 
   for (mod in unique(rob_tbl$modelo)) {
@@ -351,9 +411,91 @@ verificar_paper_consistencia <- function(root_dir = ".") {
     md <- c(md, paste0("- ", notes))
   }
 
+  # Tabla antes/después (valores pre-fix documentados en auditoría)
+  likert_path <- file.path(root_dir, "data/likert_collapse.rds")
+  clmm_cambio <- tibble::tibble(
+    spec = character(), beta = numeric(), p = numeric(), conv = character()
+  )
+  if (file.exists(likert_path)) {
+    lk <- readRDS(likert_path)$resumen_modelos
+    clmm_cambio <- lk |>
+      dplyr::filter(.data$vd == "Cambio social", .data$spec %in% c(
+        "Ordinal A (simétrico)", "Lineal cód. A"
+      )) |>
+      dplyr::transmute(spec = .data$spec, beta = .data$estimate, p = .data$p.value, conv = .data$Conv)
+  }
+  dr <- NULL
+  if (file.exists(file.path(root_dir, "data/drdid.rds"))) {
+    dr <- readRDS(file.path(root_dir, "data/drdid.rds"))
+  }
+  dr_row <- function(vd) {
+    if (is.null(dr$resultados)) return(list(NA, NA, NA, NA))
+    nm <- names(dr$resultados)[grepl("decreto.*ola_2_4", names(dr$resultados)) &
+                                  grepl(vd, names(dr$resultados), fixed = TRUE)]
+    if (!length(nm)) return(list(NA, NA, NA, NA))
+    x <- dr$resultados[[nm[1]]]
+    list(x$att_indi, x$att_noni, x$diff_att, x$p_diff)
+  }
+  drc <- dr_row("idx_vio_control")
+  drr <- dr_row("idx_vio_resguardo")
+  fe_cont <- robustez$resumen_robustez |>
+    dplyr::filter(.data$modelo == "FE + controles (fixest)", .data$term == term_tau4)
+
   md <- c(
     md, "",
-    "## 10. Cómo reproducir",
+    "## 10. Tabla antes/después del fix de tablas",
+    "",
+    "### τ₄ (decreto × indígena × zona)",
+    "",
+    "| Especificación | Control (antes → después) | Cambio (antes → después) |",
+    "|----------------|---------------------------|--------------------------|",
+    sprintf(
+      "| FE magro (principal) | 0,313+ → %s (%s) | 0,413** → %s (%s) |",
+      fmt_num(tau4_fe_c[1]), sig_label(tau4_fe_c[3]),
+      fmt_num(tau4_fe_r[1]), sig_label(tau4_fe_r[3])
+    ),
+    sprintf(
+      "| Modelo C (antes citado como principal) | 0,298 ns → %s (%s) | 0,494** → %s (%s) |",
+      fmt_num(tau4_c[1]), sig_label(tau4_c[3]),
+      fmt_num(tau4_r[1]), sig_label(tau4_r[3])
+    ),
+    sprintf(
+      "| FE + controles (04 vs 03) | 0,375 → %s | 0,488 → %s |",
+      fmt_num(fe_cont$estimate[fe_cont$variable_dependiente == "idx_vio_control"][1]),
+      fmt_num(fe_cont$estimate[fe_cont$variable_dependiente == "idx_vio_resguardo"][1])
+    ),
+    "",
+    "### DR-DiD (decreto ola 2→4)",
+    "",
+    "| VD | ATT indi | ATT no indi | Δ ATT | p(Δ) |",
+    "|----|----------|-------------|-------|------|",
+    sprintf(
+      "| Control social | %s | %s | %s | %s |",
+      fmt_num(drc[[1]]), fmt_num(drc[[2]]), fmt_num(drc[[3]]), fmt_p(drc[[4]])
+    ),
+    sprintf(
+      "| Cambio social | %s | %s | %s | %s |",
+      fmt_num(drr[[1]]), fmt_num(drr[[2]]), fmt_num(drr[[3]]), fmt_p(drr[[4]])
+    ),
+    "",
+    "### CLMM ordinal A — cambio social",
+    ""
+  )
+  if (nrow(clmm_cambio)) {
+    for (i in seq_len(nrow(clmm_cambio))) {
+      md <- c(md, sprintf(
+        "- **%s:** β = %s, p = %s, Conv = %s",
+        clmm_cambio$spec[i], fmt_num(clmm_cambio$beta[i]),
+        fmt_p(clmm_cambio$p[i]), clmm_cambio$conv[i]
+      ))
+    }
+  } else {
+    md <- c(md, "_Ejecute R/07_likert_collapse.R para cargar convergencia CLMM._")
+  }
+
+  md <- c(
+    md, "",
+    "## 11. Cómo reproducir",
     "",
     "```bash",
     "cd causality/",
