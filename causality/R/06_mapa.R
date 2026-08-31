@@ -570,3 +570,4 @@ if (file.exists("data/subset_data.rds")) {
   cat("✓ Mapa UMP horizontal → output/figuras/fig_mapa_ump_puntos_horizontal.png\n")
 }
 
+p_zoom
